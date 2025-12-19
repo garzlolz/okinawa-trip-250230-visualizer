@@ -739,7 +739,7 @@
                             <thead>
                                 <tr className="text-gray-500 border-b border-gray-200 text-sm">
                                     <th className="py-2 font-medium">項目</th>
-                                    <th className="py-2 font-medium text-right">金額 (TWD)</th>
+                                    <th className="py-2 font-medium text-left">金額 (TWD)</th>
                                     <th className="py-2 font-medium pl-4">備註</th>
                                 </tr>
                             </thead>
@@ -747,7 +747,7 @@
                                 {budget.map((item, idx) => (
                                     <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
                                         <td className="py-3 text-gray-800">{item.item}</td>
-                                        <td className="py-3 text-right font-mono font-medium">{item.twd.toLocaleString()}</td>
+                                        <td className="py-3 text-left font-mono font-medium">{item.twd.toLocaleString()}</td>
                                         <td className="py-3 pl-4 text-gray-500 text-xs">{item.note}</td>
                                     </tr>
                                 ))}
@@ -755,7 +755,7 @@
                             <tfoot>
                                 <tr className="bg-gray-50 font-bold text-gray-800">
                                     <td className="py-3 pl-2">總計預估</td>
-                                    <td className="py-3 text-right font-mono text-lg text-green-600">{total.toLocaleString()}</td>
+                                    <td className="py-3 text-left font-mono text-lg text-green-600">{total.toLocaleString()}</td>
                                     <td></td>
                                 </tr>
                             </tfoot>
