@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,38 +19,53 @@
         ::-webkit-scrollbar {
             width: 8px;
         }
+
         ::-webkit-scrollbar-track {
             background: #f1f5f9;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 4px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+
         body {
             font-family: "Noto Sans TC", sans-serif;
             background-color: #f8fafc;
         }
+
         .animate-fade-in {
             animation: fadeIn 0.3s ease-out;
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* 隱藏橫向捲軸但保留功能 (for Tabs) */
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
+
         .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
     </style>
 </head>
+
 <body>
     <div id="root"></div>
 
@@ -117,14 +133,34 @@
                         { time: "12:00", endTime: "15:30", title: "沖繩世界 - 玉泉洞", type: "activity", location: "沖繩世界 文化王國・玉泉洞", cost: 0, note: "13:30 毒蛇秀，預計停留3小時" },
                         { time: "15:40", endTime: "16:30", title: "奧武島觀光", type: "activity", location: "奧武島", cost: 0, note: "停留約1小時，吃炸物" },
                         {
-                            time: "17:30",
-                            endTime: "",
+                            time: "17:00",
+                            endTime: "18:00",
+                            title: "Ricoland Okinawa",
+                            type: "activity",
+                            location: "Ricoland Okinawa",
+                            mapLocation: "Ricoland Okinawa",
+                            cost: 0,
+                            note: "機車用品店，停留1小時"
+                        },
+                        {
+                            time: "18:00",
+                            endTime: "19:00",
                             title: "飯店 Check-in",
                             type: "transport",
                             location: "HOTEL NAHA CITY",
                             mapLocation: "1 Chome-4-5 Matsuo, Naha, Okinawa 900-0014日本",
                             cost: 6881,
-                            note: "停車費用 ¥1000/日"
+                            note: "停車費用 ¥1000/日。備註：10F吸菸區"
+                        },
+                        {
+                            time: "18:40",
+                            endTime: "20:30",
+                            title: "晚餐：Buchi Kumojiten (烤肉)",
+                            type: "meal",
+                            location: "Yakiniku Buchi Kumoji (燒肉 Buchi 久茂地店)",
+                            mapLocation: "Yakiniku Buchi Kumoji",
+                            cost: 5000,
+                            note: "【已預訂】18:40。必點：生牛肉赤身、土鍋飯。(提醒：訂了兩家，需選一家)"
                         }
                     ]
                 },
@@ -235,7 +271,7 @@
                             cost: 5440,
                             note: "提早到選枕頭。超級飯店(名護)"
                         },
-                         {
+                        {
                             time: "19:00",
                             endTime: "21:00",
                             title: "晚餐：百年古家 大家 (阿古豬)",
@@ -338,7 +374,7 @@
                             cost: 5000,
                             note: "最後採買"
                         },
-                         {
+                        {
                             time: "16:30",
                             endTime: "17:00",
                             title: "購物：Workman",
@@ -421,17 +457,15 @@
             return (
                 <div className={`relative pl-8 group ${isNext ? 'z-10' : ''}`}>
                     {/* 時間軸圓點 */}
-                    <div className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-2 border-white shadow-sm transition-all duration-300 ${
-                        isNext
+                    <div className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-2 border-white shadow-sm transition-all duration-300 ${isNext
                             ? 'bg-purple-600 scale-125 ring-4 ring-purple-100'
                             : event.type === 'transport' ? 'bg-gray-400' :
-                              event.type === 'meal' ? 'bg-orange-400' :
-                              'bg-blue-500'
-                    }`}></div>
+                                event.type === 'meal' ? 'bg-orange-400' :
+                                    'bg-blue-500'
+                        }`}></div>
 
-                    <div className={`flex flex-col sm:flex-row sm:items-start justify-between p-3 rounded-xl transition-all duration-300 -mt-2 ${
-                        isNext ? 'bg-purple-50 shadow-md ring-2 ring-purple-200' : 'group-hover:bg-gray-50'
-                    }`}>
+                    <div className={`flex flex-col sm:flex-row sm:items-start justify-between p-3 rounded-xl transition-all duration-300 -mt-2 ${isNext ? 'bg-purple-50 shadow-md ring-2 ring-purple-200' : 'group-hover:bg-gray-50'
+                        }`}>
                         <div className="flex-1 w-full relative">
                             {/* 倒數計時器：顯示在最近行程的右側 (大螢幕) 或上方 (手機) */}
                             {isNext && (
@@ -466,11 +500,10 @@
                             <div className="ml-0 sm:ml-24 mt-2 sm:mt-0 flex flex-wrap gap-2">
                                 <button
                                     onClick={() => setIsMapVisible(!isMapVisible)}
-                                    className={`text-xs flex items-center px-3 py-1.5 rounded-full transition-colors font-medium border ${
-                                        isMapVisible
-                                        ? "bg-gray-200 text-gray-700 border-gray-300"
-                                        : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
-                                    }`}
+                                    className={`text-xs flex items-center px-3 py-1.5 rounded-full transition-colors font-medium border ${isMapVisible
+                                            ? "bg-gray-200 text-gray-700 border-gray-300"
+                                            : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                                        }`}
                                 >
                                     <span className="mr-1"><Icons.Map /></span>
                                     {isMapVisible ? "隱藏地圖" : "查看地圖"}
@@ -531,11 +564,10 @@
                         <button
                             key={tab.id}
                             onClick={() => onTabChange(tab.id)}
-                            className={`flex items-center justify-center flex-1 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
-                                activeTab === tab.id
+                            className={`flex items-center justify-center flex-1 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${activeTab === tab.id
                                     ? "bg-white text-blue-600 shadow-sm"
                                     : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                            }`}
+                                }`}
                         >
                             <span className="mr-2"><tab.icon /></span>
                             {tab.label}
@@ -554,7 +586,7 @@
             useEffect(() => {
                 const now = new Date(); // 實際使用時為當前時間
                 // 為了展示效果，這裡可以模擬一個時間，例如：
-                // const now = new Date("2025-12-31T12:00:00");
+                // const now = new Date("2025-12-31T12:00:00"); 
 
                 let closestEvent = null;
                 let minDiff = Infinity;
@@ -575,7 +607,7 @@
                 if (closestEvent) {
                     setNextEventId(closestEvent);
                     // 自動切換到該天 (僅在非手動切換時)
-                    // setActiveDay(closestEvent.day);
+                    // setActiveDay(closestEvent.day); 
                 }
             }, [data]);
 
@@ -589,11 +621,10 @@
                             <button
                                 key={day.day}
                                 onClick={() => setActiveDay(day.day)}
-                                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap shadow-sm border ${
-                                    activeDay === day.day
+                                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap shadow-sm border ${activeDay === day.day
                                         ? "bg-blue-600 text-white border-blue-600"
                                         : "bg-white text-gray-500 hover:bg-gray-50 border-gray-200"
-                                }`}
+                                    }`}
                             >
                                 Day {day.day}
                                 <span className={`ml-2 text-xs font-normal ${activeDay === day.day ? "text-blue-200" : "text-gray-400"}`}>
@@ -619,7 +650,7 @@
                                         return (
                                             <EventItem
                                                 key={idx}
-                                                event={{...event, dateStr: currentDay.dateStr}}
+                                                event={{ ...event, dateStr: currentDay.dateStr }}
                                                 isNext={isNext}
                                             />
                                         );
@@ -774,4 +805,5 @@
         root.render(<App />);
     </script>
 </body>
+
 </html>
