@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ㄏㄜˋ的沖繩五天四夜之旅 🌺</title>
+    <title>ㄏㄜˋ的沖繩五天四夜行程</title>
     <!-- 引入 React 與 ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -12,96 +11,45 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        okinawa: {
-                            sea: '#00A3AF', // 沖繩海藍
-                            sky: '#89c3eb',
-                            sand: '#fcfbf6',
-                            coral: '#f08080', // 珊瑚紅
-                            sun: '#ffa500',   // 太陽橙
-                            teal: '#20b2aa',
-                        }
-                    },
-                    animation: {
-                        'wave': 'wave 3s linear infinite',
-                        'float': 'float 3s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        wave: {
-                            '0%': { transform: 'translateX(0)' },
-                            '100%': { transform: 'translateX(-50%)' },
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-5px)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <!-- 引入 Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         /* 自定義捲軸樣式 */
         ::-webkit-scrollbar {
             width: 8px;
-            height: 8px;
         }
-
         ::-webkit-scrollbar-track {
-            background: #f0fdfa;
+            background: #f1f5f9; 
         }
-
         ::-webkit-scrollbar-thumb {
-            background: #99f6e4;
+            background: #cbd5e1; 
             border-radius: 4px;
         }
-
         ::-webkit-scrollbar-thumb:hover {
-            background: #5eead4;
+            background: #94a3b8; 
         }
-
         body {
-            font-family: "Noto Sans TC", "Hiragino Sans", sans-serif;
-            background-color: #f0fdfa;
-            /* 淺青色背景 */
-            background-image: radial-gradient(#ccfbf1 1px, transparent 1px);
-            background-size: 20px 20px;
+            font-family: "Noto Sans TC", sans-serif;
+            background-color: #f8fafc;
         }
-
         .animate-fade-in {
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.3s ease-out;
         }
-
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* 隱藏橫向捲軸但保留功能 (for Tabs) */
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
-
         .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
     </style>
 </head>
-
 <body>
     <div id="root"></div>
 
@@ -127,8 +75,6 @@
             FileText: () => <i data-lucide="file-text" className="w-5 h-5"></i>,
             Printer: () => <i data-lucide="printer" className="w-4 h-4"></i>,
             Timer: () => <i data-lucide="timer" className="w-4 h-4"></i>,
-            Sun: () => <i data-lucide="sun" className="w-6 h-6"></i>,
-            Waves: () => <i data-lucide="waves" className="w-5 h-5"></i>,
         };
 
         // 模擬數據
@@ -153,52 +99,52 @@
                 {
                     day: 1,
                     date: "12/30 (二)",
-                    dateStr: "2025-12-30",
+                    dateStr: "2025-12-30", // 用於倒數計時比對
                     events: [
                         { time: "06:35", endTime: "08:55", title: "抵達那霸機場", type: "transport", location: "那霸機場", cost: 0, note: "航班 IT230" },
-                        {
-                            time: "09:30",
-                            endTime: "10:00",
-                            title: "租車取車",
-                            type: "transport",
-                            location: "Brother Rent-A-Car (ブラザーレンタカー)",
-                            mapLocation: "沖縄県那覇市田原3-1-8",
-                            cost: 25470,
+                        { 
+                            time: "09:30", 
+                            endTime: "10:00", 
+                            title: "租車取車", 
+                            type: "transport", 
+                            location: "Brother Rent-A-Car (ブラザーレンタカー)", 
+                            mapLocation: "沖縄県那覇市田原3-1-8", 
+                            cost: 25470, 
                             note: "預計1小時，含保險。費用：$5,349 TWD",
-                            mapLink: "https://maps.app.goo.gl/zqpsHZkhGTZXQbEd7"
+                            mapLink: "https://maps.app.goo.gl/zqpsHZkhGTZXQbEd7" 
                         },
                         { time: "10:30", endTime: "11:30", title: "早午餐：客美多咖啡", type: "meal", location: "客美多咖啡 沖繩糸滿店", cost: 1000, note: "停留約1小時" },
                         { time: "12:00", endTime: "15:30", title: "沖繩世界 - 玉泉洞", type: "activity", location: "沖繩世界 文化王國・玉泉洞", cost: 0, note: "13:30 毒蛇秀，預計停留3小時" },
                         { time: "15:40", endTime: "16:30", title: "奧武島觀光", type: "activity", location: "奧武島", cost: 0, note: "停留約1小時，吃炸物" },
-                        {
-                            time: "17:00",
-                            endTime: "18:00",
-                            title: "Ricoland Okinawa",
-                            type: "activity",
-                            location: "Ricoland Okinawa",
+                        { 
+                            time: "17:00", 
+                            endTime: "18:00", 
+                            title: "Ricoland Okinawa", 
+                            type: "activity", 
+                            location: "Ricoland Okinawa", 
                             mapLocation: "Ricoland Okinawa",
-                            cost: 0,
-                            note: "機車用品店，停留1小時"
+                            cost: 0, 
+                            note: "機車用品店，停留1小時" 
                         },
-                        {
-                            time: "18:00",
-                            endTime: "19:00",
-                            title: "飯店 Check-in",
-                            type: "transport",
-                            location: "HOTEL NAHA CITY",
+                        { 
+                            time: "18:00", 
+                            endTime: "19:00", 
+                            title: "飯店 Check-in", 
+                            type: "transport", 
+                            location: "HOTEL NAHA CITY", 
                             mapLocation: "1 Chome-4-5 Matsuo, Naha, Okinawa 900-0014日本",
-                            cost: 6881,
-                            note: "停車費用 ¥1000/日。備註：10F吸菸區"
+                            cost: 6881, 
+                            note: "停車費用 ¥1000/日。備註：10F吸菸區" 
                         },
-                        {
-                            time: "18:40",
-                            endTime: "20:30",
-                            title: "晚餐：Buchi Kumojiten (烤肉)",
-                            type: "meal",
-                            location: "Yakiniku Buchi Kumoji (燒肉 Buchi 久茂地店)",
+                        { 
+                            time: "18:40", 
+                            endTime: "20:30", 
+                            title: "晚餐：Buchi Kumojiten (烤肉)", 
+                            type: "meal", 
+                            location: "Yakiniku Buchi Kumoji (燒肉 Buchi 久茂地店)", 
                             mapLocation: "Yakiniku Buchi Kumoji",
-                            cost: 5000,
-                            note: "【已預訂】18:40。必點：生牛肉赤身、土鍋飯。(提醒：訂了兩家，需選一家)"
+                            cost: 5000, 
+                            note: "【已預訂】18:40。必點：生牛肉赤身、土鍋飯。(提醒：訂了兩家，需選一家)" 
                         }
                     ]
                 },
@@ -207,70 +153,70 @@
                     date: "12/31 (三)",
                     dateStr: "2025-12-31",
                     events: [
-                        {
-                            time: "07:00",
-                            endTime: "07:30",
-                            title: "早餐：福助玉子燒 或 豬肉蛋飯糰",
-                            type: "meal",
-                            location: "牧志市場周邊",
-                            cost: 1000,
-                            note: "走路10分鐘。福助7:30開 / 飯糰7:00開"
+                        { 
+                            time: "07:00", 
+                            endTime: "07:30", 
+                            title: "早餐：福助玉子燒 或 豬肉蛋飯糰", 
+                            type: "meal", 
+                            location: "牧志市場周邊", 
+                            cost: 1000, 
+                            note: "走路10分鐘。福助7:30開 / 飯糰7:00開" 
                         },
-                        {
-                            time: "09:00",
-                            endTime: "13:00",
-                            title: "Parco City 逛街",
-                            type: "activity",
-                            location: "浦添西海岸 PARCO CITY",
-                            cost: 5000,
-                            note: "停車免費。開車約20分鐘"
+                        { 
+                            time: "09:00", 
+                            endTime: "13:00", 
+                            title: "Parco City 逛街", 
+                            type: "activity", 
+                            location: "浦添西海岸 PARCO CITY", 
+                            cost: 5000, 
+                            note: "停車免費。開車約20分鐘" 
                         },
-                        {
-                            time: "13:30",
-                            endTime: "14:30",
-                            title: "午餐：敘敘苑燒肉",
-                            type: "meal",
-                            location: "敘敘苑 沖繩浦添PARCO CITY店",
-                            cost: 3000,
-                            note: "【已預訂】預約 13:30"
+                        { 
+                            time: "13:30", 
+                            endTime: "14:30", 
+                            title: "午餐：敘敘苑燒肉", 
+                            type: "meal", 
+                            location: "敘敘苑 沖繩浦添PARCO CITY店", 
+                            cost: 3000, 
+                            note: "【已預訂】預約 13:30" 
                         },
-                        {
-                            time: "15:00",
-                            endTime: "16:00",
-                            title: "漫畫倉庫 / 港川外人住宅",
-                            type: "activity",
-                            location: "港川外人住宅街",
-                            cost: 300,
-                            note: "浦添區。開車約9分鐘"
+                        { 
+                            time: "15:00", 
+                            endTime: "16:00", 
+                            title: "漫畫倉庫 / 港川外人住宅", 
+                            type: "activity", 
+                            location: "港川外人住宅街", 
+                            cost: 300, 
+                            note: "浦添區。開車約9分鐘" 
                         },
-                        {
-                            time: "18:30",
-                            endTime: "19:00",
-                            title: "飯店 Check-in",
-                            type: "transport",
-                            location: "HOTEL YUQUESTA AGARIMACHI",
+                        { 
+                            time: "18:30", 
+                            endTime: "19:00", 
+                            title: "飯店 Check-in", 
+                            type: "transport", 
+                            location: "HOTEL YUQUESTA AGARIMACHI", 
                             mapLocation: "7-22 Higashimachi, Naha, Okinawa 900-0034日本",
-                            cost: 0,
-                            note: "需找停車場，盡量早回"
+                            cost: 0, 
+                            note: "需找停車場，盡量早回" 
                         },
-                        {
-                            time: "20:00",
-                            endTime: "21:30",
-                            title: "晚餐：LITOR",
-                            type: "meal",
-                            location: "LITOR",
-                            cost: 2000,
-                            note: "【已預訂】預約 20:00。不能遲到！(遲到當天退費也扣錢)"
+                        { 
+                            time: "20:00", 
+                            endTime: "21:30", 
+                            title: "晚餐：LITOR", 
+                            type: "meal", 
+                            location: "LITOR", 
+                            cost: 2000, 
+                            note: "【已預訂】預約 20:00。不能遲到！(遲到當天退費也扣錢)" 
                         },
-                        {
-                            time: "22:00",
-                            endTime: "00:30",
-                            title: "跨年活動：Churasun 6",
-                            type: "activity",
-                            location: "Churasun 6",
+                        { 
+                            time: "22:00", 
+                            endTime: "00:30", 
+                            title: "跨年活動：Churasun 6", 
+                            type: "activity", 
+                            location: "Churasun 6", 
                             mapLocation: "Churasun 6, Naha",
-                            cost: 4500,
-                            note: "【已預訂】預約 22:00 (22:30 開始)"
+                            cost: 4500, 
+                            note: "【已預訂】預約 22:00 (22:30 開始)" 
                         }
                     ]
                 },
@@ -281,43 +227,43 @@
                     events: [
                         { time: "08:00", endTime: "08:30", title: "早餐：A&W 漢堡", type: "meal", location: "A&W 牧港店", cost: 300, note: "元旦早餐" },
                         { time: "09:00", endTime: "09:30", title: "萬座毛", type: "activity", location: "萬座毛", cost: 100, note: "可以不去，可能會很趕，不然要更早出門" },
-                        {
-                            time: "12:00",
-                            endTime: "12:30",
-                            title: "午餐：許田休息站 或 CAMEL SANDWICH",
-                            type: "meal",
-                            location: "許田休息站",
-                            cost: 300,
-                            note: "隨意吃或吃三明治"
+                        { 
+                            time: "12:00", 
+                            endTime: "12:30", 
+                            title: "午餐：許田休息站 或 CAMEL SANDWICH", 
+                            type: "meal", 
+                            location: "許田休息站", 
+                            cost: 300, 
+                            note: "隨意吃或吃三明治" 
                         },
-                        {
-                            time: "14:00",
-                            endTime: "17:00",
-                            title: "美麗海水族館",
-                            type: "activity",
-                            location: "沖繩美麗海水族館",
-                            cost: 2200,
-                            note: "【攻略】P7北停車場最近。13:20排隊餵海豚、14:00餵海龜、15:00鯨鯊餵食(黑潮之海)、17:00海豚表演"
+                        { 
+                            time: "14:00", 
+                            endTime: "17:00", 
+                            title: "美麗海水族館", 
+                            type: "activity", 
+                            location: "沖繩美麗海水族館", 
+                            cost: 2200, 
+                            note: "【攻略】P7北停車場最近。13:20排隊餵海豚、14:00餵海龜、15:00鯨鯊餵食(黑潮之海)、17:00海豚表演" 
                         },
-                        {
-                            time: "18:00",
-                            endTime: "18:30",
-                            title: "飯店 Check-in",
-                            type: "transport",
-                            location: "Super Hotel Nago",
+                        { 
+                            time: "18:00", 
+                            endTime: "18:30", 
+                            title: "飯店 Check-in", 
+                            type: "transport", 
+                            location: "Super Hotel Nago", 
                             mapLocation: "Super Hotel Okinawa Nago",
-                            cost: 5440,
-                            note: "提早到選枕頭。超級飯店(名護)"
+                            cost: 5440, 
+                            note: "提早到選枕頭。超級飯店(名護)" 
                         },
-                        {
-                            time: "19:00",
-                            endTime: "21:00",
-                            title: "晚餐：百年古家 大家 (阿古豬)",
-                            type: "meal",
-                            location: "Ufuya (百年古家 大家)",
+                         { 
+                            time: "19:00", 
+                            endTime: "21:00", 
+                            title: "晚餐：百年古家 大家 (阿古豬)", 
+                            type: "meal", 
+                            location: "Ufuya (百年古家 大家)", 
                             mapLocation: "Ufuya, Nago",
-                            cost: 4880,
-                            note: "【已預訂】預約 19:30"
+                            cost: 4880, 
+                            note: "【已預訂】預約 19:30" 
                         }
                     ]
                 },
@@ -327,63 +273,63 @@
                     dateStr: "2026-01-02",
                     events: [
                         { time: "07:00", endTime: "09:30", title: "早餐：飯店早餐", type: "meal", location: "Super Hotel Nago", cost: 0, note: "" },
-                        {
-                            time: "09:00",
-                            endTime: "10:00",
-                            title: "古宇利海洋塔",
-                            type: "activity",
-                            location: "古宇利海洋塔",
-                            cost: 1000,
-                            note: "欣賞風景"
+                        { 
+                            time: "09:00", 
+                            endTime: "10:00", 
+                            title: "古宇利海洋塔", 
+                            type: "activity", 
+                            location: "古宇利海洋塔", 
+                            cost: 1000, 
+                            note: "欣賞風景" 
                         },
-                        {
-                            time: "11:30",
-                            endTime: "12:00",
-                            title: "午餐：古宇利蝦蝦飯",
-                            type: "meal",
-                            location: "Kouri Shrimp",
+                        { 
+                            time: "11:30", 
+                            endTime: "12:00", 
+                            title: "午餐：古宇利蝦蝦飯", 
+                            type: "meal", 
+                            location: "Kouri Shrimp", 
                             mapLocation: "Kouri Shrimp Wagon",
-                            cost: 2160,
-                            note: "附近還有 NoBi"
+                            cost: 2160, 
+                            note: "附近還有 NoBi" 
                         },
-                        {
-                            time: "13:30",
-                            endTime: "14:30",
-                            title: "美國村",
-                            type: "activity",
-                            location: "美國村",
+                        { 
+                            time: "13:30", 
+                            endTime: "14:30", 
+                            title: "美國村", 
+                            type: "activity", 
+                            location: "美國村", 
                             mapLocation: "American Village Okinawa",
-                            cost: 1500,
-                            note: "逛街拍照"
+                            cost: 1500, 
+                            note: "逛街拍照" 
                         },
-                        {
-                            time: "15:00",
-                            endTime: "16:00",
-                            title: "永旺夢樂城 (Aeon Mall)",
-                            type: "activity",
-                            location: "AEON MALL Okinawa Rycom",
-                            cost: 5000,
-                            note: "大型購物中心"
+                        { 
+                            time: "15:00", 
+                            endTime: "16:00", 
+                            title: "永旺夢樂城 (Aeon Mall)", 
+                            type: "activity", 
+                            location: "AEON MALL Okinawa Rycom", 
+                            cost: 5000, 
+                            note: "大型購物中心" 
                         },
-                        {
-                            time: "19:00",
-                            endTime: "20:00",
-                            title: "晚餐：傑克牛排",
-                            type: "meal",
-                            location: "Jack's Steak House (傑克牛排 那霸店)",
+                        { 
+                            time: "19:00", 
+                            endTime: "20:00", 
+                            title: "晚餐：傑克牛排", 
+                            type: "meal", 
+                            location: "Jack's Steak House (傑克牛排 那霸店)", 
                             mapLocation: "Jack's Steak House Naha Okinawa",
-                            cost: 3000,
-                            note: "可以19:00先去吃，再 Check-in 走回去"
+                            cost: 3000, 
+                            note: "可以19:00先去吃，再 Check-in 走回去" 
                         },
-                        {
-                            time: "19:30",
-                            endTime: "21:00",
-                            title: "飯店 Check-in",
-                            type: "transport",
-                            location: "Rembrandt Style Naha",
+                        { 
+                            time: "19:30", 
+                            endTime: "21:00", 
+                            title: "飯店 Check-in", 
+                            type: "transport", 
+                            location: "Rembrandt Style Naha", 
                             mapLocation: "Rembrandt Style Naha",
-                            cost: 4710,
-                            note: "那霸倫勃朗風格飯店"
+                            cost: 4710, 
+                            note: "那霸倫勃朗風格飯店" 
                         }
                     ]
                 },
@@ -394,32 +340,32 @@
                     events: [
                         { time: "07:00", endTime: "09:30", title: "早餐：飯店早餐", type: "meal", location: "Rembrandt Style Naha", cost: 0, note: "" },
                         { time: "09:30", endTime: "10:00", title: "波上宮", type: "activity", location: "波上宮", cost: 0, note: "參拜拍照" },
-                        {
-                            time: "10:00",
-                            endTime: "11:00",
-                            title: "早午餐：幸福鬆餅",
-                            type: "meal",
-                            location: "A Happy Pancake Umikaji Terrace",
-                            cost: 2000,
-                            note: "路邊停車免費，需排隊"
+                        { 
+                            time: "10:00", 
+                            endTime: "11:00", 
+                            title: "早午餐：幸福鬆餅", 
+                            type: "meal", 
+                            location: "A Happy Pancake Umikaji Terrace", 
+                            cost: 2000, 
+                            note: "路邊停車免費，需排隊" 
                         },
-                        {
-                            time: "12:00",
-                            endTime: "13:00",
-                            title: "購物：iias 沖繩豐崎",
-                            type: "activity",
-                            location: "iias Okinawa Toyosaki",
-                            cost: 5000,
-                            note: "最後採買"
+                        { 
+                            time: "12:00", 
+                            endTime: "13:00", 
+                            title: "購物：iias 沖繩豐崎", 
+                            type: "activity", 
+                            location: "iias Okinawa Toyosaki", 
+                            cost: 5000, 
+                            note: "最後採買" 
                         },
-                        {
-                            time: "16:30",
-                            endTime: "17:00",
-                            title: "購物：Workman",
-                            type: "activity",
-                            location: "Workman Plus",
-                            cost: 5000,
-                            note: "機能服飾"
+                         { 
+                            time: "16:30", 
+                            endTime: "17:00", 
+                            title: "購物：Workman", 
+                            type: "activity", 
+                            location: "Workman Plus", 
+                            cost: 5000, 
+                            note: "機能服飾" 
                         },
                         { time: "17:00", endTime: "18:00", title: "還車/前往機場", type: "transport", location: "那霸機場", cost: 0, note: "需預留還車時間" },
                         { time: "21:30", endTime: "22:05", title: "返程航班", type: "transport", location: "IT233", cost: 0, note: "21:30 起飛" }
@@ -436,7 +382,7 @@
             ]
         };
 
-        // 新增組件：倒數時鐘 (沖繩風格)
+        // 新增組件：倒數時鐘
         const CountdownTimer = ({ targetDateStr, targetTimeStr }) => {
             const [timeLeft, setTimeLeft] = useState("");
 
@@ -455,6 +401,7 @@
                     const minutes = Math.floor((diff / 1000 / 60) % 60);
                     const seconds = Math.floor((diff / 1000) % 60);
 
+                    // 僅顯示時分秒，若超過24小時可顯示天
                     if (days > 0) {
                         return `${days}天 ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                     }
@@ -470,11 +417,11 @@
             }, [targetDateStr, targetTimeStr]);
 
             return (
-                <div className="flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm px-4 py-2 rounded-2xl shadow-lg border-2 border-okinawa-coral min-w-[140px] transform hover:scale-105 transition-transform duration-300">
-                    <div className="text-xs text-okinawa-coral font-bold mb-1 flex items-center">
-                        <span className="mr-1 animate-spin-slow"><Icons.Sun /></span> 即將開始
+                <div className="flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-purple-200 min-w-[120px]">
+                    <div className="text-xs text-purple-600 font-bold mb-1 flex items-center">
+                        <span className="mr-1 animate-pulse">●</span> 即將開始
                     </div>
-                    <div className="text-xl font-mono font-black text-gray-700 tracking-wider">
+                    <div className="text-xl font-mono font-black text-gray-800 tracking-wider">
                         {timeLeft}
                     </div>
                 </div>
@@ -484,66 +431,52 @@
         // 新增組件：單個行程項目
         const EventItem = ({ event, isNext }) => {
             const [isMapVisible, setIsMapVisible] = useState(false);
-
+            
+            // 處理地圖 URL
             const queryLocation = event.mapLocation || event.location;
             const mapQuery = encodeURIComponent(queryLocation);
             const mapUrl = `https://maps.google.com/maps?q=${mapQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
             const externalMapUrl = event.mapLink || `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
 
-            // 根據類型決定顏色
-            const getTypeColor = (type) => {
-                switch (type) {
-                    case 'meal': return 'bg-okinawa-sun';
-                    case 'transport': return 'bg-gray-400';
-                    default: return 'bg-okinawa-sea';
-                }
-            };
-
-            const getIconColor = (type) => {
-                switch (type) {
-                    case 'meal': return 'text-okinawa-sun';
-                    case 'transport': return 'text-gray-500';
-                    default: return 'text-okinawa-sea';
-                }
-            }
-
             return (
                 <div className={`relative pl-8 group ${isNext ? 'z-10' : ''}`}>
                     {/* 時間軸圓點 */}
-                    <div className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-2 border-white shadow-sm transition-all duration-300 ${isNext
-                            ? 'bg-okinawa-coral scale-125 ring-4 ring-red-100'
-                            : getTypeColor(event.type)
-                        }`}></div>
-
-                    <div className={`flex flex-col sm:flex-row sm:items-start justify-between p-4 rounded-2xl transition-all duration-300 -mt-2 border border-transparent ${isNext
-                            ? 'bg-white shadow-lg ring-2 ring-okinawa-coral border-okinawa-coral/20'
-                            : 'bg-white hover:shadow-md border-gray-100 hover:border-teal-200'
-                        }`}>
+                    <div className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-2 border-white shadow-sm transition-all duration-300 ${
+                        isNext 
+                            ? 'bg-purple-600 scale-125 ring-4 ring-purple-100' 
+                            : event.type === 'transport' ? 'bg-gray-400' :
+                              event.type === 'meal' ? 'bg-orange-400' :
+                              'bg-blue-500'
+                    }`}></div>
+                    
+                    <div className={`flex flex-col sm:flex-row sm:items-start justify-between p-3 rounded-xl transition-all duration-300 -mt-2 ${
+                        isNext ? 'bg-purple-50 shadow-md ring-2 ring-purple-200' : 'group-hover:bg-gray-50'
+                    }`}>
                         <div className="flex-1 w-full relative">
-                            {/* 倒數計時器 */}
+                            {/* 倒數計時器：顯示在最近行程的右側 (大螢幕) 或上方 (手機) */}
                             {isNext && (
-                                <div className="absolute right-0 top-0 sm:-top-4 sm:-right-4 transform sm:translate-x-0 -translate-y-full sm:translate-y-0 z-20 mb-2 sm:mb-0">
+                                <div className="absolute right-0 top-0 sm:-top-2 sm:right-0 transform sm:translate-x-4 -translate-y-full sm:translate-y-0 z-20 mb-2 sm:mb-0">
                                     <CountdownTimer targetDateStr={event.dateStr} targetTimeStr={event.time} />
                                 </div>
                             )}
 
-                            <div className="flex items-center mb-2">
-                                <span className={`font-mono text-sm font-bold w-24 flex-shrink-0 ${isNext ? 'text-okinawa-coral' : 'text-gray-400'}`}>
+                            <div className="flex items-center mb-1">
+                                <span className={`font-mono text-sm font-bold w-24 flex-shrink-0 ${isNext ? 'text-purple-700' : 'text-gray-500'}`}>
                                     {event.time}
                                 </span>
-                                <h4 className={`text-lg font-bold flex items-center ${isNext ? 'text-gray-800' : 'text-gray-700'}`}>
+                                <h4 className={`text-base font-bold flex items-center ${isNext ? 'text-purple-900' : 'text-gray-800'}`}>
                                     {event.title}
                                 </h4>
                             </div>
-
-                            <div className="flex flex-col sm:flex-row text-sm text-gray-500 ml-0 sm:ml-24 space-y-2 sm:space-y-0 sm:space-x-6 mb-3">
+                            
+                            <div className="flex flex-col sm:flex-row text-sm text-gray-600 ml-0 sm:ml-24 space-y-1 sm:space-y-0 sm:space-x-4 mb-2">
                                 <div className="flex items-center">
-                                    <span className={`mr-1 ${getIconColor(event.type)}`}><Icons.MapPin /></span>
+                                    <span className="mr-1 text-gray-400"><Icons.MapPin /></span>
                                     {event.location}
                                 </div>
                                 {event.note && (
-                                    <div className="flex items-center text-gray-500 bg-okinawa-sand px-3 py-1 rounded-full text-xs border border-teal-100">
-                                        <span className="mr-1 text-okinawa-teal"><Icons.Info /></span>
+                                    <div className="flex items-center text-gray-500 bg-white/50 px-2 py-0.5 rounded text-xs">
+                                        <span className="mr-1"><Icons.Info /></span>
                                         {event.note}
                                     </div>
                                 )}
@@ -551,38 +484,39 @@
 
                             {/* 按鈕區域 */}
                             <div className="ml-0 sm:ml-24 mt-2 sm:mt-0 flex flex-wrap gap-2">
-                                <button
+                                <button 
                                     onClick={() => setIsMapVisible(!isMapVisible)}
-                                    className={`text-xs flex items-center px-4 py-2 rounded-full transition-colors font-medium border ${isMapVisible
-                                            ? "bg-gray-100 text-gray-600 border-gray-300"
-                                            : "bg-white text-okinawa-sea border-teal-200 hover:bg-teal-50"
-                                        }`}
+                                    className={`text-xs flex items-center px-3 py-1.5 rounded-full transition-colors font-medium border ${
+                                        isMapVisible 
+                                        ? "bg-gray-200 text-gray-700 border-gray-300" 
+                                        : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                                    }`}
                                 >
                                     <span className="mr-1"><Icons.Map /></span>
-                                    {isMapVisible ? "收起地圖" : "查看地圖"}
+                                    {isMapVisible ? "隱藏地圖" : "查看地圖"}
                                 </button>
                             </div>
 
                             {/* 地圖嵌入區塊 */}
                             {isMapVisible && (
-                                <div className="ml-0 sm:ml-24 mt-4 rounded-2xl overflow-hidden border-4 border-white shadow-lg bg-gray-100 animate-fade-in ring-1 ring-gray-200">
-                                    <iframe
-                                        width="100%"
-                                        height="300"
-                                        frameBorder="0"
-                                        scrolling="no"
-                                        marginHeight="0"
-                                        marginWidth="0"
+                                <div className="ml-0 sm:ml-24 mt-3 rounded-xl overflow-hidden border border-gray-200 shadow-inner bg-gray-100 animate-fade-in">
+                                    <iframe 
+                                        width="100%" 
+                                        height="250" 
+                                        frameBorder="0" 
+                                        scrolling="no" 
+                                        marginHeight="0" 
+                                        marginWidth="0" 
                                         src={mapUrl}
                                         title={`Map of ${event.location}`}
-                                        className="w-full block grayscale-[0.2] hover:grayscale-0 transition-all duration-500"
+                                        className="w-full block"
                                     ></iframe>
-                                    <div className="bg-white py-2 px-4 text-xs flex justify-end border-t border-gray-100">
-                                        <a
-                                            href={externalMapUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center text-okinawa-sea hover:text-teal-700 font-bold transition-colors"
+                                    <div className="bg-gray-50 py-2 px-3 text-xs flex justify-end border-t border-gray-200">
+                                        <a 
+                                            href={externalMapUrl} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            className="flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors"
                                         >
                                             開啟 Google Maps <span className="ml-1"><Icons.ExternalLink /></span>
                                         </a>
@@ -590,12 +524,12 @@
                                 </div>
                             )}
                         </div>
-
+                        
                         {/* 費用顯示 */}
                         {(event.cost > 0) && (
-                            <div className="mt-3 sm:mt-0 ml-0 sm:ml-4 text-right flex-shrink-0 bg-gray-50 px-3 py-1 rounded-lg">
-                                <span className="text-[10px] text-gray-400 block uppercase tracking-wider">預估</span>
-                                <span className="font-mono text-sm font-bold text-gray-600">¥{event.cost.toLocaleString()}</span>
+                            <div className="mt-2 sm:mt-0 ml-0 sm:ml-4 text-right flex-shrink-0">
+                                <span className="text-xs text-gray-400 block">預估花費</span>
+                                <span className="font-mono text-sm font-medium text-gray-700">¥{event.cost.toLocaleString()}</span>
                             </div>
                         )}
                     </div>
@@ -612,22 +546,21 @@
             ];
 
             return (
-                <div className="flex justify-center mb-8">
-                    <div className="flex space-x-2 bg-white/60 p-2 rounded-full shadow-sm backdrop-blur-sm border border-white/50">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => onTabChange(tab.id)}
-                                className={`flex items-center justify-center px-6 py-2.5 text-sm font-bold rounded-full transition-all duration-300 ${activeTab === tab.id
-                                        ? "bg-gradient-to-r from-okinawa-sea to-teal-400 text-white shadow-md transform scale-105"
-                                        : "text-gray-500 hover:text-okinawa-sea hover:bg-white"
-                                    }`}
-                            >
-                                <span className="mr-2"><tab.icon /></span>
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
+                <div className="flex space-x-1 bg-gray-200 p-1 rounded-lg mb-6">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => onTabChange(tab.id)}
+                            className={`flex items-center justify-center flex-1 py-2.5 text-sm font-medium rounded-md transition-all duration-200 ${
+                                activeTab === tab.id
+                                    ? "bg-white text-blue-600 shadow-sm"
+                                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                            }`}
+                        >
+                            <span className="mr-2"><tab.icon /></span>
+                            {tab.label}
+                        </button>
+                    ))}
                 </div>
             );
         };
@@ -639,8 +572,10 @@
 
             // 計算最近的行程
             useEffect(() => {
-                const now = new Date();
-
+                const now = new Date(); // 實際使用時為當前時間
+                // 為了展示效果，這裡可以模擬一個時間，例如：
+                // const now = new Date("2025-12-31T12:00:00"); 
+                
                 let closestEvent = null;
                 let minDiff = Infinity;
 
@@ -649,6 +584,7 @@
                         const eventTime = new Date(`${day.dateStr}T${event.time}:00`);
                         const diff = eventTime - now;
 
+                        // 找出第一個還沒發生的行程 (diff > 0) 且距離現在最近
                         if (diff > 0 && diff < minDiff) {
                             minDiff = diff;
                             closestEvent = { day: day.day, idx: idx };
@@ -658,6 +594,8 @@
 
                 if (closestEvent) {
                     setNextEventId(closestEvent);
+                    // 自動切換到該天 (僅在非手動切換時)
+                    // setActiveDay(closestEvent.day); 
                 }
             }, [data]);
 
@@ -666,49 +604,47 @@
             return (
                 <div>
                     {/* 天數切換 Tab */}
-                    <div className="flex overflow-x-auto space-x-4 mb-8 pb-4 scrollbar-hide px-2">
+                    <div className="flex overflow-x-auto space-x-2 mb-6 pb-2 scrollbar-hide">
                         {data.map((day) => (
                             <button
                                 key={day.day}
                                 onClick={() => setActiveDay(day.day)}
-                                className={`flex-shrink-0 px-5 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap border-2 relative overflow-hidden group ${activeDay === day.day
-                                        ? "bg-white border-okinawa-sea text-okinawa-sea shadow-lg transform -translate-y-1"
-                                        : "bg-white/80 text-gray-400 border-transparent hover:bg-white hover:text-gray-600"
-                                    }`}
+                                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap shadow-sm border ${
+                                    activeDay === day.day
+                                        ? "bg-blue-600 text-white border-blue-600"
+                                        : "bg-white text-gray-500 hover:bg-gray-50 border-gray-200"
+                                }`}
                             >
-                                <div className="z-10 relative">
-                                    <span className="block text-xs uppercase tracking-widest opacity-70">Day {day.day}</span>
-                                    <span className="text-base">{day.date.split(' ')[0]}</span>
-                                </div>
-                                {activeDay === day.day && (
-                                    <div className="absolute bottom-0 left-0 w-full h-1 bg-okinawa-sea"></div>
-                                )}
+                                Day {day.day}
+                                <span className={`ml-2 text-xs font-normal ${activeDay === day.day ? "text-blue-200" : "text-gray-400"}`}>
+                                    {day.date.split(' ')[0]}
+                                </span>
                             </button>
                         ))}
                     </div>
 
                     {/* 單日內容 */}
                     <div className="animate-fade-in">
-                        <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl border border-white p-2 sm:p-6 relative overflow-hidden">
-                            {/* 裝飾性背景圖案 */}
-                            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-gradient-to-br from-teal-100 to-transparent rounded-full opacity-50 blur-3xl pointer-events-none"></div>
-
-                            <div className="px-4 py-4 mb-4 flex items-end border-b border-gray-100 relative z-10">
-                                <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-okinawa-sea to-teal-400 mr-4">Day {currentDay.day}</span>
-                                <span className="text-gray-500 font-medium pb-2">{currentDay.date}</span>
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div className="bg-blue-50 px-6 py-4 border-b border-blue-100 flex justify-between items-center">
+                                <div>
+                                    <span className="text-blue-600 font-bold text-lg mr-3">Day {currentDay.day}</span>
+                                    <span className="text-gray-700 font-medium">{currentDay.date}</span>
+                                </div>
                             </div>
-
-                            <div className="relative border-l-2 border-teal-100 ml-4 sm:ml-6 space-y-8 pb-4">
-                                {currentDay.events.map((event, idx) => {
-                                    const isNext = nextEventId && nextEventId.day === currentDay.day && nextEventId.idx === idx;
-                                    return (
-                                        <EventItem
-                                            key={idx}
-                                            event={{ ...event, dateStr: currentDay.dateStr }}
-                                            isNext={isNext}
-                                        />
-                                    );
-                                })}
+                            <div className="p-6">
+                                <div className="relative border-l-2 border-blue-100 ml-3 space-y-8">
+                                    {currentDay.events.map((event, idx) => {
+                                        const isNext = nextEventId && nextEventId.day === currentDay.day && nextEventId.idx === idx;
+                                        return (
+                                            <EventItem 
+                                                key={idx} 
+                                                event={{...event, dateStr: currentDay.dateStr}} 
+                                                isNext={isNext} 
+                                            />
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -720,58 +656,52 @@
         const LogisticsView = ({ flights, hotels }) => {
             return (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg border border-white p-6 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Icons.Plane />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                            <span className="bg-blue-100 text-blue-600 p-2 rounded-xl mr-3"><Icons.Plane /></span> 航班資訊
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                            <span className="mr-2 text-blue-500"><Icons.Plane /></span> 航班資訊
                         </h3>
                         <div className="space-y-4">
                             {flights.map((flight, idx) => (
-                                <div key={idx} className="bg-gradient-to-r from-blue-50 to-white p-5 rounded-2xl border border-blue-100">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm shadow-blue-200">{flight.type}</span>
-                                        <span className="font-mono font-black text-2xl text-blue-900 tracking-tighter">{flight.code}</span>
+                                <div key={idx} className="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-r-lg">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="bg-blue-200 text-blue-800 text-xs font-bold px-2 py-1 rounded">{flight.type}</span>
+                                        <span className="font-mono font-bold text-gray-700">{flight.code}</span>
                                     </div>
-                                    <div className="flex justify-between items-center text-sm text-gray-700 mb-4">
+                                    <div className="flex justify-between items-center text-sm text-gray-700 mb-2">
                                         <div className="text-center">
-                                            <div className="font-black text-3xl text-gray-800">{flight.from}</div>
-                                            <div className="text-gray-400 text-xs mt-1">出發</div>
+                                            <div className="font-bold text-lg">{flight.from}</div>
+                                            <div className="text-gray-500 text-xs">出發</div>
                                         </div>
-                                        <div className="px-4 text-blue-300"><Icons.ArrowRight /></div>
+                                        <div className="px-2 text-gray-400"><Icons.ArrowRight /></div>
                                         <div className="text-center">
-                                            <div className="font-black text-3xl text-gray-800">{flight.to}</div>
-                                            <div className="text-gray-400 text-xs mt-1">抵達</div>
+                                            <div className="font-bold text-lg">{flight.to}</div>
+                                            <div className="text-gray-500 text-xs">抵達</div>
                                         </div>
                                     </div>
-                                    <div className="flex justify-between text-sm text-gray-600 border-t border-blue-100 pt-3">
-                                        <span className="flex items-center"><Icons.Clock /><span className="ml-2 font-mono font-bold">{flight.time}</span></span>
-                                        <span className="font-medium bg-white px-2 py-0.5 rounded border border-blue-100">Seat: {flight.seat}</span>
+                                    <div className="flex justify-between text-sm text-gray-600 border-t border-blue-200 pt-2 mt-2">
+                                        <span><Icons.Clock /> {flight.time}</span>
+                                        <span>座: {flight.seat}</span>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg border border-white p-6 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Icons.Hotel />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                            <span className="bg-orange-100 text-orange-500 p-2 rounded-xl mr-3"><Icons.Hotel /></span> 住宿安排
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                            <span className="mr-2 text-orange-500"><Icons.Hotel /></span> 住宿安排
                         </h3>
                         <div className="space-y-4">
                             {hotels.map((hotel, idx) => (
-                                <div key={idx} className="flex flex-col border-b border-dashed border-orange-200 pb-4 last:border-0 last:pb-0">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-lg">{hotel.date}</span>
-                                        <span className="text-sm font-mono font-bold text-gray-600">¥{hotel.price}</span>
+                                <div key={idx} className="flex flex-col border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                                    <div className="flex justify-between items-start mb-1">
+                                        <span className="text-sm font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{hotel.date}</span>
+                                        <span className="text-sm font-mono text-gray-600">¥{hotel.price}</span>
                                     </div>
-                                    <h4 className="font-bold text-gray-800 text-base mb-1">{hotel.name}</h4>
+                                    <h4 className="font-bold text-gray-800 text-sm mb-1">{hotel.name}</h4>
                                     <div className="flex justify-between text-xs text-gray-500">
-                                        <span className="flex items-center"><span className="mr-1 w-3 text-orange-400"><Icons.MapPin /></span>{hotel.area}</span>
-                                        <span className="text-gray-400 italic">{hotel.note}</span>
+                                        <span className="flex items-center"><span className="mr-1 w-3"><Icons.MapPin /></span>{hotel.area}</span>
+                                        <span>{hotel.note}</span>
                                     </div>
                                 </div>
                             ))}
@@ -786,43 +716,42 @@
             const total = budget.reduce((sum, item) => sum + item.twd, 0);
 
             return (
-                <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg border border-white p-8 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-teal-500"></div>
-                    <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-2xl font-bold text-gray-800 flex items-center">
-                            <span className="bg-green-100 text-green-600 p-2 rounded-xl mr-3"><Icons.Wallet /></span> 預估費用 (TWD)
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-lg font-bold text-gray-800 flex items-center">
+                            <span className="mr-2 text-green-600"><Icons.Wallet /></span> 預估費用 (TWD)
                         </h3>
                     </div>
-
+                    
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="text-gray-400 border-b-2 border-gray-100 text-sm">
-                                    <th className="py-4 font-bold tracking-wider">項目</th>
-                                    <th className="py-4 font-bold tracking-wider text-right">金額 (TWD)</th>
-                                    <th className="py-4 font-bold tracking-wider pl-8">備註</th>
+                                <tr className="text-gray-500 border-b border-gray-200 text-sm">
+                                    <th className="py-2 font-medium">項目</th>
+                                    <th className="py-2 font-medium text-right">金額 (TWD)</th>
+                                    <th className="py-2 font-medium pl-4">備註</th>
                                 </tr>
                             </thead>
                             <tbody className="text-sm">
                                 {budget.map((item, idx) => (
-                                    <tr key={idx} className="border-b border-gray-50 hover:bg-green-50/50 transition-colors">
-                                        <td className="py-4 text-gray-700 font-medium">{item.item}</td>
-                                        <td className="py-4 text-right font-mono font-bold text-gray-600">{item.twd.toLocaleString()}</td>
-                                        <td className="py-4 pl-8 text-gray-400 text-xs italic">{item.note}</td>
+                                    <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
+                                        <td className="py-3 text-gray-800">{item.item}</td>
+                                        <td className="py-3 text-right font-mono font-medium">{item.twd.toLocaleString()}</td>
+                                        <td className="py-3 pl-4 text-gray-500 text-xs">{item.note}</td>
                                     </tr>
                                 ))}
                             </tbody>
                             <tfoot>
-                                <tr className="bg-green-50/30">
-                                    <td className="py-6 font-black text-gray-800 text-lg">總計預估</td>
-                                    <td className="py-6 text-right font-mono text-2xl font-black text-green-600">{total.toLocaleString()}</td>
+                                <tr className="bg-gray-50 font-bold text-gray-800">
+                                    <td className="py-3 pl-2">總計預估</td>
+                                    <td className="py-3 text-right font-mono text-lg text-green-600">{total.toLocaleString()}</td>
                                     <td></td>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
-                    <div className="mt-6 text-xs text-gray-400 text-right flex items-center justify-end">
-                        <Icons.Info /> <span className="ml-1">實際費用請依當下匯率與消費為主</span>
+                    <div className="mt-4 text-xs text-gray-400 text-right">
+                        * 實際費用請依當下匯率與消費為主
                     </div>
                 </div>
             );
@@ -834,33 +763,17 @@
 
             useEffect(() => {
                 lucide.createIcons();
-            }, [activeTab]);
+            }, [activeTab]); 
 
             return (
-                <div className="max-w-4xl mx-auto px-4 py-8 min-h-screen relative">
-                    {/* 背景海浪裝飾 */}
-                    <div className="fixed top-0 left-0 w-full h-64 bg-gradient-to-b from-okinawa-sea to-transparent -z-10 opacity-10"></div>
-                    <div className="fixed top-0 left-0 w-full overflow-hidden -z-10 opacity-20">
-                        <svg className="relative block w-[200%] h-[200px] animate-wave" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#00A3AF"></path>
-                        </svg>
-                    </div>
-
+                <div className="max-w-3xl mx-auto px-4 py-8 min-h-screen">
                     {/* 標題區 */}
-                    <div className="mb-10 text-center relative">
-                        <div className="inline-block relative">
-                            <h1 className="text-3xl sm:text-4xl font-black text-gray-800 mb-3 tracking-tight relative z-10">
-                                {TRIP_DATA.meta.title} <span className="text-okinawa-coral">🌺</span>
-                            </h1>
-                            <div className="absolute -bottom-2 -right-4 text-okinawa-sun animate-float">
-                                <Icons.Sun />
-                            </div>
-                        </div>
-
-                        <p className="text-gray-500 flex justify-center items-center space-x-4 text-sm font-medium bg-white/50 inline-block px-6 py-2 rounded-full backdrop-blur-sm shadow-sm mt-2">
-                            <span className="flex items-center text-okinawa-sea"><span className="mr-2"><Icons.Calendar /></span>{TRIP_DATA.meta.dates}</span>
-                            <span className="w-1.5 h-1.5 bg-gray-300 rounded-full"></span>
-                            <span className="text-gray-600">{TRIP_DATA.meta.travelers} 人行</span>
+                    <div className="mb-8 text-center">
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{TRIP_DATA.meta.title}</h1>
+                        <p className="text-gray-500 flex justify-center items-center space-x-4 text-sm mb-4">
+                            <span className="flex items-center"><span className="mr-1"><Icons.Calendar /></span>{TRIP_DATA.meta.dates}</span>
+                            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                            <span>{TRIP_DATA.meta.travelers} 人</span>
                         </p>
                     </div>
 
@@ -873,11 +786,6 @@
                         {activeTab === "logistics" && <LogisticsView flights={TRIP_DATA.flights} hotels={TRIP_DATA.hotels} />}
                         {activeTab === "budget" && <BudgetView budget={TRIP_DATA.budget} />}
                     </div>
-
-                    {/* 底部裝飾 */}
-                    <div className="text-center text-gray-400 text-xs py-8">
-                        Have a nice trip to Okinawa! 🏖️
-                    </div>
                 </div>
             );
         };
@@ -886,5 +794,4 @@
         root.render(<App />);
     </script>
 </body>
-
 </html>
