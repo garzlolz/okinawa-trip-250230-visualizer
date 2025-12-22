@@ -1,1225 +1,2181 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ㄏㄜˋ的沖繩之旅！🍍</title>
     <!-- 引入 React 與 ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.production.min.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+    ></script>
     <!-- 引入 Babel 用於解析 JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Firebase SDK Setup -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      // 引入 Google 登入所需模組
+      import {
+        getAuth,
+        signInAnonymously,
+        GoogleAuthProvider,
+        signInWithPopup,
+        signOut,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        doc,
+        addDoc,
+        deleteDoc,
+        updateDoc,
+        onSnapshot,
+        query,
+        orderBy,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // 您的 Firebase 配置
+      const firebaseConfig = {
+        apiKey: "AIzaSyC0pJgycqVxdLcm0U_VNPgB9B7hEVNROTk",
+        authDomain: "okinawa-trip-2025.firebaseapp.com",
+        projectId: "okinawa-trip-2025",
+        storageBucket: "okinawa-trip-2025.firebasestorage.app",
+        messagingSenderId: "959389446092",
+        appId: "1:959389446092:web:665c6d7557f0d6b5f17769",
+      };
+
+      const appId = "default-trip-app";
+
+      try {
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // 將功能掛載到 window，供 React 使用
+        window.fb = {
+          auth,
+          db,
+          appId,
+          googleProvider,
+          signInWithPopup,
+          signOut,
+          signInAnonymously,
+          onAuthStateChanged,
+          collection,
+          doc,
+          addDoc,
+          deleteDoc,
+          updateDoc,
+          onSnapshot,
+          query,
+          orderBy,
+        };
+        console.log("Firebase initialized successfully");
+      } catch (e) {
+        console.error("Firebase init failed:", e);
+      }
+    </script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        sb: {
-                            yellow: '#F7E35E',
-                            darkYellow: '#E6D04A',
-                            brown: '#8F5B36',
-                            pink: '#FF959D',
-                            darkPink: '#E87D85',
-                            blue: '#65C0E2',
-                            teal: '#20B2AA',
-                            purple: '#B19CD9',
-                            green: '#A0D6B4',
-                            red: '#D63C38',
-                            plankton: '#1F7A5E',
-                            sand: '#FDFBF7'
-                        }
-                    },
-                    fontFamily: {
-                        cartoon: ['"Comic Sans MS"', '"Chalkboard SE"', '"Arial Rounded MT Bold"', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'cartoon': '4px 4px 0px 0px rgba(0,0,0,0.15)',
-                        'cartoon-hover': '2px 2px 0px 0px rgba(0,0,0,0.15)',
-                    },
-                    animation: {
-                        'float-slow': 'float 6s ease-in-out infinite',
-                        'float-medium': 'float 4s ease-in-out infinite',
-                        'float-fast': 'float 3s ease-in-out infinite',
-                        'spin-slow': 'spin 12s linear infinite',
-                        'spin-medium': 'spin 6s linear infinite',
-                        'spin-fast': 'spin 0.8s linear infinite', // 修改：高速旋轉 (0.8秒一圈)
-                        'spin-super-fast': 'spin 0.4s linear infinite', // 修改：超高速旋轉 (0.4秒一圈)
-                        'spin-reverse': 'spin 15s linear infinite reverse',
-                        'spin-reverse-fast': 'spin 0.6s linear infinite reverse', // 修改：反向高速旋轉 (0.6秒一圈)
-                        // 新增：漫遊漂浮動畫
-                        'wander-slow': 'wander 15s ease-in-out infinite',
-                        'wander-medium': 'wander 10s ease-in-out infinite',
-                        'wander-fast': 'wander 8s ease-in-out infinite',
-                        // 新增：全螢幕大範圍漫遊
-                        'float-everywhere-1': 'path1 25s infinite linear',
-                        'float-everywhere-2': 'path2 30s infinite linear',
-                        'float-everywhere-3': 'path3 35s infinite linear',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-20px)' },
-                        },
-                        // 新增：更自然的漫遊關鍵影格 (結合位移與微旋轉)
-                        wander: {
-                            '0%, 100%': { transform: 'translate(0, 0) rotate(0deg)' },
-                            '25%': { transform: 'translate(10px, -15px) rotate(3deg)' },
-                            '50%': { transform: 'translate(-5px, -25px) rotate(-3deg)' },
-                            '75%': { transform: 'translate(-15px, -10px) rotate(1deg)' },
-                        },
-                        // 新增：全螢幕路徑 (僅負責位移，旋轉由內層元素處理)
-                        path1: {
-                            '0%': { transform: 'translate(5vw, 5vh)' },
-                            '25%': { transform: 'translate(85vw, 20vh)' },
-                            '50%': { transform: 'translate(40vw, 85vh)' },
-                            '75%': { transform: 'translate(10vw, 60vh)' },
-                            '100%': { transform: 'translate(5vw, 5vh)' },
-                        },
-                        path2: {
-                            '0%': { transform: 'translate(90vw, 90vh)' },
-                            '33%': { transform: 'translate(20vw, 10vh)' },
-                            '66%': { transform: 'translate(10vw, 50vh)' },
-                            '100%': { transform: 'translate(90vw, 90vh)' },
-                        },
-                        path3: {
-                            '0%': { transform: 'translate(50vw, 50vh)' },
-                            '25%': { transform: 'translate(10vw, 80vh)' },
-                            '50%': { transform: 'translate(80vw, 10vh)' },
-                            '75%': { transform: 'translate(90vw, 90vh)' },
-                            '100%': { transform: 'translate(50vw, 50vh)' },
-                        }
-                    }
-                }
-            }
-        }
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              sb: {
+                yellow: "#F7E35E",
+                darkYellow: "#E6D04A",
+                brown: "#8F5B36",
+                pink: "#FF959D",
+                darkPink: "#E87D85",
+                blue: "#65C0E2",
+                teal: "#20B2AA",
+                purple: "#B19CD9",
+                green: "#A0D6B4",
+                red: "#D63C38",
+                plankton: "#1F7A5E",
+                sand: "#FDFBF7",
+              },
+            },
+            fontFamily: {
+              cartoon: [
+                '"Comic Sans MS"',
+                '"Chalkboard SE"',
+                '"Arial Rounded MT Bold"',
+                "sans-serif",
+              ],
+            },
+            boxShadow: {
+              cartoon: "4px 4px 0px 0px rgba(0,0,0,0.15)",
+              "cartoon-hover": "2px 2px 0px 0px rgba(0,0,0,0.15)",
+            },
+            animation: {
+              "float-slow": "float 6s ease-in-out infinite",
+              "float-medium": "float 4s ease-in-out infinite",
+              "float-fast": "float 3s ease-in-out infinite",
+              "spin-slow": "spin 12s linear infinite",
+              "spin-medium": "spin 6s linear infinite",
+              "spin-fast": "spin 0.8s linear infinite",
+              "spin-super-fast": "spin 0.4s linear infinite",
+              "spin-reverse": "spin 15s linear infinite reverse",
+              "spin-reverse-fast": "spin 0.6s linear infinite reverse",
+              "wander-slow": "wander 15s ease-in-out infinite",
+              "wander-medium": "wander 10s ease-in-out infinite",
+              "wander-fast": "wander 8s ease-in-out infinite",
+              "float-everywhere-1": "path1 25s infinite linear",
+              "float-everywhere-2": "path2 30s infinite linear",
+              "float-everywhere-3": "path3 35s infinite linear",
+            },
+            keyframes: {
+              float: {
+                "0%, 100%": { transform: "translateY(0)" },
+                "50%": { transform: "translateY(-20px)" },
+              },
+              wander: {
+                "0%, 100%": { transform: "translate(0, 0) rotate(0deg)" },
+                "25%": { transform: "translate(10px, -15px) rotate(3deg)" },
+                "50%": { transform: "translate(-5px, -25px) rotate(-3deg)" },
+                "75%": { transform: "translate(-15px, -10px) rotate(1deg)" },
+              },
+              path1: {
+                "0%": { transform: "translate(5vw, 5vh)" },
+                "25%": { transform: "translate(85vw, 20vh)" },
+                "50%": { transform: "translate(40vw, 85vh)" },
+                "75%": { transform: "translate(10vw, 60vh)" },
+                "100%": { transform: "translate(5vw, 5vh)" },
+              },
+              path2: {
+                "0%": { transform: "translate(90vw, 90vh)" },
+                "33%": { transform: "translate(20vw, 10vh)" },
+                "66%": { transform: "translate(10vw, 50vh)" },
+                "100%": { transform: "translate(90vw, 90vh)" },
+              },
+              path3: {
+                "0%": { transform: "translate(50vw, 50vh)" },
+                "25%": { transform: "translate(10vw, 80vh)" },
+                "50%": { transform: "translate(80vw, 10vh)" },
+                "75%": { transform: "translate(90vw, 90vh)" },
+                "100%": { transform: "translate(50vw, 50vh)" },
+              },
+            },
+          },
+        },
+      };
     </script>
     <style>
-        /* 捲軸樣式 */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #65c0e2;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #f7e35e;
+        border-radius: 10px;
+        border: 2px solid #65c0e2;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #ff959d;
+      }
+      body {
+        font-family: "Comic Sans MS", "Chalkboard SE", "Arial Rounded MT Bold",
+          sans-serif;
+        background-color: #65c0e2;
+        color: #5d4037;
+        overflow-x: hidden;
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px) scale(0.95);
         }
-
-        ::-webkit-scrollbar-track {
-            background: #65C0E2;
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
         }
-
-        ::-webkit-scrollbar-thumb {
-            background: #F7E35E;
-            border-radius: 10px;
-            border: 2px solid #65C0E2;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #FF959D;
-        }
-
-        body {
-            font-family: "Comic Sans MS", "Chalkboard SE", "Arial Rounded MT Bold", sans-serif;
-            background-color: #65C0E2;
-            color: #5D4037;
-            overflow-x: hidden;
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        /* 背景插圖定位 */
-        .bg-illustration {
-            position: fixed;
-            z-index: -1;
-            pointer-events: none;
-            /* 確保圖片不會遮擋點擊，但可見 */
-        }
-
-        /* 讓漂浮圖片有點圓角或邊框看起來更像貼紙 */
-        .sticker-img {
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
-            object-fit: contain;
-        }
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .bg-illustration {
+        position: fixed;
+        z-index: -1;
+        pointer-events: none;
+      }
+      .sticker-img {
+        filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
+        object-fit: contain;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+      const { useState, useEffect, useRef } = React;
 
-        // 設定您的圖片路徑 (請確認檔名正確或替換為 URL)
-        const CUSTOM_IMAGE_SRC = "https://www.alcohol.com.tw/upload/catalog_m/ALL_catalog_21A29_t2pvytyv7q.png";
-        // 新增第二張漂浮圖片 (Orion)
-        const CUSTOM_IMAGE_SRC_2 = "https://cohoimports.com/cdn/shop/files/Orion_334ml.png";
+      const CUSTOM_IMAGE_SRC =
+        "https://www.alcohol.com.tw/upload/catalog_m/ALL_catalog_21A29_t2pvytyv7q.png";
+      const CUSTOM_IMAGE_SRC_2 =
+        "https://cohoimports.com/cdn/shop/files/Orion_334ml.png";
 
-        // SVG 圖標組件
-        const Icons = {
-            Plane: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 12h20" /><path d="M13 2a10.3 10.3 0 0 0 4.39 6.66C20.09 10.46 21 11 21 11H3s1 .54 3.61 2.34A10.3 10.3 0 0 0 11 20" /><path d="m5 17 2 2" /></svg>,
-            Hotel: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 20v-8h20v8" /><path d="M2 20h20" /><path d="M5 8h14" /><path d="M2 4v16" /><path d="M22 4v16" /><path d="M8 8v4" /><path d="M16 8v4" /></svg>,
-            Car: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><path d="M9 17h6" /><circle cx="17" cy="17" r="2" /></svg>,
-            MapPin: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>,
-            Clock: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
-            Wallet: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" /><path d="M3 5v14a2 2 0 0 0 2 2h16v-5" /><path d="M18 12a2 2 0 0 0 0 4h4v-4Z" /></svg>,
-            Calendar: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" /></svg>,
-            Utensils: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /><path d="M7 2v20" /><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" /></svg>,
-            Info: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>,
-            ArrowRight: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>,
-            X: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>,
-            Map: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" /><line x1="9" x2="9" y1="3" y2="18" /><line x1="15" x2="15" y1="6" y2="21" /></svg>,
-            ExternalLink: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" x2="21" y1="14" y2="3" /></svg>,
-            Timer: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="10" x2="14" y1="2" y2="2" /><line x1="12" x2="15" y1="14" y2="11" /><circle cx="12" cy="14" r="8" /></svg>,
-            Anchor: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="5" r="3" /><line x1="12" x2="12" y1="22" y2="8" /><path d="M5 12H2a10 10 0 0 0 20 0h-3" /></svg>,
-            CheckSquare: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 11 12 14 22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>,
-            Plus: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14" /><path d="M12 5v14" /></svg>,
-            Trash: ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>,
-        };
+      // SVG 圖標組件
+      const Icons = {
+        Plane: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M2 12h20" />
+            <path d="M13 2a10.3 10.3 0 0 0 4.39 6.66C20.09 10.46 21 11 21 11H3s1 .54 3.61 2.34A10.3 10.3 0 0 0 11 20" />
+            <path d="m5 17 2 2" />
+          </svg>
+        ),
+        Hotel: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M2 20v-8h20v8" />
+            <path d="M2 20h20" />
+            <path d="M5 8h14" />
+            <path d="M2 4v16" />
+            <path d="M22 4v16" />
+            <path d="M8 8v4" />
+            <path d="M16 8v4" />
+          </svg>
+        ),
+        Car: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
+            <circle cx="7" cy="17" r="2" />
+            <path d="M9 17h6" />
+            <circle cx="17" cy="17" r="2" />
+          </svg>
+        ),
+        MapPin: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+        ),
+        Clock: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        ),
+        Wallet: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+            <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+            <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+          </svg>
+        ),
+        Calendar: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+            <line x1="16" x2="16" y1="2" y2="6" />
+            <line x1="8" x2="8" y1="2" y2="6" />
+            <line x1="3" x2="21" y1="10" y2="10" />
+          </svg>
+        ),
+        Utensils: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+            <path d="M7 2v20" />
+            <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+          </svg>
+        ),
+        Info: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
+          </svg>
+        ),
+        ArrowRight: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M5 12h14" />
+            <path d="m12 5 7 7-7 7" />
+          </svg>
+        ),
+        X: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        ),
+        Map: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+            <line x1="9" x2="9" y1="3" y2="18" />
+            <line x1="15" x2="15" y1="6" y2="21" />
+          </svg>
+        ),
+        ExternalLink: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" x2="21" y1="14" y2="3" />
+          </svg>
+        ),
+        Timer: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <line x1="10" x2="14" y1="2" y2="2" />
+            <line x1="12" x2="15" y1="14" y2="11" />
+            <circle cx="12" cy="14" r="8" />
+          </svg>
+        ),
+        Anchor: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <circle cx="12" cy="5" r="3" />
+            <line x1="12" x2="12" y1="22" y2="8" />
+            <path d="M5 12H2a10 10 0 0 0 20 0h-3" />
+          </svg>
+        ),
+        CheckSquare: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <polyline points="9 11 12 14 22 4" />
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+          </svg>
+        ),
+        Plus: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M5 12h14" />
+            <path d="M12 5v14" />
+          </svg>
+        ),
+        Trash: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M3 6h18" />
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+          </svg>
+        ),
+        Cloud: ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M17.5 19c0-3.037-2.463-5.5-5.5-5.5S6.5 15.963 6.5 19" />
+            <path d="M4 19c0-5.523 4.477-10 10-10s10 4.477 10 10" />
+            <path d="M12 19v-4" />
+          </svg>
+        ),
+      };
 
-        // 海綿寶寶風格插圖 SVG 組件
-        const Illustrations = {
-            // 經典天空花朵
-            SkyFlower: ({ color, className }) => (
-                <svg viewBox="0 0 200 200" className={className}>
-                    <g fill={color}>
-                        <ellipse cx="100" cy="40" rx="30" ry="50" transform="rotate(0 100 100)" />
-                        <ellipse cx="100" cy="40" rx="30" ry="50" transform="rotate(72 100 100)" />
-                        <ellipse cx="100" cy="40" rx="30" ry="50" transform="rotate(144 100 100)" />
-                        <ellipse cx="100" cy="40" rx="30" ry="50" transform="rotate(216 100 100)" />
-                        <ellipse cx="100" cy="40" rx="30" ry="50" transform="rotate(288 100 100)" />
-                    </g>
-                    <circle cx="100" cy="100" r="25" fill="#FFF" opacity="0.8" />
-                    <circle cx="100" cy="100" r="15" fill={color} opacity="0.5" />
-                </svg>
-            ),
-            // 水母
-            Jellyfish: ({ className }) => (
-                <svg viewBox="0 0 100 120" className={className}>
-                    <path d="M10,40 Q50,-20 90,40" fill="#FF959D" stroke="#E87D85" strokeWidth="3" />
-                    <path d="M10,40 L90,40" fill="#FF959D" />
-                    <path d="M20,40 Q20,80 10,100" stroke="#FF959D" strokeWidth="4" fill="none" />
-                    <path d="M40,40 Q50,80 40,110" stroke="#FF959D" strokeWidth="4" fill="none" />
-                    <path d="M60,40 Q50,80 60,110" stroke="#FF959D" strokeWidth="4" fill="none" />
-                    <path d="M80,40 Q80,80 90,100" stroke="#FF959D" strokeWidth="4" fill="none" />
-                    <circle cx="30" cy="25" r="3" fill="#E87D85" />
-                    <circle cx="60" cy="15" r="4" fill="#E87D85" />
-                    <circle cx="75" cy="30" r="2" fill="#E87D85" />
-                </svg>
-            ),
-            // 鳳梨
-            Pineapple: ({ className }) => (
-                <svg viewBox="0 0 100 140" className={className}>
-                    {/* Leaves */}
-                    <path d="M50,40 Q30,10 50,0 Q70,10 50,40" fill="#4CAF50" />
-                    <path d="M50,40 Q20,20 30,5 Q40,20 50,40" fill="#66BB6A" />
-                    <path d="M50,40 Q80,20 70,5 Q60,20 50,40" fill="#66BB6A" />
-                    {/* Body */}
-                    <ellipse cx="50" cy="85" rx="35" ry="45" fill="#F7E35E" stroke="#E6D04A" strokeWidth="2" />
-                    {/* Texture */}
-                    <line x1="30" y1="60" x2="70" y2="110" stroke="#E6D04A" strokeWidth="1" />
-                    <line x1="70" y1="60" x2="30" y2="110" stroke="#E6D04A" strokeWidth="1" />
-                    <line x1="25" y1="80" x2="75" y2="80" stroke="#E6D04A" strokeWidth="1" />
-                    <line x1="25" y1="95" x2="75" y2="95" stroke="#E6D04A" strokeWidth="1" />
-                </svg>
-            )
-        };
+      const Illustrations = {
+        SkyFlower: ({ color, className }) => (
+          <svg viewBox="0 0 200 200" className={className}>
+            <g fill={color}>
+              <ellipse
+                cx="100"
+                cy="40"
+                rx="30"
+                ry="50"
+                transform="rotate(0 100 100)"
+              />
+              <ellipse
+                cx="100"
+                cy="40"
+                rx="30"
+                ry="50"
+                transform="rotate(72 100 100)"
+              />
+              <ellipse
+                cx="100"
+                cy="40"
+                rx="30"
+                ry="50"
+                transform="rotate(144 100 100)"
+              />
+              <ellipse
+                cx="100"
+                cy="40"
+                rx="30"
+                ry="50"
+                transform="rotate(216 100 100)"
+              />
+              <ellipse
+                cx="100"
+                cy="40"
+                rx="30"
+                ry="50"
+                transform="rotate(288 100 100)"
+              />
+            </g>
+            <circle cx="100" cy="100" r="25" fill="#FFF" opacity="0.8" />
+            <circle cx="100" cy="100" r="15" fill={color} opacity="0.5" />
+          </svg>
+        ),
+        Jellyfish: ({ className }) => (
+          <svg viewBox="0 0 100 120" className={className}>
+            <path
+              d="M10,40 Q50,-20 90,40"
+              fill="#FF959D"
+              stroke="#E87D85"
+              strokeWidth="3"
+            />
+            <path d="M10,40 L90,40" fill="#FF959D" />
+            <path
+              d="M20,40 Q20,80 10,100"
+              stroke="#FF959D"
+              strokeWidth="4"
+              fill="none"
+            />
+            <path
+              d="M40,40 Q50,80 40,110"
+              stroke="#FF959D"
+              strokeWidth="4"
+              fill="none"
+            />
+            <path
+              d="M60,40 Q50,80 60,110"
+              stroke="#FF959D"
+              strokeWidth="4"
+              fill="none"
+            />
+            <path
+              d="M80,40 Q80,80 90,100"
+              stroke="#FF959D"
+              strokeWidth="4"
+              fill="none"
+            />
+            <circle cx="30" cy="25" r="3" fill="#E87D85" />
+            <circle cx="60" cy="15" r="4" fill="#E87D85" />
+            <circle cx="75" cy="30" r="2" fill="#E87D85" />
+          </svg>
+        ),
+        Pineapple: ({ className }) => (
+          <svg viewBox="0 0 100 140" className={className}>
+            <path d="M50,40 Q30,10 50,0 Q70,10 50,40" fill="#4CAF50" />
+            <path d="M50,40 Q20,20 30,5 Q40,20 50,40" fill="#66BB6A" />
+            <path d="M50,40 Q80,20 70,5 Q60,20 50,40" fill="#66BB6A" />
+            <ellipse
+              cx="50"
+              cy="85"
+              rx="35"
+              ry="45"
+              fill="#F7E35E"
+              stroke="#E6D04A"
+              strokeWidth="2"
+            />
+            <line
+              x1="30"
+              y1="60"
+              x2="70"
+              y2="110"
+              stroke="#E6D04A"
+              strokeWidth="1"
+            />
+            <line
+              x1="70"
+              y1="60"
+              x2="30"
+              y2="110"
+              stroke="#E6D04A"
+              strokeWidth="1"
+            />
+            <line
+              x1="25"
+              y1="80"
+              x2="75"
+              y2="80"
+              stroke="#E6D04A"
+              strokeWidth="1"
+            />
+            <line
+              x1="25"
+              y1="95"
+              x2="75"
+              y2="95"
+              stroke="#E6D04A"
+              strokeWidth="1"
+            />
+          </svg>
+        ),
+      };
 
-        // 背景插圖集合
-        const BackgroundEffects = () => (
-            <>
-                <Illustrations.SkyFlower className="bg-illustration w-32 h-32 top-10 left-5 animate-spin-slow text-sb-teal" color="#20B2AA" />
-                <Illustrations.SkyFlower className="bg-illustration w-48 h-48 bottom-20 right-10 animate-spin-reverse text-sb-purple" color="#B19CD9" />
-                <Illustrations.SkyFlower className="bg-illustration w-24 h-24 top-1/3 right-1/4 animate-spin-slow text-sb-green" color="#A0D6B4" />
-                <Illustrations.SkyFlower className="bg-illustration w-16 h-16 bottom-1/3 left-10 animate-spin-slow text-sb-pink" color="#FF959D" />
+      const BackgroundEffects = () => (
+        <>
+          <Illustrations.SkyFlower
+            className="bg-illustration w-32 h-32 top-10 left-5 animate-spin-slow text-sb-teal"
+            color="#20B2AA"
+          />
+          <Illustrations.SkyFlower
+            className="bg-illustration w-48 h-48 bottom-20 right-10 animate-spin-reverse text-sb-purple"
+            color="#B19CD9"
+          />
+          <Illustrations.SkyFlower
+            className="bg-illustration w-24 h-24 top-1/3 right-1/4 animate-spin-slow text-sb-green"
+            color="#A0D6B4"
+          />
+          <Illustrations.SkyFlower
+            className="bg-illustration w-16 h-16 bottom-1/3 left-10 animate-spin-slow text-sb-pink"
+            color="#FF959D"
+          />
 
-                <Illustrations.Jellyfish className="bg-illustration w-20 h-24 top-20 right-20 animate-float-slow opacity-80" />
-                <Illustrations.Jellyfish className="bg-illustration w-16 h-20 bottom-40 left-1/3 animate-float-medium opacity-70" />
-                <Illustrations.Jellyfish className="bg-illustration w-12 h-16 top-1/2 left-10 animate-float-fast opacity-60" />
+          <Illustrations.Jellyfish className="bg-illustration w-20 h-24 top-20 right-20 animate-float-slow opacity-80" />
+          <Illustrations.Jellyfish className="bg-illustration w-16 h-20 bottom-40 left-1/3 animate-float-medium opacity-70" />
+          <Illustrations.Jellyfish className="bg-illustration w-12 h-16 top-1/2 left-10 animate-float-fast opacity-60" />
 
-                <Illustrations.Pineapple className="bg-illustration w-24 h-32 top-32 left-1/4 opacity-40 rotate-12" />
+          <Illustrations.Pineapple className="bg-illustration w-24 h-32 top-32 left-1/4 opacity-40 rotate-12" />
 
-                {/* --- 新增：使用者自定義漂浮圖片 (結構改為 外層飄移 + 內層旋轉) --- */}
+          <div className="bg-illustration top-0 left-0 animate-float-everywhere-1">
+            <img
+              src={CUSTOM_IMAGE_SRC}
+              className="w-24 h-auto sticker-img opacity-90 animate-spin-fast"
+              alt="Floating decoration 1"
+              onError={(e) => {
+                e.target.style.display = "none";
+                console.log("圖片載入失敗，請確認檔名");
+              }}
+            />
+          </div>
 
-                {/* 1. 路徑1 + 高速順時針旋轉 */}
-                <div className="bg-illustration top-0 left-0 animate-float-everywhere-1">
-                    <img
-                        src={CUSTOM_IMAGE_SRC}
-                        className="w-24 h-auto sticker-img opacity-90 animate-spin-fast"
-                        alt="Floating decoration 1"
-                        onError={(e) => { e.target.style.display = 'none'; console.log("圖片載入失敗，請確認檔名"); }}
-                    />
-                </div>
+          <div className="bg-illustration top-0 left-0 animate-float-everywhere-2">
+            <img
+              src={CUSTOM_IMAGE_SRC}
+              className="w-32 h-auto sticker-img opacity-80 animate-spin-reverse-fast"
+              alt="Floating decoration 2"
+              onError={(e) => (e.target.style.display = "none")}
+            />
+          </div>
 
-                {/* 2. 路徑2 + 反向高速旋轉 */}
-                <div className="bg-illustration top-0 left-0 animate-float-everywhere-2">
-                    <img
-                        src={CUSTOM_IMAGE_SRC}
-                        className="w-32 h-auto sticker-img opacity-80 animate-spin-reverse-fast"
-                        alt="Floating decoration 2"
-                        onError={(e) => e.target.style.display = 'none'}
-                    />
-                </div>
+          <div className="bg-illustration top-0 left-0 animate-float-everywhere-3">
+            <img
+              src={CUSTOM_IMAGE_SRC}
+              className="w-16 h-auto sticker-img opacity-70 animate-spin-super-fast"
+              alt="Floating decoration 3"
+              onError={(e) => (e.target.style.display = "none")}
+            />
+          </div>
 
-                {/* 3. 路徑3 + 超高速旋轉 (最快) */}
-                <div className="bg-illustration top-0 left-0 animate-float-everywhere-3">
-                    <img
-                        src={CUSTOM_IMAGE_SRC}
-                        className="w-16 h-auto sticker-img opacity-70 animate-spin-super-fast"
-                        alt="Floating decoration 3"
-                        onError={(e) => e.target.style.display = 'none'}
-                    />
-                </div>
+          <div
+            className="bg-illustration top-0 left-0 animate-float-everywhere-1"
+            style={{ animationDelay: "-12s" }}
+          >
+            <img
+              src={CUSTOM_IMAGE_SRC_2}
+              className="w-20 h-auto sticker-img opacity-85 animate-spin-reverse-fast"
+              alt="Floating decoration 4"
+              onError={(e) => (e.target.style.display = "none")}
+            />
+          </div>
 
-                {/* --- 新增：第二張自定義漂浮圖片 (Orion) --- */}
+          <div
+            className="bg-illustration top-0 left-0 animate-float-everywhere-3"
+            style={{ animationDelay: "-7s" }}
+          >
+            <img
+              src={CUSTOM_IMAGE_SRC_2}
+              className="w-28 h-auto sticker-img opacity-80 animate-spin-fast"
+              alt="Floating decoration 5"
+              onError={(e) => (e.target.style.display = "none")}
+            />
+          </div>
+        </>
+      );
 
-                {/* 4. 路徑1 (延遲啟動) + 反向高速旋轉 */}
-                <div className="bg-illustration top-0 left-0 animate-float-everywhere-1" style={{ animationDelay: '-12s' }}>
-                    <img
-                        src={CUSTOM_IMAGE_SRC_2}
-                        className="w-20 h-auto sticker-img opacity-85 animate-spin-reverse-fast"
-                        alt="Floating decoration 4"
-                        onError={(e) => e.target.style.display = 'none'}
-                    />
-                </div>
+      const TRIP_DATA = {
+        meta: {
+          title: "沖繩五天四夜跨年之旅",
+          dates: "2025/12/30 (二) - 2026/01/03 (六)",
+          travelers: 2,
+          rate: 0.21,
+        },
+        flights: [
+          {
+            type: "去程",
+            code: "IT230",
+            date: "12/30",
+            time: "06:35 - 08:55",
+            seat: "5AB",
+            from: "TPE",
+            to: "OKA",
+          },
+          {
+            type: "回程",
+            code: "IT233",
+            date: "01/03",
+            time: "21:30 - 22:05",
+            seat: "28AB",
+            from: "OKA",
+            to: "TPE",
+          },
+        ],
+        hotels: [
+          {
+            date: "12/30 (二)",
+            name: "HOTEL NAHA CITY",
+            area: "那霸",
+            price: 6881,
+            currency: "JPY",
+            note: "停車 ¥1000/日",
+          },
+          {
+            date: "12/31 (三)",
+            name: "HOTEL YUQUESTA AGARIMACHI",
+            area: "那霸",
+            price: 8100,
+            currency: "JPY",
+            note: "含早餐",
+          },
+          {
+            date: "01/01 (四)",
+            name: "超級飯店 (Super Hotel)",
+            area: "名護",
+            price: 5440,
+            currency: "JPY",
+            note: "提早到選枕頭 (預估價格)",
+          },
+          {
+            date: "01/02 (五)",
+            name: "那霸倫勃朗風格飯店",
+            area: "那霸",
+            price: 4710,
+            currency: "JPY",
+            note: "Rembrandt Style Naha",
+          },
+        ],
+        itinerary: [
+          {
+            day: 1,
+            date: "12/30 (二)",
+            dateStr: "2025-12-30",
+            events: [
+              {
+                time: "06:35",
+                endTime: "08:55",
+                title: "抵達那霸機場",
+                type: "transport",
+                location: "那霸機場",
+                cost: 0,
+                note: "航班 IT230",
+              },
+              {
+                time: "09:30",
+                endTime: "10:00",
+                title: "租車取車",
+                type: "transport",
+                location: "Brother Rent-A-Car (ブラザーレンタカー)",
+                mapLocation: "沖縄県那覇市田原3-1-8",
+                cost: 25470,
+                note: "預計1小時，含保險。費用：¥25,470 (現場付)",
+                mapLink: "https://maps.app.goo.gl/zqpsHZkhGTZXQbEd7",
+              },
+              {
+                time: "10:30",
+                endTime: "11:30",
+                title: "早午餐：客美多咖啡",
+                type: "meal",
+                location: "客美多咖啡 沖繩糸滿店",
+                cost: 1000,
+                note: "停留約1小時",
+              },
+              {
+                time: "12:00",
+                endTime: "15:30",
+                title: "沖繩世界 - 玉泉洞",
+                type: "activity",
+                location: "沖繩世界 文化王國・玉泉洞",
+                cost: 4000,
+                note: "13:30 毒蛇秀，Klook買一送一，費用¥4,000",
+              },
+              {
+                time: "15:40",
+                endTime: "16:30",
+                title: "奧武島觀光",
+                type: "activity",
+                location: "奧武島",
+                cost: 500,
+                note: "停留約1小時，吃炸物",
+              },
+              {
+                time: "17:00",
+                endTime: "18:00",
+                title: "Ricoland Okinawa",
+                type: "activity",
+                location: "Ricoland Okinawa",
+                mapLocation: "Ricoland Okinawa",
+                cost: 0,
+                note: "機車用品店，停留1小時",
+              },
+              {
+                time: "18:00",
+                endTime: "19:00",
+                title: "飯店 Check-in",
+                type: "transport",
+                location: "HOTEL NAHA CITY",
+                mapLocation: "1 Chome-4-5 Matsuo, Naha, Okinawa 900-0014日本",
+                cost: 6881,
+                note: "停車費用 ¥1000/日。備註：10F吸菸區",
+              },
+              {
+                time: "18:40",
+                endTime: "20:30",
+                title: "晚餐：Buchi Kumojiten (烤肉)",
+                type: "meal",
+                location: "Yakiniku Buchi Kumoji (燒肉 Buchi 久茂地店)",
+                mapLocation: "Yakiniku Buchi Kumoji",
+                cost: 5000,
+                note: "【已預訂】18:40。必點：生牛肉赤身、土鍋飯。(提醒：訂了兩家，需選一家)",
+              },
+            ],
+          },
+          {
+            day: 2,
+            date: "12/31 (三)",
+            dateStr: "2025-12-31",
+            events: [
+              {
+                time: "07:00",
+                endTime: "07:30",
+                title: "早餐：福助玉子燒 或 豬肉蛋飯糰",
+                type: "meal",
+                location: "牧志市場周邊",
+                cost: 1000,
+                note: "走路10分鐘。福助7:30開 / 飯糰7:00開",
+              },
+              {
+                time: "09:00",
+                endTime: "13:00",
+                title: "Parco City 逛街",
+                type: "activity",
+                location: "浦添西海岸 PARCO CITY",
+                cost: 5000,
+                note: "停車免費。開車約20分鐘",
+              },
+              {
+                time: "13:30",
+                endTime: "14:30",
+                title: "午餐：敘敘苑燒肉",
+                type: "meal",
+                location: "敘敘苑 沖繩浦添PARCO CITY店",
+                cost: 3000,
+                note: "【已預訂】預約 13:30",
+              },
+              {
+                time: "15:00",
+                endTime: "16:00",
+                title: "漫畫倉庫 / 港川外人住宅",
+                type: "activity",
+                location: "港川外人住宅街",
+                cost: 1500,
+                note: "浦添區。開車約9分鐘",
+              },
+              {
+                time: "18:30",
+                endTime: "19:00",
+                title: "飯店 Check-in",
+                type: "transport",
+                location: "HOTEL YUQUESTA AGARIMACHI",
+                mapLocation: "7-22 Higashimachi, Naha, Okinawa 900-0034日本",
+                cost: 0,
+                note: "需找停車場，盡量早回",
+              },
+              {
+                time: "20:00",
+                endTime: "21:30",
+                title: "晚餐：LITOR",
+                type: "meal",
+                location: "LITOR",
+                cost: 2000,
+                note: "【已預訂】預約 20:00。不能遲到！(遲到當天退費也扣錢)",
+              },
+              {
+                time: "22:00",
+                endTime: "00:30",
+                title: "跨年活動：Churasun 6",
+                type: "activity",
+                location: "Churasun 6",
+                mapLocation: "Churasun 6, Naha",
+                cost: 9000,
+                note: "【已預訂】預約 22:00 (22:30 開始)。費用¥9,000",
+              },
+            ],
+          },
+          {
+            day: 3,
+            date: "01/01 (四)",
+            dateStr: "2026-01-01",
+            events: [
+              {
+                time: "08:00",
+                endTime: "08:30",
+                title: "早餐：A&W 漢堡",
+                type: "meal",
+                location: "A&W 牧港店",
+                cost: 1500,
+                note: "元旦早餐",
+              },
+              {
+                time: "09:00",
+                endTime: "09:30",
+                title: "萬座毛",
+                type: "activity",
+                location: "萬座毛",
+                cost: 200,
+                note: "可以不去，可能會很趕，不然要更早出門。費用¥200",
+              },
+              {
+                time: "12:00",
+                endTime: "12:30",
+                title: "午餐：許田休息站 或 CAMEL SANDWICH",
+                type: "meal",
+                location: "許田休息站 / CAMEL SANDWICH",
+                mapLocation: "CAMEL SANDWICH",
+                cost: 1500,
+                note: "隨意吃或吃三明治",
+              },
+              {
+                time: "14:00",
+                endTime: "17:00",
+                title: "美麗海水族館",
+                type: "activity",
+                location: "沖繩美麗海水族館",
+                cost: 4360,
+                note: "【攻略】P7北停車場最近。13:20排隊餵海豚、14:00餵海龜、15:00鯨鯊餵食(黑潮之海)。費用¥4,360",
+              },
+              {
+                time: "18:00",
+                endTime: "18:30",
+                title: "飯店 Check-in",
+                type: "transport",
+                location: "Super Hotel Nago",
+                mapLocation: "Super Hotel Okinawa Nago",
+                cost: 5440,
+                note: "提早到選枕頭。超級飯店(名護)",
+              },
+              {
+                time: "19:00",
+                endTime: "21:00",
+                title: "晚餐：百年古家 大家 (阿古豬)",
+                type: "meal",
+                location: "Ufuya (百年古家 大家)",
+                mapLocation: "Ufuya, Nago",
+                cost: 4880,
+                note: "【已預訂】預約 19:30",
+              },
+            ],
+          },
+          {
+            day: 4,
+            date: "01/02 (五)",
+            dateStr: "2026-01-02",
+            events: [
+              {
+                time: "07:00",
+                endTime: "09:30",
+                title: "早餐：飯店早餐",
+                type: "meal",
+                location: "Super Hotel Nago",
+                cost: 0,
+                note: "",
+              },
+              {
+                time: "09:00",
+                endTime: "10:00",
+                title: "古宇利海洋塔",
+                type: "activity",
+                location: "古宇利海洋塔",
+                cost: 2000,
+                note: "欣賞風景。費用¥2,000",
+              },
+              {
+                time: "11:30",
+                endTime: "12:00",
+                title: "午餐：古宇利蝦蝦飯",
+                type: "meal",
+                location: "Kouri Shrimp",
+                mapLocation: "Kouri Shrimp Wagon",
+                cost: 2160,
+                note: "附近還有 NoBi",
+              },
+              {
+                time: "13:30",
+                endTime: "14:30",
+                title: "美國村",
+                type: "activity",
+                location: "美國村",
+                mapLocation: "American Village Okinawa",
+                cost: 1500,
+                note: "逛街拍照",
+              },
+              {
+                time: "15:00",
+                endTime: "16:00",
+                title: "永旺夢樂城 (Aeon Mall)",
+                type: "activity",
+                location: "AEON MALL Okinawa Rycom",
+                cost: 5000,
+                note: "大型購物中心",
+              },
+              {
+                time: "19:00",
+                endTime: "20:00",
+                title: "晚餐：傑克牛排",
+                type: "meal",
+                location: "Jack's Steak House (傑克牛排 那霸店)",
+                mapLocation: "Jack's Steak House Naha Okinawa",
+                cost: 3000,
+                note: "可以19:00先去吃，再 Check-in 走回去",
+              },
+              {
+                time: "19:30",
+                endTime: "21:00",
+                title: "飯店 Check-in",
+                type: "transport",
+                location: "Rembrandt Style Naha",
+                mapLocation: "Rembrandt Style Naha",
+                cost: 4710,
+                note: "那霸倫勃朗風格飯店",
+              },
+            ],
+          },
+          {
+            day: 5,
+            date: "01/03 (六)",
+            dateStr: "2026-01-03",
+            events: [
+              {
+                time: "07:00",
+                endTime: "09:30",
+                title: "早餐：飯店早餐",
+                type: "meal",
+                location: "Rembrandt Style Naha",
+                cost: 0,
+                note: "",
+              },
+              {
+                time: "09:30",
+                endTime: "10:00",
+                title: "波上宮",
+                type: "activity",
+                location: "波上宮",
+                cost: 0,
+                note: "參拜拍照",
+              },
+              {
+                time: "10:00",
+                endTime: "11:00",
+                title: "早午餐：幸福鬆餅",
+                type: "meal",
+                location: "A Happy Pancake Umikaji Terrace",
+                cost: 2000,
+                note: "路邊停車免費，需排隊",
+              },
+              {
+                time: "12:00",
+                endTime: "13:00",
+                title: "購物：iias 沖繩豐崎",
+                type: "activity",
+                location: "iias Okinawa Toyosaki",
+                cost: 5000,
+                note: "最後採買",
+              },
+              {
+                time: "16:30",
+                endTime: "17:00",
+                title: "購物：Workman",
+                type: "activity",
+                location: "Workman Plus",
+                cost: 5000,
+                note: "機能服飾",
+              },
+              {
+                time: "17:00",
+                endTime: "18:00",
+                title: "還車/前往機場",
+                type: "transport",
+                location: "那霸機場",
+                cost: 0,
+                note: "需預留還車時間",
+              },
+              {
+                time: "21:30",
+                endTime: "22:05",
+                title: "返程航班",
+                type: "transport",
+                location: "IT233",
+                cost: 0,
+                note: "21:30 起飛",
+              },
+            ],
+          },
+        ],
+        budget: [
+          { item: "機票", twd: 17902, note: "買 / 都付了" },
+          { item: "12/30 國際通住宿", twd: 1380, note: "買 / ¥6,881 (賀)" },
+          { item: "12/31 國際通住宿", twd: 1620, note: "買 / ¥8,100 (賀)" },
+          { item: "1/1 名護住宿", twd: 2176, note: "買 / ¥10,552 (賀)" },
+          { item: "1/2 國際通住宿", twd: 1884, note: "買 / ¥9,396 (賀)" },
+          { item: "租車 5天四夜", twd: 5094, note: "預訂 / ¥25,470 (現場付)" },
+          { item: "日本譯文駕駛", twd: 256, note: "買 / 都付了" },
+          { item: "門票 美麗海洋館", twd: 874, note: "未買 / ¥4,360 (賀)" },
+          {
+            item: "門票 玉泉洞",
+            twd: 375,
+            note: "買 / ¥4,000 (Klook買一送一)",
+          },
+          { item: "門票 古宇利島", twd: 375, note: "買 / ¥2,000 (賀)" },
+          { item: "門票 萬座毛", twd: 40, note: "未買 / ¥200 (現場付)" },
+          {
+            item: "門票 Churasun 6",
+            twd: 1800,
+            note: "預訂 / ¥9,000 (現場付)",
+          },
+          { item: "旅遊險", twd: 1390, note: "買 / 12/22付錢" },
+          { item: "esim", twd: 320, note: "未買 / 一人300左右" },
+          { item: "加油錢(含停車費)", twd: 2000, note: "預估 / ¥10,000" },
+          { item: "機場來回車資", twd: 930, note: "預估 / 單程高鐵訂票了430" },
+          { item: "飲食", twd: 8500, note: "預估" },
+          { item: "疫苗", twd: 2000, note: "買" },
+        ],
+      };
 
-                {/* 5. 路徑3 (延遲啟動) + 高速旋轉 */}
-                <div className="bg-illustration top-0 left-0 animate-float-everywhere-3" style={{ animationDelay: '-7s' }}>
-                    <img
-                        src={CUSTOM_IMAGE_SRC_2}
-                        className="w-28 h-auto sticker-img opacity-80 animate-spin-fast"
-                        alt="Floating decoration 5"
-                        onError={(e) => e.target.style.display = 'none'}
-                    />
-                </div>
-            </>
+      const CountdownTimer = ({ targetDateStr, targetTimeStr }) => {
+        const [timeLeft, setTimeLeft] = useState("");
+
+        useEffect(() => {
+          const calculateTimeLeft = () => {
+            const target = new Date(`${targetDateStr}T${targetTimeStr}:00`);
+            const now = new Date();
+            const diff = target - now;
+
+            if (diff <= 0) return "進行中 🔥";
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            if (days > 0) return `${days}天 ${hours}時 ${minutes}分`;
+            return `${hours}時 ${minutes}分 ${seconds}秒`;
+          };
+
+          setTimeLeft(calculateTimeLeft());
+          const timer = setInterval(
+            () => setTimeLeft(calculateTimeLeft()),
+            1000
+          );
+          return () => clearInterval(timer);
+        }, [targetDateStr, targetTimeStr]);
+
+        return (
+          <div className="flex items-center space-x-2 bg-sb-pink text-white px-3 py-1.5 rounded-full shadow-cartoon border-2 border-white text-sm font-bold animate-pulse">
+            <Icons.Timer className="w-5 h-5" />
+            <span>
+              倒數：<span>{timeLeft}</span>
+            </span>
+          </div>
         );
+      };
 
-        // 模擬數據
-        const TRIP_DATA = {
-            meta: {
-                title: "沖繩五天四夜跨年之旅",
-                dates: "2025/12/30 (二) - 2026/01/03 (六)",
-                travelers: 2,
-                rate: 0.21
-            },
-            flights: [
-                { type: "去程", code: "IT230", date: "12/30", time: "06:35 - 08:55", seat: "5AB", from: "TPE", to: "OKA" },
-                { type: "回程", code: "IT233", date: "01/03", time: "21:30 - 22:05", seat: "28AB", from: "OKA", to: "TPE" }
-            ],
-            hotels: [
-                { date: "12/30 (二)", name: "HOTEL NAHA CITY", area: "那霸", price: 6881, currency: "JPY", note: "停車 ¥1000/日" },
-                { date: "12/31 (三)", name: "HOTEL YUQUESTA AGARIMACHI", area: "那霸", price: 8100, currency: "JPY", note: "含早餐" },
-                { date: "01/01 (四)", name: "超級飯店 (Super Hotel)", area: "名護", price: 5440, currency: "JPY", note: "提早到選枕頭 (預估價格)" },
-                { date: "01/02 (五)", name: "那霸倫勃朗風格飯店", area: "那霸", price: 4710, currency: "JPY", note: "Rembrandt Style Naha" }
-            ],
-            itinerary: [
-                {
-                    day: 1,
-                    date: "12/30 (二)",
-                    dateStr: "2025-12-30",
-                    events: [
-                        { time: "06:35", endTime: "08:55", title: "抵達那霸機場", type: "transport", location: "那霸機場", cost: 0, note: "航班 IT230" },
-                        {
-                            time: "09:30",
-                            endTime: "10:00",
-                            title: "租車取車",
-                            type: "transport",
-                            location: "Brother Rent-A-Car (ブラザーレンタカー)",
-                            mapLocation: "沖縄県那覇市田原3-1-8",
-                            cost: 25470,
-                            note: "預計1小時，含保險。費用：¥25,470 (現場付)",
-                            mapLink: "https://maps.app.goo.gl/zqpsHZkhGTZXQbEd7"
-                        },
-                        { time: "10:30", endTime: "11:30", title: "早午餐：客美多咖啡", type: "meal", location: "客美多咖啡 沖繩糸滿店", cost: 1000, note: "停留約1小時" },
-                        { time: "12:00", endTime: "15:30", title: "沖繩世界 - 玉泉洞", type: "activity", location: "沖繩世界 文化王國・玉泉洞", cost: 4000, note: "13:30 毒蛇秀，Klook買一送一，費用¥4,000" },
-                        { time: "15:40", endTime: "16:30", title: "奧武島觀光", type: "activity", location: "奧武島", cost: 500, note: "停留約1小時，吃炸物" },
-                        {
-                            time: "17:00",
-                            endTime: "18:00",
-                            title: "Ricoland Okinawa",
-                            type: "activity",
-                            location: "Ricoland Okinawa",
-                            mapLocation: "Ricoland Okinawa",
-                            cost: 0,
-                            note: "機車用品店，停留1小時"
-                        },
-                        {
-                            time: "18:00",
-                            endTime: "19:00",
-                            title: "飯店 Check-in",
-                            type: "transport",
-                            location: "HOTEL NAHA CITY",
-                            mapLocation: "1 Chome-4-5 Matsuo, Naha, Okinawa 900-0014日本",
-                            cost: 6881,
-                            note: "停車費用 ¥1000/日。備註：10F吸菸區"
-                        },
-                        {
-                            time: "18:40",
-                            endTime: "20:30",
-                            title: "晚餐：Buchi Kumojiten (烤肉)",
-                            type: "meal",
-                            location: "Yakiniku Buchi Kumoji (燒肉 Buchi 久茂地店)",
-                            mapLocation: "Yakiniku Buchi Kumoji",
-                            cost: 5000,
-                            note: "【已預訂】18:40。必點：生牛肉赤身、土鍋飯。(提醒：訂了兩家，需選一家)"
-                        }
-                    ]
-                },
-                {
-                    day: 2,
-                    date: "12/31 (三)",
-                    dateStr: "2025-12-31",
-                    events: [
-                        {
-                            time: "07:00",
-                            endTime: "07:30",
-                            title: "早餐：福助玉子燒 或 豬肉蛋飯糰",
-                            type: "meal",
-                            location: "牧志市場周邊",
-                            cost: 1000,
-                            note: "走路10分鐘。福助7:30開 / 飯糰7:00開"
-                        },
-                        {
-                            time: "09:00",
-                            endTime: "13:00",
-                            title: "Parco City 逛街",
-                            type: "activity",
-                            location: "浦添西海岸 PARCO CITY",
-                            cost: 5000,
-                            note: "停車免費。開車約20分鐘"
-                        },
-                        {
-                            time: "13:30",
-                            endTime: "14:30",
-                            title: "午餐：敘敘苑燒肉",
-                            type: "meal",
-                            location: "敘敘苑 沖繩浦添PARCO CITY店",
-                            cost: 3000,
-                            note: "【已預訂】預約 13:30"
-                        },
-                        {
-                            time: "15:00",
-                            endTime: "16:00",
-                            title: "漫畫倉庫 / 港川外人住宅",
-                            type: "activity",
-                            location: "港川外人住宅街",
-                            cost: 1500,
-                            note: "浦添區。開車約9分鐘"
-                        },
-                        {
-                            time: "18:30",
-                            endTime: "19:00",
-                            title: "飯店 Check-in",
-                            type: "transport",
-                            location: "HOTEL YUQUESTA AGARIMACHI",
-                            mapLocation: "7-22 Higashimachi, Naha, Okinawa 900-0034日本",
-                            cost: 0,
-                            note: "需找停車場，盡量早回"
-                        },
-                        {
-                            time: "20:00",
-                            endTime: "21:30",
-                            title: "晚餐：LITOR",
-                            type: "meal",
-                            location: "LITOR",
-                            cost: 2000,
-                            note: "【已預訂】預約 20:00。不能遲到！(遲到當天退費也扣錢)"
-                        },
-                        {
-                            time: "22:00",
-                            endTime: "00:30",
-                            title: "跨年活動：Churasun 6",
-                            type: "activity",
-                            location: "Churasun 6",
-                            mapLocation: "Churasun 6, Naha",
-                            cost: 9000,
-                            note: "【已預訂】預約 22:00 (22:30 開始)。費用¥9,000"
-                        }
-                    ]
-                },
-                {
-                    day: 3,
-                    date: "01/01 (四)",
-                    dateStr: "2026-01-01",
-                    events: [
-                        { time: "08:00", endTime: "08:30", title: "早餐：A&W 漢堡", type: "meal", location: "A&W 牧港店", cost: 1500, note: "元旦早餐" },
-                        { time: "09:00", endTime: "09:30", title: "萬座毛", type: "activity", location: "萬座毛", cost: 200, note: "可以不去，可能會很趕，不然要更早出門。費用¥200" },
-                        {
-                            time: "12:00",
-                            endTime: "12:30",
-                            title: "午餐：許田休息站 或 CAMEL SANDWICH",
-                            type: "meal",
-                            location: "許田休息站 / CAMEL SANDWICH",
-                            mapLocation: "CAMEL SANDWICH",
-                            cost: 1500,
-                            note: "隨意吃或吃三明治"
-                        },
-                        {
-                            time: "14:00",
-                            endTime: "17:00",
-                            title: "美麗海水族館",
-                            type: "activity",
-                            location: "沖繩美麗海水族館",
-                            cost: 4360,
-                            note: "【攻略】P7北停車場最近。13:20排隊餵海豚、14:00餵海龜、15:00鯨鯊餵食(黑潮之海)。費用¥4,360"
-                        },
-                        {
-                            time: "18:00",
-                            endTime: "18:30",
-                            title: "飯店 Check-in",
-                            type: "transport",
-                            location: "Super Hotel Nago",
-                            mapLocation: "Super Hotel Okinawa Nago",
-                            cost: 5440,
-                            note: "提早到選枕頭。超級飯店(名護)"
-                        },
-                        {
-                            time: "19:00",
-                            endTime: "21:00",
-                            title: "晚餐：百年古家 大家 (阿古豬)",
-                            type: "meal",
-                            location: "Ufuya (百年古家 大家)",
-                            mapLocation: "Ufuya, Nago",
-                            cost: 4880,
-                            note: "【已預訂】預約 19:30"
-                        }
-                    ]
-                },
-                {
-                    day: 4,
-                    date: "01/02 (五)",
-                    dateStr: "2026-01-02",
-                    events: [
-                        { time: "07:00", endTime: "09:30", title: "早餐：飯店早餐", type: "meal", location: "Super Hotel Nago", cost: 0, note: "" },
-                        {
-                            time: "09:00",
-                            endTime: "10:00",
-                            title: "古宇利海洋塔",
-                            type: "activity",
-                            location: "古宇利海洋塔",
-                            cost: 2000,
-                            note: "欣賞風景。費用¥2,000"
-                        },
-                        {
-                            time: "11:30",
-                            endTime: "12:00",
-                            title: "午餐：古宇利蝦蝦飯",
-                            type: "meal",
-                            location: "Kouri Shrimp",
-                            mapLocation: "Kouri Shrimp Wagon",
-                            cost: 2160,
-                            note: "附近還有 NoBi"
-                        },
-                        {
-                            time: "13:30",
-                            endTime: "14:30",
-                            title: "美國村",
-                            type: "activity",
-                            location: "美國村",
-                            mapLocation: "American Village Okinawa",
-                            cost: 1500,
-                            note: "逛街拍照"
-                        },
-                        {
-                            time: "15:00",
-                            endTime: "16:00",
-                            title: "永旺夢樂城 (Aeon Mall)",
-                            type: "activity",
-                            location: "AEON MALL Okinawa Rycom",
-                            cost: 5000,
-                            note: "大型購物中心"
-                        },
-                        {
-                            time: "19:00",
-                            endTime: "20:00",
-                            title: "晚餐：傑克牛排",
-                            type: "meal",
-                            location: "Jack's Steak House (傑克牛排 那霸店)",
-                            mapLocation: "Jack's Steak House Naha Okinawa",
-                            cost: 3000,
-                            note: "可以19:00先去吃，再 Check-in 走回去"
-                        },
-                        {
-                            time: "19:30",
-                            endTime: "21:00",
-                            title: "飯店 Check-in",
-                            type: "transport",
-                            location: "Rembrandt Style Naha",
-                            mapLocation: "Rembrandt Style Naha",
-                            cost: 4710,
-                            note: "那霸倫勃朗風格飯店"
-                        }
-                    ]
-                },
-                {
-                    day: 5,
-                    date: "01/03 (六)",
-                    dateStr: "2026-01-03",
-                    events: [
-                        { time: "07:00", endTime: "09:30", title: "早餐：飯店早餐", type: "meal", location: "Rembrandt Style Naha", cost: 0, note: "" },
-                        { time: "09:30", endTime: "10:00", title: "波上宮", type: "activity", location: "波上宮", cost: 0, note: "參拜拍照" },
-                        {
-                            time: "10:00",
-                            endTime: "11:00",
-                            title: "早午餐：幸福鬆餅",
-                            type: "meal",
-                            location: "A Happy Pancake Umikaji Terrace",
-                            cost: 2000,
-                            note: "路邊停車免費，需排隊"
-                        },
-                        {
-                            time: "12:00",
-                            endTime: "13:00",
-                            title: "購物：iias 沖繩豐崎",
-                            type: "activity",
-                            location: "iias Okinawa Toyosaki",
-                            cost: 5000,
-                            note: "最後採買"
-                        },
-                        {
-                            time: "16:30",
-                            endTime: "17:00",
-                            title: "購物：Workman",
-                            type: "activity",
-                            location: "Workman Plus",
-                            cost: 5000,
-                            note: "機能服飾"
-                        },
-                        { time: "17:00", endTime: "18:00", title: "還車/前往機場", type: "transport", location: "那霸機場", cost: 0, note: "需預留還車時間" },
-                        { time: "21:30", endTime: "22:05", title: "返程航班", type: "transport", location: "IT233", cost: 0, note: "21:30 起飛" }
-                    ]
-                }
-            ],
-            budget: [
-                { item: "機票", twd: 17902, note: "買 / 都付了" },
-                { item: "12/30 國際通住宿", twd: 1380, note: "買 / ¥6,881 (賀)" },
-                { item: "12/31 國際通住宿", twd: 1620, note: "買 / ¥8,100 (賀)" },
-                { item: "1/1 名護住宿", twd: 2176, note: "買 / ¥10,552 (賀)" },
-                { item: "1/2 國際通住宿", twd: 1884, note: "買 / ¥9,396 (賀)" },
-                { item: "租車 5天四夜", twd: 5094, note: "預訂 / ¥25,470 (現場付)" },
-                { item: "日本譯文駕駛", twd: 256, note: "買 / 都付了" },
-                { item: "門票 美麗海洋館", twd: 874, note: "未買 / ¥4,360 (賀)" },
-                { item: "門票 玉泉洞", twd: 375, note: "買 / ¥4,000 (Klook買一送一)" },
-                { item: "門票 古宇利島", twd: 375, note: "買 / ¥2,000 (賀)" },
-                { item: "門票 萬座毛", twd: 40, note: "未買 / ¥200 (現場付)" },
-                { item: "門票 Churasun 6", twd: 1800, note: "預訂 / ¥9,000 (現場付)" },
-                { item: "旅遊險", twd: 1390, note: "買 / 12/22付錢" },
-                { item: "esim", twd: 320, note: "未買 / 一人300左右" },
-                { item: "加油錢(含停車費)", twd: 2000, note: "預估 / ¥10,000" },
-                { item: "機場來回車資", twd: 930, note: "預估 / 單程高鐵訂票了430" },
-                { item: "飲食", twd: 8500, note: "預估" },
-                { item: "疫苗", twd: 2000, note: "買" }
-            ]
+      const EventItem = ({ event, isNext, eventId }) => {
+        const [isMapVisible, setIsMapVisible] = useState(false);
+
+        const queryLocation = event.mapLocation || event.location;
+        const mapQuery = encodeURIComponent(queryLocation);
+        const mapUrl = `https://maps.google.com/maps?q=${mapQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+        const externalMapUrl =
+          event.mapLink ||
+          `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
+
+        const getTypeStyle = (type) => {
+          switch (type) {
+            case "meal":
+              return "bg-sb-yellow border-sb-brown text-sb-brown";
+            case "transport":
+              return "bg-gray-100 border-gray-400 text-gray-600";
+            default:
+              return "bg-sb-teal border-white text-white";
+          }
         };
 
-        // 倒數計時器
-        const CountdownTimer = ({ targetDateStr, targetTimeStr }) => {
-            const [timeLeft, setTimeLeft] = useState("");
-
-            useEffect(() => {
-                const calculateTimeLeft = () => {
-                    const target = new Date(`${targetDateStr}T${targetTimeStr}:00`);
-                    const now = new Date();
-                    const diff = target - now;
-
-                    // 判斷是否為「進行中」
-                    if (diff <= 0) {
-                        return "進行中 🔥"; // 顯示進行中
-                    }
-
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                    const minutes = Math.floor((diff / 1000 / 60) % 60);
-                    const seconds = Math.floor((diff / 1000) % 60);
-
-                    if (days > 0) return `${days}天 ${hours}時 ${minutes}分`;
-                    return `${hours}時 ${minutes}分 ${seconds}秒`;
-                };
-
-                setTimeLeft(calculateTimeLeft());
-                const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
-                return () => clearInterval(timer);
-            }, [targetDateStr, targetTimeStr]);
-
-            return (
-                <div className="flex items-center space-x-2 bg-sb-pink text-white px-3 py-1.5 rounded-full shadow-cartoon border-2 border-white text-sm font-bold animate-pulse">
-                    <Icons.Timer className="w-5 h-5" />
-                    <span>倒數：<span>{timeLeft}</span></span>
-                </div>
-            );
+        const getTypeLabel = (type) => {
+          switch (type) {
+            case "meal":
+              return "美味蟹堡";
+            case "transport":
+              return "移動中";
+            default:
+              return "去玩耍";
+          }
         };
 
-        // 事件項目
-        const EventItem = ({ event, isNext, eventId }) => {
-            const [isMapVisible, setIsMapVisible] = useState(false);
+        return (
+          <div
+            id={eventId}
+            className={`relative pl-8 group ${isNext ? "z-10" : ""}`}
+          >
+            <div className="absolute left-3 top-0 bottom-0 w-1 bg-white/50 border-x border-white/20 group-last:bottom-auto group-last:h-8"></div>
 
-            const queryLocation = event.mapLocation || event.location;
-            const mapQuery = encodeURIComponent(queryLocation);
-            const mapUrl = `https://maps.google.com/maps?q=${mapQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-            const externalMapUrl = event.mapLink || `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
+            <div
+              className={`absolute left-0 top-6 w-7 h-7 rounded-full border-2 border-white shadow-cartoon flex items-center justify-center z-10 transition-transform ${
+                isNext ? "bg-sb-pink scale-125" : "bg-sb-yellow"
+              }`}
+            >
+              {event.type === "meal" ? (
+                <Icons.Utensils className="w-3 h-3 text-sb-brown" />
+              ) : event.type === "transport" ? (
+                <Icons.Car className="w-3 h-3 text-sb-brown" />
+              ) : (
+                <Icons.MapPin className="w-3 h-3 text-sb-brown" />
+              )}
+            </div>
 
-            const getTypeStyle = (type) => {
-                switch (type) {
-                    case 'meal': return 'bg-sb-yellow border-sb-brown text-sb-brown';
-                    case 'transport': return 'bg-gray-100 border-gray-400 text-gray-600';
-                    default: return 'bg-sb-teal border-white text-white';
-                }
-            };
+            <div
+              className={`mb-6 p-5 rounded-3xl border-4 transition-all duration-300 relative ${
+                isNext
+                  ? "bg-sb-yellow border-sb-brown shadow-cartoon transform scale-[1.02]"
+                  : "bg-white border-white hover:border-sb-yellow hover:shadow-cartoon-hover"
+              }`}
+            >
+              <div
+                className={`absolute -top-2 -right-2 w-4 h-4 bg-sb-blue rounded-full border border-white opacity-50 ${
+                  isNext ? "block" : "hidden"
+                }`}
+              ></div>
 
-            const getTypeLabel = (type) => {
-                switch (type) {
-                    case 'meal': return '美味蟹堡';
-                    case 'transport': return '移動中';
-                    default: return '去玩耍';
-                }
-            };
-
-            return (
-                <div id={eventId} className={`relative pl-8 group ${isNext ? 'z-10' : ''}`}>
-                    <div className="absolute left-3 top-0 bottom-0 w-1 bg-white/50 border-x border-white/20 group-last:bottom-auto group-last:h-8"></div>
-
-                    <div className={`absolute left-0 top-6 w-7 h-7 rounded-full border-2 border-white shadow-cartoon flex items-center justify-center z-10 transition-transform ${isNext ? 'bg-sb-pink scale-125' : 'bg-sb-yellow'
-                        }`}>
-                        {event.type === 'meal' ? <Icons.Utensils className="w-3 h-3 text-sb-brown" /> :
-                            event.type === 'transport' ? <Icons.Car className="w-3 h-3 text-sb-brown" /> :
-                                <Icons.MapPin className="w-3 h-3 text-sb-brown" />}
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 relative z-10">
+                <div className="flex-1">
+                  <div className="flex items-center justify-between sm:justify-start gap-3 mb-2">
+                    <span
+                      className={`font-mono text-sm font-black px-3 py-1 rounded-full border-2 ${
+                        isNext
+                          ? "bg-white text-sb-brown border-sb-brown"
+                          : "bg-sb-blue/20 text-sb-brown border-transparent"
+                      }`}
+                    >
+                      <span>{event.time}</span>
+                    </span>
+                    <div className={isNext ? "block" : "hidden"}>
+                      <CountdownTimer
+                        targetDateStr={event.dateStr}
+                        targetTimeStr={event.time}
+                      />
                     </div>
+                  </div>
 
-                    <div className={`mb-6 p-5 rounded-3xl border-4 transition-all duration-300 relative ${isNext
-                            ? 'bg-sb-yellow border-sb-brown shadow-cartoon transform scale-[1.02]'
-                            : 'bg-white border-white hover:border-sb-yellow hover:shadow-cartoon-hover'
-                        }`}>
-                        {/* 穩定結構：倒數計時器容器永遠存在，只是透過 class 控制顯示 */}
-                        <div className={`absolute -top-2 -right-2 w-4 h-4 bg-sb-blue rounded-full border border-white opacity-50 ${isNext ? 'block' : 'hidden'}`}></div>
+                  <h4
+                    className={`text-xl font-black mb-2 ${
+                      isNext ? "text-sb-brown" : "text-gray-700"
+                    }`}
+                  >
+                    <span>{event.title}</span>
+                  </h4>
 
-                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 relative z-10">
-                            <div className="flex-1">
-                                <div className="flex items-center justify-between sm:justify-start gap-3 mb-2">
-                                    <span className={`font-mono text-sm font-black px-3 py-1 rounded-full border-2 ${isNext ? 'bg-white text-sb-brown border-sb-brown' : 'bg-sb-blue/20 text-sb-brown border-transparent'}`}>
-                                        <span>{event.time}</span>
-                                    </span>
-                                    {/* 穩定結構：倒數計時器容器永遠存在，只是透過 class 控制顯示 */}
-                                    <div className={isNext ? 'block' : 'hidden'}>
-                                        <CountdownTimer targetDateStr={event.dateStr} targetTimeStr={event.time} />
-                                    </div>
-                                </div>
-
-                                <h4 className={`text-xl font-black mb-2 ${isNext ? 'text-sb-brown' : 'text-gray-700'}`}>
-                                    <span>{event.title}</span>
-                                </h4>
-
-                                <div className="flex flex-wrap gap-2 text-sm font-bold mb-3">
-                                    <span className={`inline-flex items-center px-3 py-1 rounded-full border-2 text-xs ${getTypeStyle(event.type)}`}>
-                                        <span>{getTypeLabel(event.type)}</span>
-                                    </span>
-                                    <div className="flex items-center px-3 py-1 rounded-full bg-white/50 border-2 border-white/50 text-gray-500">
-                                        <span className="mr-1.5"><Icons.MapPin className="w-5 h-5" /></span>
-                                        <span>{event.location}</span>
-                                    </div>
-                                </div>
-
-                                {event.note && (
-                                    <div className={`flex items-start text-sm p-3 rounded-2xl border-2 ${isNext ? 'bg-white/50 border-sb-brown/20 text-sb-brown' : 'bg-sb-sand border-gray-100 text-gray-500'}`}>
-                                        <span className="mr-2 mt-0.5 text-sb-pink"><Icons.Info className="w-4 h-4" /></span>
-                                        <span className="font-medium"><span>{event.note}</span></span>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 min-w-[100px]">
-                                {event.cost > 0 && (
-                                    <div className="text-right bg-white/80 px-3 py-1 rounded-xl border-2 border-white shadow-sm">
-                                        <span className="text-[10px] text-gray-400 uppercase font-black tracking-wider"><span>預估</span></span>
-                                        <div className="font-mono text-lg font-black text-sb-plankton">
-                                            <span>¥</span><span>{event.cost.toLocaleString()}</span>
-                                        </div>
-                                    </div>
-                                )}
-                                <button
-                                    onClick={() => setIsMapVisible(!isMapVisible)}
-                                    className={`text-sm font-bold flex items-center px-4 py-2 rounded-full border-2 shadow-cartoon-hover transition-all active:translate-y-1 active:shadow-none ${isMapVisible
-                                            ? "bg-sb-red text-white border-sb-red"
-                                            : "bg-sb-blue text-white border-white hover:bg-teal-400"
-                                        }`}
-                                >
-                                    <span className="mr-1.5"><Icons.Map className="w-4 h-4" /></span>
-                                    <span>{isMapVisible ? "收起" : "地圖"}</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* 使用穩定結構渲染地圖區塊 */}
-                        <div className={`mt-4 rounded-2xl overflow-hidden border-4 border-white shadow-cartoon bg-sb-sand animate-fade-in relative ${isMapVisible ? 'block' : 'hidden'}`}>
-                            {isMapVisible && (
-                                <iframe
-                                    width="100%"
-                                    height="280"
-                                    frameBorder="0"
-                                    scrolling="no"
-                                    marginHeight="0"
-                                    marginWidth="0"
-                                    src={mapUrl}
-                                    title={`Map of ${event.location}`}
-                                    className="w-full block"
-                                ></iframe>
-                            )}
-                            <div className="bg-white py-2 px-3 text-xs flex justify-end border-t-2 border-gray-100 font-bold">
-                                <a
-                                    href={externalMapUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center text-sb-blue hover:text-sb-teal transition-colors"
-                                >
-                                    <span>開啟 Google Maps</span> <span className="ml-1"><Icons.ExternalLink className="w-4 h-4" /></span>
-                                </a>
-                            </div>
-                        </div>
+                  <div className="flex flex-wrap gap-2 text-sm font-bold mb-3">
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full border-2 text-xs ${getTypeStyle(
+                        event.type
+                      )}`}
+                    >
+                      <span>{getTypeLabel(event.type)}</span>
+                    </span>
+                    <div className="flex items-center px-3 py-1 rounded-full bg-white/50 border-2 border-white/50 text-gray-500">
+                      <span className="mr-1.5">
+                        <Icons.MapPin className="w-5 h-5" />
+                      </span>
+                      <span>{event.location}</span>
                     </div>
+                  </div>
+
+                  {event.note && (
+                    <div
+                      className={`flex items-start text-sm p-3 rounded-2xl border-2 ${
+                        isNext
+                          ? "bg-white/50 border-sb-brown/20 text-sb-brown"
+                          : "bg-sb-sand border-gray-100 text-gray-500"
+                      }`}
+                    >
+                      <span className="mr-2 mt-0.5 text-sb-pink">
+                        <Icons.Info className="w-4 h-4" />
+                      </span>
+                      <span className="font-medium">
+                        <span>{event.note}</span>
+                      </span>
+                    </div>
+                  )}
                 </div>
-            );
+
+                <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 min-w-[100px]">
+                  {event.cost > 0 && (
+                    <div className="text-right bg-white/80 px-3 py-1 rounded-xl border-2 border-white shadow-sm">
+                      <span className="text-[10px] text-gray-400 uppercase font-black tracking-wider">
+                        <span>預估</span>
+                      </span>
+                      <div className="font-mono text-lg font-black text-sb-plankton">
+                        <span>¥</span>
+                        <span>{event.cost.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setIsMapVisible(!isMapVisible)}
+                    className={`text-sm font-bold flex items-center px-4 py-2 rounded-full border-2 shadow-cartoon-hover transition-all active:translate-y-1 active:shadow-none ${
+                      isMapVisible
+                        ? "bg-sb-red text-white border-sb-red"
+                        : "bg-sb-blue text-white border-white hover:bg-teal-400"
+                    }`}
+                  >
+                    <span className="mr-1.5">
+                      <Icons.Map className="w-4 h-4" />
+                    </span>
+                    <span>{isMapVisible ? "收起" : "地圖"}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div
+                className={`mt-4 rounded-2xl overflow-hidden border-4 border-white shadow-cartoon bg-sb-sand animate-fade-in relative ${
+                  isMapVisible ? "block" : "hidden"
+                }`}
+              >
+                {isMapVisible && (
+                  <iframe
+                    width="100%"
+                    height="280"
+                    frameBorder="0"
+                    scrolling="no"
+                    marginHeight="0"
+                    marginWidth="0"
+                    src={mapUrl}
+                    title={`Map of ${event.location}`}
+                    className="w-full block"
+                  ></iframe>
+                )}
+                <div className="bg-white py-2 px-3 text-xs flex justify-end border-t-2 border-gray-100 font-bold">
+                  <a
+                    href={externalMapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-sb-blue hover:text-sb-teal transition-colors"
+                  >
+                    <span>開啟 Google Maps</span>{" "}
+                    <span className="ml-1">
+                      <Icons.ExternalLink className="w-4 h-4" />
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const TodoView = () => {
+        const [todos, setTodos] = useState([]);
+        const [input, setInput] = useState("");
+        const [user, setUser] = useState(null);
+        const [isFirebaseMode, setIsFirebaseMode] = useState(false);
+
+        // 處理登入
+        const handleLogin = async () => {
+          if (!window.fb) return;
+          const { auth, signInWithPopup, googleProvider } = window.fb;
+          try {
+            await signInWithPopup(auth, googleProvider);
+          } catch (error) {
+            console.error("Login failed:", error);
+          }
         };
 
-        // Todo List 組件
-        const TodoView = () => {
-            const [todos, setTodos] = useState(() => {
-                const saved = localStorage.getItem('okinawa_todos');
-                return saved ? JSON.parse(saved) : [
-                    { id: 1, text: "確認護照效期 (至少6個月)", done: false },
-                    { id: 2, text: "申請日本駕照譯本", done: false },
-                    { id: 3, text: "購買旅平險/不便險", done: false },
-                    { id: 4, text: "預約網卡/漫遊", done: false },
-                    { id: 5, text: "填寫 Visit Japan Web", done: false },
-                ];
+        // 處理登出
+        const handleLogout = async () => {
+          if (!window.fb) return;
+          const { auth, signOut } = window.fb;
+          try {
+            await signOut(auth);
+            setTodos([]);
+          } catch (error) {
+            console.error("Logout failed:", error);
+          }
+        };
+
+        // 初始化與監聽登入狀態
+        useEffect(() => {
+          if (window.fb) {
+            setIsFirebaseMode(true);
+            const { auth, onAuthStateChanged } = window.fb;
+            const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+              setUser(currentUser);
             });
-            const [input, setInput] = useState("");
+            return () => unsubscribe();
+          } else {
+            const saved = localStorage.getItem("okinawa_todos");
+            if (saved) setTodos(JSON.parse(saved));
+          }
+        }, []);
 
-            useEffect(() => {
-                localStorage.setItem('okinawa_todos', JSON.stringify(todos));
-            }, [todos]);
+        // 監聽 Firebase 資料庫 (需登入後才執行)
+        useEffect(() => {
+          if (!isFirebaseMode || !user || !window.fb) return;
 
-            const addTodo = () => {
-                if (!input.trim()) return;
-                setTodos([...todos, { id: Date.now(), text: input, done: false }]);
-                setInput("");
+          const { db, appId, collection, onSnapshot } = window.fb;
+          const todosCol = collection(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "todos"
+          );
+
+          const unsubscribe = onSnapshot(
+            todosCol,
+            (snapshot) => {
+              const loaded = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              }));
+              loaded.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+              setTodos(loaded);
+            },
+            (err) => {
+              console.error("Fetch todos error:", err);
+            }
+          );
+
+          return () => unsubscribe();
+        }, [isFirebaseMode, user]);
+
+        const addTodo = async () => {
+          if (!input.trim()) return;
+          if (isFirebaseMode && window.fb) {
+            if (!user) {
+              alert("請先登入才能新增項目！");
+              return;
+            }
+            const { db, appId, collection, addDoc } = window.fb;
+            try {
+              const todosCol = collection(
+                db,
+                "artifacts",
+                appId,
+                "public",
+                "data",
+                "todos"
+              );
+              await addDoc(todosCol, {
+                text: input,
+                done: false,
+                createdAt: Date.now(),
+                author: user.displayName,
+                uid: user.uid,
+              });
+              setInput("");
+            } catch (e) {
+              console.error("Add failed", e);
+            }
+          } else {
+            const newItem = {
+              id: Date.now(),
+              text: input,
+              done: false,
+              createdAt: Date.now(),
             };
-
-            const toggleTodo = (id) => {
-                setTodos(todos.map(todo =>
-                    todo.id === id ? { ...todo, done: !todo.done } : todo
-                ));
-            };
-
-            const deleteTodo = (id) => {
-                setTodos(todos.filter(todo => todo.id !== id));
-            };
-
-            return (
-                <div className="max-w-2xl mx-auto px-4">
-                    <div className="bg-white rounded-[40px] shadow-cartoon border-4 border-white overflow-hidden">
-                        <div className="bg-sb-teal p-6 border-b-4 border-white flex justify-between items-center">
-                            <h3 className="font-black text-white text-xl tracking-wider flex items-center">
-                                <span className="bg-white/20 p-2 rounded-xl mr-3"><Icons.CheckSquare className="w-6 h-6" /></span> <span>行前準備清單</span>
-                            </h3>
-                            <div className="text-white/80 text-sm font-bold bg-black/20 px-4 py-2 rounded-full">
-                                <span>{todos.filter(t => t.done).length}</span> / <span>{todos.length}</span> <span>完成</span>
-                            </div>
-                        </div>
-
-                        <div className="p-6">
-                            <div className="flex gap-2 mb-6">
-                                <input
-                                    type="text"
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && addTodo()}
-                                    placeholder="新增待辦事項..."
-                                    className="flex-1 bg-gray-50 border-2 border-gray-200 rounded-xl px-4 py-3 font-bold text-gray-700 focus:outline-none focus:border-sb-teal focus:ring-2 focus:ring-sb-teal/20"
-                                />
-                                <button
-                                    onClick={addTodo}
-                                    className="bg-sb-teal text-white px-4 rounded-xl font-bold border-2 border-white shadow-sm hover:bg-teal-500 transition-colors"
-                                >
-                                    <Icons.Plus className="w-5 h-5" />
-                                </button>
-                            </div>
-
-                            <div className="space-y-3">
-                                {todos.map(todo => (
-                                    <div key={todo.id} className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${todo.done ? 'bg-gray-50 border-gray-100' : 'bg-white border-sb-blue/20 hover:border-sb-blue'
-                                        }`}>
-                                        <div className="flex items-center gap-3 flex-1 cursor-pointer" onClick={() => toggleTodo(todo.id)}>
-                                            <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors ${todo.done ? 'bg-sb-teal border-sb-teal text-white' : 'border-gray-300 bg-white'
-                                                }`}>
-                                                {todo.done && <Icons.CheckSquare className="w-4 h-4" />}
-                                            </div>
-                                            <span className={`font-bold text-lg transition-all ${todo.done ? 'text-gray-400 line-through' : 'text-gray-700'
-                                                }`}>
-                                                <span>{todo.text}</span>
-                                            </span>
-                                        </div>
-                                        <button
-                                            onClick={() => deleteTodo(todo.id)}
-                                            className="text-gray-400 hover:text-sb-red p-2 rounded-lg hover:bg-red-50 transition-colors"
-                                        >
-                                            <Icons.Trash className="w-5 h-5" />
-                                        </button>
-                                    </div>
-                                ))}
-                                {todos.length === 0 && (
-                                    <div className="text-center text-gray-400 py-8 font-bold">
-                                        <span>準備萬全，出發！ 🚀</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
+            setTodos([...todos, newItem]);
+            setInput("");
+          }
         };
 
-        const Tabs = ({ activeTab, onTabChange }) => {
-            const tabs = [
-                { id: "itinerary", label: "行程表", icon: Icons.Calendar },
-                { id: "logistics", label: "住宿與航班", icon: Icons.Hotel },
-                { id: "budget", label: "預算表", icon: Icons.Wallet },
-                { id: "todo", label: "行前準備", icon: Icons.CheckSquare },
-            ];
+        const toggleTodo = async (id, currentStatus) => {
+          if (isFirebaseMode && window.fb) {
+            const { db, appId, doc, updateDoc } = window.fb;
+            try {
+              const todoRef = doc(
+                db,
+                "artifacts",
+                appId,
+                "public",
+                "data",
+                "todos",
+                id
+              );
+              await updateDoc(todoRef, { done: !currentStatus });
+            } catch (e) {
+              console.error(e);
+            }
+          } else {
+            setTodos(
+              todos.map((todo) =>
+                todo.id === id ? { ...todo, done: !todo.done } : todo
+              )
+            );
+          }
+        };
 
-            return (
-                <div className="flex justify-center mb-8 px-4 overflow-x-auto scrollbar-hide">
-                    <div className="flex space-x-2 sm:space-x-4 bg-white/30 p-2 rounded-full backdrop-blur-sm border-2 border-white/40">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => onTabChange(tab.id)}
-                                className={`flex items-center px-4 sm:px-6 py-3 rounded-full text-sm sm:text-base font-bold transition-all border-2 shadow-cartoon-hover whitespace-nowrap ${activeTab === tab.id
-                                        ? "bg-sb-pink text-white border-white transform -translate-y-1"
-                                        : "bg-white text-gray-400 border-transparent hover:bg-sb-yellow hover:text-sb-brown hover:border-white"
-                                    }`}
+        const deleteTodo = async (id) => {
+          if (isFirebaseMode && window.fb) {
+            const { db, appId, doc, deleteDoc } = window.fb;
+            try {
+              const todoRef = doc(
+                db,
+                "artifacts",
+                appId,
+                "public",
+                "data",
+                "todos",
+                id
+              );
+              await deleteDoc(todoRef);
+            } catch (e) {
+              console.error(e);
+            }
+          } else {
+            setTodos(todos.filter((todo) => todo.id !== id));
+          }
+        };
+
+        return (
+          <div className="max-w-2xl mx-auto px-4">
+            <div className="bg-white rounded-[40px] shadow-cartoon border-4 border-white overflow-hidden">
+              <div className="bg-sb-teal p-6 border-b-4 border-white flex justify-between items-center">
+                <h3 className="font-black text-white text-xl tracking-wider flex items-center">
+                  <span className="bg-white/20 p-2 rounded-xl mr-3">
+                    <Icons.CheckSquare className="w-6 h-6" />
+                  </span>
+                  <span>行前準備清單</span>
+                </h3>
+
+                <div className="flex items-center gap-3">
+                  {isFirebaseMode &&
+                    (user ? (
+                      <div className="flex items-center gap-2 bg-black/10 px-3 py-1.5 rounded-full border border-white/20">
+                        {user.photoURL && (
+                          <img
+                            src={user.photoURL}
+                            className="w-6 h-6 rounded-full border border-white"
+                            alt="avatar"
+                          />
+                        )}
+                        <span className="text-white text-xs font-bold hidden sm:inline">
+                          {user.displayName}
+                        </span>
+                        <button
+                          onClick={handleLogout}
+                          className="text-xs bg-white text-sb-teal px-2 py-1 rounded-lg font-bold ml-1 hover:bg-gray-100"
+                        >
+                          登出
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleLogin}
+                        className="flex items-center gap-2 bg-white text-sb-teal px-4 py-2 rounded-full font-bold text-sm shadow-sm hover:bg-gray-50 transition-colors"
+                      >
+                        <span className="w-2 h-2 rounded-full bg-gray-300"></span>
+                        <span>Google 登入</span>
+                      </button>
+                    ))}
+                </div>
+              </div>
+
+              {!user && isFirebaseMode ? (
+                <div className="p-12 text-center text-gray-400 font-bold bg-gray-50">
+                  <div className="mb-4 text-6xl">🔒</div>
+                  <p>請先登入 Google 帳號</p>
+                  <p className="text-sm opacity-70 mt-2">
+                    才能查看與編輯共同清單喔！
+                  </p>
+                </div>
+              ) : (
+                <div className="p-6">
+                  <div className="flex gap-2 mb-6">
+                    <input
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && addTodo()}
+                      placeholder="新增待辦事項..."
+                      className="flex-1 bg-gray-50 border-2 border-gray-200 rounded-xl px-4 py-3 font-bold text-gray-700 focus:outline-none focus:border-sb-teal focus:ring-2 focus:ring-sb-teal/20"
+                    />
+                    <button
+                      onClick={addTodo}
+                      className="bg-sb-teal text-white px-4 rounded-xl font-bold border-2 border-white shadow-sm hover:bg-teal-500 transition-colors"
+                    >
+                      <Icons.Plus className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {todos.length === 0 && (
+                      <div className="text-center text-gray-400 py-8 font-bold">
+                        <span>清單目前是空的 ✨</span>
+                      </div>
+                    )}
+                    {todos.map((todo) => (
+                      <div
+                        key={todo.id}
+                        className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${
+                          todo.done
+                            ? "bg-gray-50 border-gray-100"
+                            : "bg-white border-sb-blue/20 hover:border-sb-blue"
+                        }`}
+                      >
+                        <div
+                          className="flex items-center gap-3 flex-1 cursor-pointer"
+                          onClick={() => toggleTodo(todo.id, todo.done)}
+                        >
+                          <div
+                            className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors ${
+                              todo.done
+                                ? "bg-sb-teal border-sb-teal text-white"
+                                : "border-gray-300 bg-white"
+                            }`}
+                          >
+                            {todo.done && (
+                              <Icons.CheckSquare className="w-4 h-4" />
+                            )}
+                          </div>
+                          <div className="flex flex-col">
+                            <span
+                              className={`font-bold text-lg transition-all ${
+                                todo.done
+                                  ? "text-gray-400 line-through"
+                                  : "text-gray-700"
+                              }`}
                             >
-                                <span className="mr-2 hidden sm:inline"><tab.icon className="w-6 h-6" /></span>
-                                <span>{tab.label}</span>
-                            </button>
-                        ))}
-                    </div>
+                              {todo.text}
+                            </span>
+                            {todo.author && (
+                              <span className="text-[10px] text-gray-400 font-bold">
+                                by {todo.author}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => deleteTodo(todo.id)}
+                          className="text-gray-400 hover:text-sb-red p-2 rounded-lg hover:bg-red-50 transition-colors"
+                        >
+                          <Icons.Trash className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-            );
-        };
+              )}
+            </div>
+          </div>
+        );
+      };
 
-        const ItineraryView = ({ data }) => {
-            const [activeDay, setActiveDay] = useState(data[0]?.day || 1);
-            const [nextEventId, setNextEventId] = useState(null);
+      const Tabs = ({ activeTab, onTabChange }) => {
+        const tabs = [
+          { id: "itinerary", label: "行程表", icon: Icons.Calendar },
+          { id: "logistics", label: "住宿與航班", icon: Icons.Hotel },
+          { id: "budget", label: "預算表", icon: Icons.Wallet },
+          { id: "todo", label: "行前準備", icon: Icons.CheckSquare },
+        ];
 
-            useEffect(() => {
-                const now = new Date();
-                // 測試用：解除註解下一行可模擬特定時間
-                // const now = new Date("2025-12-31T14:00:00");
+        return (
+          <div className="flex justify-center mb-8 px-4 overflow-x-auto scrollbar-hide">
+            <div className="flex space-x-2 sm:space-x-4 bg-white/30 p-2 rounded-full backdrop-blur-sm border-2 border-white/40">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange(tab.id)}
+                  className={`flex items-center px-4 sm:px-6 py-3 rounded-full text-sm sm:text-base font-bold transition-all border-2 shadow-cartoon-hover whitespace-nowrap ${
+                    activeTab === tab.id
+                      ? "bg-sb-pink text-white border-white transform -translate-y-1"
+                      : "bg-white text-gray-400 border-transparent hover:bg-sb-yellow hover:text-sb-brown hover:border-white"
+                  }`}
+                >
+                  <span className="mr-2 hidden sm:inline">
+                    <tab.icon className="w-6 h-6" />
+                  </span>
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      };
 
-                let target = null;
-                let minDiff = Infinity;
+      const ItineraryView = ({ data }) => {
+        const [activeDay, setActiveDay] = useState(data[0]?.day || 1);
+        const [nextEventId, setNextEventId] = useState(null);
 
-                // 1. 先找「正在進行中」
-                for (const day of data) {
-                    for (let idx = 0; idx < day.events.length; idx++) {
-                        const event = day.events[idx];
-                        const start = new Date(`${day.dateStr}T${event.time}:00`);
+        useEffect(() => {
+          const now = new Date();
+          let target = null;
+          let minDiff = Infinity;
 
-                        // 計算結束時間
-                        let end;
-                        if (event.endTime) {
-                            const [endH, endM] = event.endTime.split(':').map(Number);
-                            const [startH, startM] = event.time.split(':').map(Number);
-                            let endDateStr = day.dateStr;
-                            // 簡單處理跨日：如果結束小時小於開始小時，假設跨到隔天
-                            if (endH < startH) {
-                                const d = new Date(day.dateStr);
-                                d.setDate(d.getDate() + 1);
-                                endDateStr = d.toISOString().split('T')[0];
-                            }
-                            end = new Date(`${endDateStr}T${event.endTime}:00`);
-                        } else {
-                            // 沒寫結束時間預設 1 小時
-                            end = new Date(start.getTime() + 60 * 60 * 1000);
-                        }
-
-                        if (now >= start && now <= end) {
-                            target = { day: day.day, idx, type: 'ongoing' };
-                            break;
-                        }
-                    }
-                    if (target) break;
+          for (const day of data) {
+            for (let idx = 0; idx < day.events.length; idx++) {
+              const event = day.events[idx];
+              const start = new Date(`${day.dateStr}T${event.time}:00`);
+              let end;
+              if (event.endTime) {
+                const [endH, endM] = event.endTime.split(":").map(Number);
+                const [startH, startM] = event.time.split(":").map(Number);
+                let endDateStr = day.dateStr;
+                if (endH < startH) {
+                  const d = new Date(day.dateStr);
+                  d.setDate(d.getDate() + 1);
+                  endDateStr = d.toISOString().split("T")[0];
                 }
+                end = new Date(`${endDateStr}T${event.endTime}:00`);
+              } else {
+                end = new Date(start.getTime() + 60 * 60 * 1000);
+              }
 
-                // 2. 如果沒有正在進行，找「最近的未來」
-                if (!target) {
-                    for (const day of data) {
-                        for (let idx = 0; idx < day.events.length; idx++) {
-                            const event = day.events[idx];
-                            const start = new Date(`${day.dateStr}T${event.time}:00`);
-                            const diff = start - now;
+              if (now >= start && now <= end) {
+                target = { day: day.day, idx, type: "ongoing" };
+                break;
+              }
+            }
+            if (target) break;
+          }
 
-                            if (diff > 0 && diff < minDiff) {
-                                minDiff = diff;
-                                target = { day: day.day, idx, type: 'upcoming' };
-                            }
-                        }
-                    }
+          if (!target) {
+            for (const day of data) {
+              for (let idx = 0; idx < day.events.length; idx++) {
+                const event = day.events[idx];
+                const start = new Date(`${day.dateStr}T${event.time}:00`);
+                const diff = start - now;
+                if (diff > 0 && diff < minDiff) {
+                  minDiff = diff;
+                  target = { day: day.day, idx, type: "upcoming" };
                 }
+              }
+            }
+          }
 
-                if (target) {
-                    setNextEventId(target);
-                    setActiveDay(target.day);
+          if (target) {
+            setNextEventId(target);
+            setActiveDay(target.day);
+            setTimeout(() => {
+              const element = document.getElementById(
+                `event-${target.day}-${target.idx}`
+              );
+              if (element) {
+                element.scrollIntoView({ behavior: "smooth", block: "center" });
+              }
+            }, 500);
+          }
+        }, [data]);
 
-                    // 嘗試捲動到該元素 (需等待 render)
-                    setTimeout(() => {
-                        const element = document.getElementById(`event-${target.day}-${target.idx}`);
-                        if (element) {
-                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                    }, 500); // 延遲確保 DOM 已掛載
-                }
-            }, [data]);
+        const currentDay = data.find((d) => d.day === activeDay) || data[0];
 
-            const currentDay = data.find(d => d.day === activeDay) || data[0];
+        return (
+          <div className="max-w-3xl mx-auto">
+            <div className="flex overflow-x-auto gap-3 mb-8 pb-4 scrollbar-hide justify-start sm:justify-center px-4">
+              {data.map((day) => (
+                <button
+                  key={day.day}
+                  onClick={() => setActiveDay(day.day)}
+                  className={`flex-shrink-0 px-5 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap border-4 relative overflow-hidden group ${
+                    activeDay === day.day
+                      ? "bg-sb-yellow border-white text-sb-brown shadow-cartoon scale-110 z-10"
+                      : "bg-white/80 border-white/50 text-gray-400 hover:bg-white hover:text-sb-teal hover:border-white hover:-translate-y-1"
+                  }`}
+                >
+                  <span className="block text-xs uppercase opacity-70">
+                    <span>Day</span> <span>{day.day}</span>
+                  </span>
+                  <span className="text-lg">
+                    <span>{day.date.split(" ")[0]}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
 
-            return (
-                <div className="max-w-3xl mx-auto">
-                    <div className="flex overflow-x-auto gap-3 mb-8 pb-4 scrollbar-hide justify-start sm:justify-center px-4">
-                        {data.map((day) => (
-                            <button
-                                key={day.day}
-                                onClick={() => setActiveDay(day.day)}
-                                className={`flex-shrink-0 px-5 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap border-4 relative overflow-hidden group ${activeDay === day.day
-                                        ? "bg-sb-yellow border-white text-sb-brown shadow-cartoon scale-110 z-10"
-                                        : "bg-white/80 border-white/50 text-gray-400 hover:bg-white hover:text-sb-teal hover:border-white hover:-translate-y-1"
-                                    }`}
-                            >
-                                <span className="block text-xs uppercase opacity-70"><span>Day</span> <span>{day.day}</span></span>
-                                <span className="text-lg"><span>{day.date.split(' ')[0]}</span></span>
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className="animate-fade-in px-2">
-                        <div className="mb-8 flex items-center justify-center">
-                            <div className="bg-white/90 px-8 py-3 rounded-full border-4 border-white shadow-cartoon text-center">
-                                <h2 className="text-2xl font-black text-sb-teal inline-block mr-3"><span>{currentDay.date}</span></h2>
-                                <span className="text-sm font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
-                                    <span>{currentDay.events.length}</span> <span>個任務</span>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="relative">
-                            {currentDay.events.map((event, idx) => {
-                                const isNext = nextEventId && nextEventId.day === currentDay.day && nextEventId.idx === idx;
-                                return (
-                                    <EventItem
-                                        key={idx}
-                                        event={{ ...event, dateStr: currentDay.dateStr }}
-                                        isNext={isNext}
-                                        eventId={`event-${currentDay.day}-${idx}`}
-                                    />
-                                );
-                            })}
-                        </div>
-                    </div>
+            <div className="animate-fade-in px-2">
+              <div className="mb-8 flex items-center justify-center">
+                <div className="bg-white/90 px-8 py-3 rounded-full border-4 border-white shadow-cartoon text-center">
+                  <h2 className="text-2xl font-black text-sb-teal inline-block mr-3">
+                    <span>{currentDay.date}</span>
+                  </h2>
+                  <span className="text-sm font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+                    <span>{currentDay.events.length}</span> <span>個任務</span>
+                  </span>
                 </div>
-            );
-        };
+              </div>
 
-        const LogisticsView = ({ flights, hotels }) => {
-            return (
-                <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
-                    <div className="bg-white rounded-[40px] shadow-cartoon border-4 border-white overflow-hidden relative">
-                        <div className="absolute top-0 right-0 p-6 opacity-10 rotate-12">
-                            <Icons.Plane className="w-24 h-24" />
-                        </div>
-                        <div className="bg-sb-blue p-6 border-b-4 border-white flex items-center">
-                            <div className="bg-white p-3 rounded-full shadow-md mr-4 text-sb-blue">
-                                <Icons.Plane className="w-6 h-6" />
-                            </div>
-                            <h3 className="font-black text-white text-xl tracking-wider"><span>航班資訊</span></h3>
-                        </div>
-                        <div className="p-6 space-y-6">
-                            {flights.map((flight, idx) => (
-                                <div key={idx} className="bg-blue-50/50 p-5 rounded-3xl border-2 border-blue-100 hover:border-sb-blue transition-colors">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="text-xs font-black text-white bg-sb-blue px-3 py-1 rounded-full uppercase"><span>{flight.type}</span></span>
-                                        <span className="font-mono font-black text-2xl text-sb-blue"><span>{flight.code}</span></span>
-                                    </div>
-                                    <div className="flex items-center justify-between text-gray-700 my-4">
-                                        <div className="text-center w-1/3">
-                                            <div className="text-3xl font-black"><span>{flight.from}</span></div>
-                                            <div className="text-xs font-bold text-gray-400 mt-1 bg-white px-2 py-0.5 rounded-full inline-block"><span>出發</span></div>
-                                        </div>
-                                        <div className="flex-1 flex justify-center text-sb-blue/30">
-                                            <Icons.ArrowRight className="w-8 h-8" />
-                                        </div>
-                                        <div className="text-center w-1/3">
-                                            <div className="text-3xl font-black"><span>{flight.to}</span></div>
-                                            <div className="text-xs font-bold text-gray-400 mt-1 bg-white px-2 py-0.5 rounded-full inline-block"><span>抵達</span></div>
-                                        </div>
-                                    </div>
-                                    <div className="flex justify-between text-sm font-bold text-gray-500 pt-4 border-t-2 border-blue-100 border-dashed">
-                                        <span className="flex items-center"><Icons.Clock className="w-4 h-4 mr-1" /><span className="font-mono"><span>{flight.time}</span></span></span>
-                                        <span className="bg-white px-3 py-1 rounded-full border border-blue-100 text-sb-blue"><span>座位: </span><span>{flight.seat}</span></span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+              <div className="relative">
+                {currentDay.events.map((event, idx) => {
+                  const isNext =
+                    nextEventId &&
+                    nextEventId.day === currentDay.day &&
+                    nextEventId.idx === idx;
+                  return (
+                    <EventItem
+                      key={idx}
+                      event={{ ...event, dateStr: currentDay.dateStr }}
+                      isNext={isNext}
+                      eventId={`event-${currentDay.day}-${idx}`}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      };
 
-                    <div className="bg-white rounded-[40px] shadow-cartoon border-4 border-white overflow-hidden relative">
-                        <div className="absolute top-0 right-0 p-6 opacity-10 rotate-12">
-                            <Icons.Hotel className="w-24 h-24" />
-                        </div>
-                        <div className="bg-sb-pink p-6 border-b-4 border-white flex items-center">
-                            <div className="bg-white p-3 rounded-full shadow-md mr-4 text-sb-pink">
-                                <Icons.Hotel className="w-6 h-6" />
-                            </div>
-                            <h3 className="font-black text-white text-xl tracking-wider"><span>住宿安排</span></h3>
-                        </div>
-                        <div className="p-6 space-y-4">
-                            {hotels.map((hotel, idx) => (
-                                <div key={idx} className="group p-5 rounded-3xl border-2 border-transparent hover:bg-orange-50 hover:border-orange-100 transition-all">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <span className="text-xs font-bold text-white bg-sb-pink px-3 py-1 rounded-full"><span>{hotel.date}</span></span>
-                                        <span className="font-mono text-lg font-black text-sb-brown"><span>¥</span><span>{hotel.price}</span></span>
-                                    </div>
-                                    <h4 className="font-black text-gray-800 text-lg mb-2 group-hover:text-sb-pink transition-colors"><span>{hotel.name}</span></h4>
-                                    <div className="flex flex-col gap-2 text-sm font-bold text-gray-500">
-                                        <div className="flex items-center"><span className="mr-2 text-gray-300"><Icons.MapPin className="w-4 h-4" /></span><span>{hotel.area}</span></div>
-                                        <div className="flex items-center text-xs text-gray-400 bg-gray-50 p-2 rounded-xl border border-gray-100"><span className="mr-2"><Icons.Info className="w-3 h-3" /></span><span>{hotel.note}</span></div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+      const LogisticsView = ({ flights, hotels }) => {
+        return (
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
+            <div className="bg-white rounded-[40px] shadow-cartoon border-4 border-white overflow-hidden relative">
+              <div className="absolute top-0 right-0 p-6 opacity-10 rotate-12">
+                <Icons.Plane className="w-24 h-24" />
+              </div>
+              <div className="bg-sb-blue p-6 border-b-4 border-white flex items-center">
+                <div className="bg-white p-3 rounded-full shadow-md mr-4 text-sb-blue">
+                  <Icons.Plane className="w-6 h-6" />
                 </div>
-            );
-        };
-
-        const BudgetView = ({ budget }) => {
-            const total = budget.reduce((sum, item) => sum + item.twd, 0);
-
-            return (
-                <div className="max-w-4xl mx-auto px-4">
-                    <div className="bg-white rounded-[40px] shadow-cartoon border-4 border-white overflow-hidden">
-                        <div className="bg-sb-plankton p-6 border-b-4 border-white flex justify-between items-center">
-                            <h3 className="font-black text-white text-xl tracking-wider flex items-center">
-                                <span className="bg-white/20 p-2 rounded-xl mr-3"><Icons.Wallet className="w-6 h-6" /></span> <span>預估費用</span>
-                            </h3>
-                            <div className="text-white/80 text-sm font-bold bg-black/20 px-4 py-2 rounded-full">
-                                <span>蟹老闆會很開心 🦀</span>
-                            </div>
-                        </div>
-
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead>
-                                    <tr className="text-gray-400 text-xs font-black uppercase tracking-wider border-b-2 border-gray-100">
-                                        <th className="px-8 py-5"><span>項目</span></th>
-                                        <th className="px-8 py-5 text-right"><span>金額 (TWD)</span></th>
-                                        <th className="px-8 py-5 pl-8"><span>備註</span></th>
-                                    </tr>
-                                </thead>
-                                <tbody className="text-sm font-bold text-gray-600 divide-y-2 divide-gray-50/50">
-                                    {budget.map((item, idx) => (
-                                        <tr key={idx} className="hover:bg-green-50 transition-colors">
-                                            <td className="px-8 py-5 text-gray-800"><span>{item.item}</span></td>
-                                            <td className="px-8 py-5 text-right font-mono font-black text-sb-plankton text-base"><span>{item.twd.toLocaleString()}</span></td>
-                                            <td className="px-8 py-5 pl-8 text-gray-400 text-xs"><span>{item.note}</span></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                                <tfoot>
-                                    <tr className="bg-green-50 border-t-4 border-green-100">
-                                        <td className="px-8 py-6 font-black text-xl text-gray-800"><span>總計預估</span></td>
-                                        <td className="px-8 py-6 text-right font-mono text-3xl font-black text-sb-plankton"><span>{total.toLocaleString()}</span></td>
-                                        <td></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
+                <h3 className="font-black text-white text-xl tracking-wider">
+                  <span>航班資訊</span>
+                </h3>
+              </div>
+              <div className="p-6 space-y-6">
+                {flights.map((flight, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-blue-50/50 p-5 rounded-3xl border-2 border-blue-100 hover:border-sb-blue transition-colors"
+                  >
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-xs font-black text-white bg-sb-blue px-3 py-1 rounded-full uppercase">
+                        <span>{flight.type}</span>
+                      </span>
+                      <span className="font-mono font-black text-2xl text-sb-blue">
+                        <span>{flight.code}</span>
+                      </span>
                     </div>
+                    <div className="flex items-center justify-between text-gray-700 my-4">
+                      <div className="text-center w-1/3">
+                        <div className="text-3xl font-black">
+                          <span>{flight.from}</span>
+                        </div>
+                        <div className="text-xs font-bold text-gray-400 mt-1 bg-white px-2 py-0.5 rounded-full inline-block">
+                          <span>出發</span>
+                        </div>
+                      </div>
+                      <div className="flex-1 flex justify-center text-sb-blue/30">
+                        <Icons.ArrowRight className="w-8 h-8" />
+                      </div>
+                      <div className="text-center w-1/3">
+                        <div className="text-3xl font-black">
+                          <span>{flight.to}</span>
+                        </div>
+                        <div className="text-xs font-bold text-gray-400 mt-1 bg-white px-2 py-0.5 rounded-full inline-block">
+                          <span>抵達</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between text-sm font-bold text-gray-500 pt-4 border-t-2 border-blue-100 border-dashed">
+                      <span className="flex items-center">
+                        <Icons.Clock className="w-4 h-4 mr-1" />
+                        <span className="font-mono">
+                          <span>{flight.time}</span>
+                        </span>
+                      </span>
+                      <span className="bg-white px-3 py-1 rounded-full border border-blue-100 text-sb-blue">
+                        <span>座位: </span>
+                        <span>{flight.seat}</span>
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-[40px] shadow-cartoon border-4 border-white overflow-hidden relative">
+              <div className="absolute top-0 right-0 p-6 opacity-10 rotate-12">
+                <Icons.Hotel className="w-24 h-24" />
+              </div>
+              <div className="bg-sb-pink p-6 border-b-4 border-white flex items-center">
+                <div className="bg-white p-3 rounded-full shadow-md mr-4 text-sb-pink">
+                  <Icons.Hotel className="w-6 h-6" />
                 </div>
-            );
-        };
-
-        const App = () => {
-            const [activeTab, setActiveTab] = useState("itinerary");
-
-            useEffect(() => {
-                // Remove lucide.createIcons() call
-            }, [activeTab]);
-
-            return (
-                <div className="min-h-screen pb-12 relative z-10">
-                    {/* Header */}
-                    <div className="sticky top-0 z-50 mb-8 pt-4 px-4">
-                        <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur-md rounded-full shadow-cartoon border-4 border-white px-6 py-3 flex items-center justify-between">
-                            <h1 className="text-xl font-black text-sb-blue flex items-center tracking-tight">
-                                <span className="bg-sb-yellow text-sb-brown w-10 h-10 rounded-full flex items-center justify-center mr-3 text-lg shadow-sm border-2 border-white">
-                                    <Icons.Anchor className="w-6 h-6" />
-                                </span>
-                                <span>{TRIP_DATA.meta.title}</span>
-                            </h1>
-                            <div className="hidden sm:flex items-center text-xs font-bold text-gray-500 bg-gray-100 px-4 py-2 rounded-full border-2 border-white shadow-inner">
-                                <span className="mr-2"><Icons.Calendar className="w-3 h-3" /></span>
-                                <span>{TRIP_DATA.meta.dates}</span>
-                            </div>
-                        </div>
+                <h3 className="font-black text-white text-xl tracking-wider">
+                  <span>住宿安排</span>
+                </h3>
+              </div>
+              <div className="p-6 space-y-4">
+                {hotels.map((hotel, idx) => (
+                  <div
+                    key={idx}
+                    className="group p-5 rounded-3xl border-2 border-transparent hover:bg-orange-50 hover:border-orange-100 transition-all"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-xs font-bold text-white bg-sb-pink px-3 py-1 rounded-full">
+                        <span>{hotel.date}</span>
+                      </span>
+                      <span className="font-mono text-lg font-black text-sb-brown">
+                        <span>¥</span>
+                        <span>{hotel.price}</span>
+                      </span>
                     </div>
-
-                    <div className="max-w-5xl mx-auto">
-                        {/* 導航 */}
-                        <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-                        {/* 內容區 */}
-                        <div className="animate-fade-in">
-                            {activeTab === "itinerary" && <ItineraryView data={TRIP_DATA.itinerary} />}
-                            {activeTab === "logistics" && <LogisticsView flights={TRIP_DATA.flights} hotels={TRIP_DATA.hotels} />}
-                            {activeTab === "budget" && <BudgetView budget={TRIP_DATA.budget} />}
-                            {activeTab === "todo" && <TodoView />}
-                        </div>
+                    <h4 className="font-black text-gray-800 text-lg mb-2 group-hover:text-sb-pink transition-colors">
+                      <span>{hotel.name}</span>
+                    </h4>
+                    <div className="flex flex-col gap-2 text-sm font-bold text-gray-500">
+                      <div className="flex items-center">
+                        <span className="mr-2 text-gray-300">
+                          <Icons.MapPin className="w-4 h-4" />
+                        </span>
+                        <span>{hotel.area}</span>
+                      </div>
+                      <div className="flex items-center text-xs text-gray-400 bg-gray-50 p-2 rounded-xl border border-gray-100">
+                        <span className="mr-2">
+                          <Icons.Info className="w-3 h-3" />
+                        </span>
+                        <span>{hotel.note}</span>
+                      </div>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      };
 
-                    <div className="text-center py-12 text-white font-bold opacity-80 text-sm">
-                        <span>準備好去抓水母了嗎？ 🪼</span>
-                    </div>
+      const BudgetView = ({ budget }) => {
+        const total = budget.reduce((sum, item) => sum + item.twd, 0);
 
-                    {/* 背景插圖 */}
-                    <BackgroundEffects />
+        return (
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="bg-white rounded-[40px] shadow-cartoon border-4 border-white overflow-hidden">
+              <div className="bg-sb-plankton p-6 border-b-4 border-white flex justify-between items-center">
+                <h3 className="font-black text-white text-xl tracking-wider flex items-center">
+                  <span className="bg-white/20 p-2 rounded-xl mr-3">
+                    <Icons.Wallet className="w-6 h-6" />
+                  </span>{" "}
+                  <span>預估費用</span>
+                </h3>
+                <div className="text-white/80 text-sm font-bold bg-black/20 px-4 py-2 rounded-full">
+                  <span>蟹老闆會很開心 🦀</span>
                 </div>
-            );
-        };
+              </div>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-gray-400 text-xs font-black uppercase tracking-wider border-b-2 border-gray-100">
+                      <th className="px-8 py-5">
+                        <span>項目</span>
+                      </th>
+                      <th className="px-8 py-5 text-right">
+                        <span>金額 (TWD)</span>
+                      </th>
+                      <th className="px-8 py-5 pl-8">
+                        <span>備註</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm font-bold text-gray-600 divide-y-2 divide-gray-50/50">
+                    {budget.map((item, idx) => (
+                      <tr
+                        key={idx}
+                        className="hover:bg-green-50 transition-colors"
+                      >
+                        <td className="px-8 py-5 text-gray-800">
+                          <span>{item.item}</span>
+                        </td>
+                        <td className="px-8 py-5 text-right font-mono font-black text-sb-plankton text-base">
+                          <span>{item.twd.toLocaleString()}</span>
+                        </td>
+                        <td className="px-8 py-5 pl-8 text-gray-400 text-xs">
+                          <span>{item.note}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="bg-green-50 border-t-4 border-green-100">
+                      <td className="px-8 py-6 font-black text-xl text-gray-800">
+                        <span>總計預估</span>
+                      </td>
+                      <td className="px-8 py-6 text-right font-mono text-3xl font-black text-sb-plankton">
+                        <span>{total.toLocaleString()}</span>
+                      </td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const App = () => {
+        const [activeTab, setActiveTab] = useState("itinerary");
+
+        useEffect(() => {}, [activeTab]);
+
+        return (
+          <div className="min-h-screen pb-12 relative z-10">
+            <div className="sticky top-0 z-50 mb-8 pt-4 px-4">
+              <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur-md rounded-full shadow-cartoon border-4 border-white px-6 py-3 flex items-center justify-between">
+                <h1 className="text-xl font-black text-sb-blue flex items-center tracking-tight">
+                  <span className="bg-sb-yellow text-sb-brown w-10 h-10 rounded-full flex items-center justify-center mr-3 text-lg shadow-sm border-2 border-white">
+                    <Icons.Anchor className="w-6 h-6" />
+                  </span>
+                  <span>{TRIP_DATA.meta.title}</span>
+                </h1>
+                <div className="hidden sm:flex items-center text-xs font-bold text-gray-500 bg-gray-100 px-4 py-2 rounded-full border-2 border-white shadow-inner">
+                  <span className="mr-2">
+                    <Icons.Calendar className="w-3 h-3" />
+                  </span>
+                  <span>{TRIP_DATA.meta.dates}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="max-w-5xl mx-auto">
+              <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
+              <div className="animate-fade-in">
+                {activeTab === "itinerary" && (
+                  <ItineraryView data={TRIP_DATA.itinerary} />
+                )}
+                {activeTab === "logistics" && (
+                  <LogisticsView
+                    flights={TRIP_DATA.flights}
+                    hotels={TRIP_DATA.hotels}
+                  />
+                )}
+                {activeTab === "budget" && (
+                  <BudgetView budget={TRIP_DATA.budget} />
+                )}
+                {activeTab === "todo" && <TodoView />}
+              </div>
+            </div>
+
+            <div className="text-center py-12 text-white font-bold opacity-80 text-sm">
+              <span>準備好去抓水母了嗎？ 🪼</span>
+            </div>
+
+            <BackgroundEffects />
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
     </script>
-</body>
-
+  </body>
 </html>
