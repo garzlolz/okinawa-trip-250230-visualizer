@@ -44,8 +44,11 @@
                         'float-medium': 'float 4s ease-in-out infinite',
                         'float-fast': 'float 3s ease-in-out infinite',
                         'spin-slow': 'spin 12s linear infinite',
-                        'spin-medium': 'spin 6s linear infinite', // 新增：中速旋轉
+                        'spin-medium': 'spin 6s linear infinite',
+                        'spin-fast': 'spin 0.8s linear infinite', // 修改：高速旋轉 (0.8秒一圈)
+                        'spin-super-fast': 'spin 0.4s linear infinite', // 修改：超高速旋轉 (0.4秒一圈)
                         'spin-reverse': 'spin 15s linear infinite reverse',
+                        'spin-reverse-fast': 'spin 0.6s linear infinite reverse', // 修改：反向高速旋轉 (0.6秒一圈)
                         // 新增：漫遊漂浮動畫
                         'wander-slow': 'wander 15s ease-in-out infinite',
                         'wander-medium': 'wander 10s ease-in-out infinite',
@@ -259,31 +262,31 @@
 
                 {/* --- 新增：使用者自定義漂浮圖片 (結構改為 外層飄移 + 內層旋轉) --- */}
 
-                {/* 1. 路徑1 + 慢速順時針旋轉 */}
+                {/* 1. 路徑1 + 高速順時針旋轉 */}
                 <div className="bg-illustration top-0 left-0 animate-float-everywhere-1">
                     <img
                         src={CUSTOM_IMAGE_SRC}
-                        className="w-24 h-auto sticker-img opacity-90 animate-spin-slow"
+                        className="w-24 h-auto sticker-img opacity-90 animate-spin-fast"
                         alt="Floating decoration 1"
                         onError={(e) => { e.target.style.display = 'none'; console.log("圖片載入失敗，請確認檔名"); }}
                     />
                 </div>
 
-                {/* 2. 路徑2 + 慢速逆時針旋轉 */}
+                {/* 2. 路徑2 + 反向高速旋轉 */}
                 <div className="bg-illustration top-0 left-0 animate-float-everywhere-2">
                     <img
                         src={CUSTOM_IMAGE_SRC}
-                        className="w-32 h-auto sticker-img opacity-80 animate-spin-reverse"
+                        className="w-32 h-auto sticker-img opacity-80 animate-spin-reverse-fast"
                         alt="Floating decoration 2"
                         onError={(e) => e.target.style.display = 'none'}
                     />
                 </div>
 
-                {/* 3. 路徑3 + 中速旋轉 */}
+                {/* 3. 路徑3 + 超高速旋轉 (最快) */}
                 <div className="bg-illustration top-0 left-0 animate-float-everywhere-3">
                     <img
                         src={CUSTOM_IMAGE_SRC}
-                        className="w-16 h-auto sticker-img opacity-70 animate-spin-medium"
+                        className="w-16 h-auto sticker-img opacity-70 animate-spin-super-fast"
                         alt="Floating decoration 3"
                         onError={(e) => e.target.style.display = 'none'}
                     />
@@ -291,21 +294,21 @@
 
                 {/* --- 新增：第二張自定義漂浮圖片 (Orion) --- */}
 
-                {/* 4. 路徑1 (延遲啟動) + 逆時針旋轉 */}
+                {/* 4. 路徑1 (延遲啟動) + 反向高速旋轉 */}
                 <div className="bg-illustration top-0 left-0 animate-float-everywhere-1" style={{ animationDelay: '-12s' }}>
                     <img
                         src={CUSTOM_IMAGE_SRC_2}
-                        className="w-20 h-auto sticker-img opacity-85 animate-spin-reverse"
+                        className="w-20 h-auto sticker-img opacity-85 animate-spin-reverse-fast"
                         alt="Floating decoration 4"
                         onError={(e) => e.target.style.display = 'none'}
                     />
                 </div>
 
-                {/* 5. 路徑3 (延遲啟動) + 慢速旋轉 */}
+                {/* 5. 路徑3 (延遲啟動) + 高速旋轉 */}
                 <div className="bg-illustration top-0 left-0 animate-float-everywhere-3" style={{ animationDelay: '-7s' }}>
                     <img
                         src={CUSTOM_IMAGE_SRC_2}
-                        className="w-28 h-auto sticker-img opacity-80 animate-spin-slow"
+                        className="w-28 h-auto sticker-img opacity-80 animate-spin-fast"
                         alt="Floating decoration 5"
                         onError={(e) => e.target.style.display = 'none'}
                     />
