@@ -44,11 +44,16 @@
                         'float-medium': 'float 4s ease-in-out infinite',
                         'float-fast': 'float 3s ease-in-out infinite',
                         'spin-slow': 'spin 12s linear infinite',
+                        'spin-medium': 'spin 6s linear infinite', // 新增：中速旋轉
                         'spin-reverse': 'spin 15s linear infinite reverse',
                         // 新增：漫遊漂浮動畫
                         'wander-slow': 'wander 15s ease-in-out infinite',
                         'wander-medium': 'wander 10s ease-in-out infinite',
                         'wander-fast': 'wander 8s ease-in-out infinite',
+                        // 新增：全螢幕大範圍漫遊
+                        'float-everywhere-1': 'path1 25s infinite linear',
+                        'float-everywhere-2': 'path2 30s infinite linear',
+                        'float-everywhere-3': 'path3 35s infinite linear',
                     },
                     keyframes: {
                         float: {
@@ -61,6 +66,27 @@
                             '25%': { transform: 'translate(10px, -15px) rotate(3deg)' },
                             '50%': { transform: 'translate(-5px, -25px) rotate(-3deg)' },
                             '75%': { transform: 'translate(-15px, -10px) rotate(1deg)' },
+                        },
+                        // 新增：全螢幕路徑 (僅負責位移，旋轉由內層元素處理)
+                        path1: {
+                            '0%': { transform: 'translate(5vw, 5vh)' },
+                            '25%': { transform: 'translate(85vw, 20vh)' },
+                            '50%': { transform: 'translate(40vw, 85vh)' },
+                            '75%': { transform: 'translate(10vw, 60vh)' },
+                            '100%': { transform: 'translate(5vw, 5vh)' },
+                        },
+                        path2: {
+                            '0%': { transform: 'translate(90vw, 90vh)' },
+                            '33%': { transform: 'translate(20vw, 10vh)' },
+                            '66%': { transform: 'translate(10vw, 50vh)' },
+                            '100%': { transform: 'translate(90vw, 90vh)' },
+                        },
+                        path3: {
+                            '0%': { transform: 'translate(50vw, 50vh)' },
+                            '25%': { transform: 'translate(10vw, 80vh)' },
+                            '50%': { transform: 'translate(80vw, 10vh)' },
+                            '75%': { transform: 'translate(90vw, 90vh)' },
+                            '100%': { transform: 'translate(50vw, 50vh)' },
                         }
                     }
                 }
@@ -130,7 +156,7 @@
 
         /* 讓漂浮圖片有點圓角或邊框看起來更像貼紙 */
         .sticker-img {
-            filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
             object-fit: contain;
         }
     </style>
@@ -143,7 +169,9 @@
         const { useState, useEffect, useRef } = React;
 
         // 設定您的圖片路徑 (請確認檔名正確或替換為 URL)
-        const CUSTOM_IMAGE_SRC = "ALL_catalog_21A29_t2pvytyv7q.png";
+        const CUSTOM_IMAGE_SRC = "https://www.alcohol.com.tw/upload/catalog_m/ALL_catalog_21A29_t2pvytyv7q.png";
+        // 新增第二張漂浮圖片 (Orion)
+        const CUSTOM_IMAGE_SRC_2 = "https://cohoimports.com/cdn/shop/files/Orion_334ml.png";
 
         // SVG 圖標組件
         const Icons = {
@@ -229,30 +257,59 @@
 
                 <Illustrations.Pineapple className="bg-illustration w-24 h-32 top-32 left-1/4 opacity-40 rotate-12" />
 
-                {/* --- 新增：使用者自定義漂浮圖片 (使用 wander 動畫讓它左右飄) --- */}
-                {/* 1. 左下角，慢速漫遊 */}
-                <img
-                    src={CUSTOM_IMAGE_SRC}
-                    className="bg-illustration sticker-img w-24 h-auto bottom-10 left-20 animate-wander-slow opacity-90"
-                    alt="Floating decoration 1"
-                    onError={(e) => { e.target.style.display = 'none'; console.log("圖片載入失敗，請確認檔名"); }}
-                />
+                {/* --- 新增：使用者自定義漂浮圖片 (結構改為 外層飄移 + 內層旋轉) --- */}
 
-                {/* 2. 右上角，中速漫遊 */}
-                <img
-                    src={CUSTOM_IMAGE_SRC}
-                    className="bg-illustration sticker-img w-32 h-auto top-40 right-5 animate-wander-medium opacity-80"
-                    alt="Floating decoration 2"
-                    onError={(e) => e.target.style.display = 'none'}
-                />
+                {/* 1. 路徑1 + 慢速順時針旋轉 */}
+                <div className="bg-illustration top-0 left-0 animate-float-everywhere-1">
+                    <img
+                        src={CUSTOM_IMAGE_SRC}
+                        className="w-24 h-auto sticker-img opacity-90 animate-spin-slow"
+                        alt="Floating decoration 1"
+                        onError={(e) => { e.target.style.display = 'none'; console.log("圖片載入失敗，請確認檔名"); }}
+                    />
+                </div>
 
-                {/* 3. 左上角，快速漫遊 */}
-                <img
-                    src={CUSTOM_IMAGE_SRC}
-                    className="bg-illustration sticker-img w-16 h-auto top-5 left-1/2 animate-wander-fast opacity-70"
-                    alt="Floating decoration 3"
-                    onError={(e) => e.target.style.display = 'none'}
-                />
+                {/* 2. 路徑2 + 慢速逆時針旋轉 */}
+                <div className="bg-illustration top-0 left-0 animate-float-everywhere-2">
+                    <img
+                        src={CUSTOM_IMAGE_SRC}
+                        className="w-32 h-auto sticker-img opacity-80 animate-spin-reverse"
+                        alt="Floating decoration 2"
+                        onError={(e) => e.target.style.display = 'none'}
+                    />
+                </div>
+
+                {/* 3. 路徑3 + 中速旋轉 */}
+                <div className="bg-illustration top-0 left-0 animate-float-everywhere-3">
+                    <img
+                        src={CUSTOM_IMAGE_SRC}
+                        className="w-16 h-auto sticker-img opacity-70 animate-spin-medium"
+                        alt="Floating decoration 3"
+                        onError={(e) => e.target.style.display = 'none'}
+                    />
+                </div>
+
+                {/* --- 新增：第二張自定義漂浮圖片 (Orion) --- */}
+
+                {/* 4. 路徑1 (延遲啟動) + 逆時針旋轉 */}
+                <div className="bg-illustration top-0 left-0 animate-float-everywhere-1" style={{ animationDelay: '-12s' }}>
+                    <img
+                        src={CUSTOM_IMAGE_SRC_2}
+                        className="w-20 h-auto sticker-img opacity-85 animate-spin-reverse"
+                        alt="Floating decoration 4"
+                        onError={(e) => e.target.style.display = 'none'}
+                    />
+                </div>
+
+                {/* 5. 路徑3 (延遲啟動) + 慢速旋轉 */}
+                <div className="bg-illustration top-0 left-0 animate-float-everywhere-3" style={{ animationDelay: '-7s' }}>
+                    <img
+                        src={CUSTOM_IMAGE_SRC_2}
+                        className="w-28 h-auto sticker-img opacity-80 animate-spin-slow"
+                        alt="Floating decoration 5"
+                        onError={(e) => e.target.style.display = 'none'}
+                    />
+                </div>
             </>
         );
 
@@ -648,8 +705,8 @@
                     </div>
 
                     <div className={`mb-6 p-5 rounded-3xl border-4 transition-all duration-300 relative ${isNext
-                        ? 'bg-sb-yellow border-sb-brown shadow-cartoon transform scale-[1.02]'
-                        : 'bg-white border-white hover:border-sb-yellow hover:shadow-cartoon-hover'
+                            ? 'bg-sb-yellow border-sb-brown shadow-cartoon transform scale-[1.02]'
+                            : 'bg-white border-white hover:border-sb-yellow hover:shadow-cartoon-hover'
                         }`}>
                         {/* 穩定結構：倒數計時器容器永遠存在，只是透過 class 控制顯示 */}
                         <div className={`absolute -top-2 -right-2 w-4 h-4 bg-sb-blue rounded-full border border-white opacity-50 ${isNext ? 'block' : 'hidden'}`}></div>
@@ -700,8 +757,8 @@
                                 <button
                                     onClick={() => setIsMapVisible(!isMapVisible)}
                                     className={`text-sm font-bold flex items-center px-4 py-2 rounded-full border-2 shadow-cartoon-hover transition-all active:translate-y-1 active:shadow-none ${isMapVisible
-                                        ? "bg-sb-red text-white border-sb-red"
-                                        : "bg-sb-blue text-white border-white hover:bg-teal-400"
+                                            ? "bg-sb-red text-white border-sb-red"
+                                            : "bg-sb-blue text-white border-white hover:bg-teal-400"
                                         }`}
                                 >
                                     <span className="mr-1.5"><Icons.Map className="w-4 h-4" /></span>
@@ -855,8 +912,8 @@
                                 key={tab.id}
                                 onClick={() => onTabChange(tab.id)}
                                 className={`flex items-center px-4 sm:px-6 py-3 rounded-full text-sm sm:text-base font-bold transition-all border-2 shadow-cartoon-hover whitespace-nowrap ${activeTab === tab.id
-                                    ? "bg-sb-pink text-white border-white transform -translate-y-1"
-                                    : "bg-white text-gray-400 border-transparent hover:bg-sb-yellow hover:text-sb-brown hover:border-white"
+                                        ? "bg-sb-pink text-white border-white transform -translate-y-1"
+                                        : "bg-white text-gray-400 border-transparent hover:bg-sb-yellow hover:text-sb-brown hover:border-white"
                                     }`}
                             >
                                 <span className="mr-2 hidden sm:inline"><tab.icon className="w-6 h-6" /></span>
@@ -875,7 +932,7 @@
             useEffect(() => {
                 const now = new Date();
                 // 測試用：解除註解下一行可模擬特定時間
-                // const now = new Date("2025-12-31T14:00:00"); 
+                // const now = new Date("2025-12-31T14:00:00");
 
                 let target = null;
                 let minDiff = Infinity;
@@ -952,8 +1009,8 @@
                                 key={day.day}
                                 onClick={() => setActiveDay(day.day)}
                                 className={`flex-shrink-0 px-5 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap border-4 relative overflow-hidden group ${activeDay === day.day
-                                    ? "bg-sb-yellow border-white text-sb-brown shadow-cartoon scale-110 z-10"
-                                    : "bg-white/80 border-white/50 text-gray-400 hover:bg-white hover:text-sb-teal hover:border-white hover:-translate-y-1"
+                                        ? "bg-sb-yellow border-white text-sb-brown shadow-cartoon scale-110 z-10"
+                                        : "bg-white/80 border-white/50 text-gray-400 hover:bg-white hover:text-sb-teal hover:border-white hover:-translate-y-1"
                                     }`}
                             >
                                 <span className="block text-xs uppercase opacity-70"><span>Day</span> <span>{day.day}</span></span>
