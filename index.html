@@ -1626,7 +1626,15 @@
         const [sortType, setSortType] = useState("date_desc"); // 排序狀態
         const fileInputRef = useRef(null);
 
-        // 監聽使用者狀態
+        // 購買地點管理相關狀態
+        const [locations, setLocations] = useState([]);
+        const [newLocation, setNewLocation] = useState("");
+        const [showLocationManager, setShowLocationManager] = useState(false);
+        const [activeShoppingTab, setActiveShoppingTab] =
+          useState("unpurchased"); // 新增 Tab 狀態
+        const [filterLocation, setFilterLocation] = useState(""); // 新增地點篩選狀態
+
+        // 監聯使用者狀態
         useEffect(() => {
           if (window.fb) {
             setIsFirebaseMode(true);
@@ -1637,6 +1645,38 @@
             return () => unsubscribe();
           }
         }, []);
+
+        // 監聽 Firebase 購買地點列表
+        useEffect(() => {
+          if (!isFirebaseMode || !user || !window.fb) return;
+
+          const { db, appId, collection, onSnapshot } = window.fb;
+          const locationsCol = collection(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "shopping_locations"
+          );
+
+          const unsubscribe = onSnapshot(
+            locationsCol,
+            (snapshot) => {
+              const loaded = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              }));
+              loaded.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+              setLocations(loaded);
+            },
+            (err) => {
+              console.error("Fetch shopping locations error:", err);
+            }
+          );
+
+          return () => unsubscribe();
+        }, [isFirebaseMode, user]);
 
         // 監聽 Firebase 購物清單
         useEffect(() => {
@@ -1676,9 +1716,16 @@
           return () => unsubscribe();
         }, [isFirebaseMode, user]);
 
-        // 排序邏輯
+        // 排序與篩選邏輯
         const sortedItems = useMemo(() => {
-          return [...items].sort((a, b) => {
+          let result = [...items];
+
+          // 地點篩選
+          if (filterLocation) {
+            result = result.filter((item) => item.location === filterLocation);
+          }
+
+          return result.sort((a, b) => {
             switch (sortType) {
               case "price_desc":
                 return (b.price || 0) - (a.price || 0);
@@ -1691,7 +1738,7 @@
                 return (b.createdAt || 0) - (a.createdAt || 0);
             }
           });
-        }, [items, sortType]);
+        }, [items, sortType, filterLocation]);
 
         const handleFileChange = async (e) => {
           const file = e.target.files[0];
@@ -1714,6 +1761,61 @@
             await signInWithPopup(auth, googleProvider);
           } catch (error) {
             console.error("Login failed:", error);
+          }
+        };
+
+        // 新增購買地點
+        const handleAddLocation = async () => {
+          if (!newLocation.trim()) return;
+          if (!user) {
+            alert("請先登入才能新增購買地點！");
+            return;
+          }
+
+          try {
+            const { db, appId, collection, addDoc } = window.fb;
+            const locationsCol = collection(
+              db,
+              "artifacts",
+              appId,
+              "public",
+              "data",
+              "shopping_locations"
+            );
+
+            await addDoc(locationsCol, {
+              name: newLocation.trim(),
+              createdAt: Date.now(),
+              author: user.displayName,
+              uid: user.uid,
+            });
+
+            setNewLocation("");
+          } catch (e) {
+            console.error("Add location failed:", e);
+            alert("新增地點失敗: " + e.message);
+          }
+        };
+
+        // 刪除購買地點
+        const handleDeleteLocation = async (id) => {
+          if (!confirm("確定要刪除這個購買地點嗎？")) return;
+
+          try {
+            const { db, appId, doc, deleteDoc } = window.fb;
+            const locationRef = doc(
+              db,
+              "artifacts",
+              appId,
+              "public",
+              "data",
+              "shopping_locations",
+              id
+            );
+            await deleteDoc(locationRef);
+          } catch (e) {
+            console.error("Delete location failed:", e);
+            alert("刪除地點失敗: " + e.message);
           }
         };
 
@@ -1921,21 +2023,74 @@
                       <span>新增購物願望</span>
                     </button>
 
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
-                        <Icons.Sort className="w-5 h-5" />
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      {/* 地點篩選 */}
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                          <Icons.MapPin className="w-5 h-5" />
+                        </div>
+                        <select
+                          value={filterLocation}
+                          onChange={(e) => setFilterLocation(e.target.value)}
+                          className="pl-10 pr-8 py-3 bg-white border-2 border-gray-100 rounded-2xl font-bold text-gray-600 focus:outline-none focus:border-sb-purple hover:border-gray-300 appearance-none h-full w-full sm:w-auto cursor-pointer"
+                        >
+                          <option value="">全部地點</option>
+                          {locations.map((loc) => (
+                            <option key={loc.id} value={loc.name}>
+                              {loc.name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
-                      <select
-                        value={sortType}
-                        onChange={(e) => setSortType(e.target.value)}
-                        className="pl-10 pr-8 py-3 bg-white border-2 border-gray-100 rounded-2xl font-bold text-gray-600 focus:outline-none focus:border-sb-purple hover:border-gray-300 appearance-none h-full w-full sm:w-auto"
-                      >
-                        <option value="date_desc">依新增時間新到舊</option>
-                        <option value="date_asc">依新增時間舊到新</option>
-                        <option value="price_desc">依金額大到小</option>
-                        <option value="price_asc">依金額小到大</option>
-                      </select>
+
+                      {/* 排序選單 */}
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                          <Icons.Sort className="w-5 h-5" />
+                        </div>
+                        <select
+                          value={sortType}
+                          onChange={(e) => setSortType(e.target.value)}
+                          className="pl-10 pr-8 py-3 bg-white border-2 border-gray-100 rounded-2xl font-bold text-gray-600 focus:outline-none focus:border-sb-purple hover:border-gray-300 appearance-none h-full w-full sm:w-auto cursor-pointer"
+                        >
+                          <option value="date_desc">依新增時間新到舊</option>
+                          <option value="date_asc">依新增時間舊到新</option>
+                          <option value="price_desc">依金額大到小</option>
+                          <option value="price_asc">依金額小到大</option>
+                        </select>
+                      </div>
                     </div>
+                  </div>
+
+                  {/* 清單顯示 */}
+                  {/* Tab 切換 */}
+                  <div className="flex p-1 bg-gray-100 rounded-xl mb-6">
+                    <button
+                      onClick={() => setActiveShoppingTab("unpurchased")}
+                      className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${
+                        activeShoppingTab === "unpurchased"
+                          ? "bg-white text-sb-purple shadow-sm"
+                          : "text-gray-400 hover:text-gray-600"
+                      }`}
+                    >
+                      <Icons.ShoppingBag className="w-4 h-4" />
+                      <span>
+                        未購買 ({sortedItems.filter((i) => !i.bought).length})
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => setActiveShoppingTab("purchased")}
+                      className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${
+                        activeShoppingTab === "purchased"
+                          ? "bg-white text-sb-purple shadow-sm"
+                          : "text-gray-400 hover:text-gray-600"
+                      }`}
+                    >
+                      <Icons.CheckSquare className="w-4 h-4" />
+                      <span>
+                        已購買 ({sortedItems.filter((i) => i.bought).length})
+                      </span>
+                    </button>
                   </div>
 
                   {/* 清單顯示 */}
@@ -1945,92 +2100,185 @@
                         <span>還沒有想買的東西嗎？快點新增！ 🛍️</span>
                       </div>
                     )}
-                    {sortedItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className={`relative flex flex-col sm:flex-row gap-4 p-4 rounded-2xl border-2 transition-all ${
-                          item.bought
-                            ? "bg-gray-50 border-gray-100 opacity-70"
-                            : "bg-white border-sb-purple/20 hover:border-sb-purple"
-                        }`}
-                      >
-                        {item.image && (
-                          <div className="w-full sm:w-32 h-32 rounded-xl overflow-hidden border-2 border-gray-100 shrink-0 bg-gray-100 flex items-center justify-center">
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="max-w-full max-h-full object-contain"
-                            />
+
+                    {/* 未購買區塊 */}
+                    {activeShoppingTab === "unpurchased" && (
+                      <div className="space-y-4">
+                        {sortedItems.filter((i) => !i.bought).length === 0 &&
+                          items.length > 0 && (
+                            <div className="text-center text-gray-400 py-8 font-bold">
+                              <span>太棒了！所有東西都買齊了 🎉</span>
+                            </div>
+                          )}
+                        {sortedItems
+                          .filter((item) => !item.bought)
+                          .map((item) => (
+                            <div
+                              key={item.id}
+                              className="relative flex flex-col sm:flex-row gap-4 p-4 rounded-2xl border-2 transition-all bg-white border-sb-purple/20 hover:border-sb-purple"
+                            >
+                              {item.image && (
+                                <div className="w-full sm:w-32 h-32 rounded-xl overflow-hidden border-2 border-gray-100 shrink-0 bg-gray-100 flex items-center justify-center">
+                                  <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="max-w-full max-h-full object-contain"
+                                  />
+                                </div>
+                              )}
+
+                              <div className="flex-1 flex flex-col justify-between">
+                                <div>
+                                  <div className="flex justify-between items-start">
+                                    <h4 className="text-lg font-black text-gray-800">
+                                      {item.name}
+                                    </h4>
+                                    {item.author && (
+                                      <span className="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-md font-bold">
+                                        by {item.author}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex flex-col gap-1 mt-1">
+                                    {item.location && (
+                                      <div className="flex items-center text-sm text-gray-500 font-bold">
+                                        <Icons.MapPin className="w-4 h-4 mr-1" />
+                                        <span>{item.location}</span>
+                                      </div>
+                                    )}
+                                    {item.price > 0 && (
+                                      <div className="flex items-center text-sm text-sb-plankton font-bold">
+                                        <span className="mr-1">¥</span>
+                                        <span>
+                                          {item.price.toLocaleString()}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex justify-between items-end mt-4 sm:mt-0 gap-2">
+                                  <button
+                                    onClick={() =>
+                                      toggleItem(item.id, item.bought)
+                                    }
+                                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-full font-bold text-sm border-2 transition-all bg-gray-100 text-gray-500 border-gray-200 hover:bg-green-50 hover:text-green-600 hover:border-green-200"
+                                  >
+                                    <Icons.CheckSquare className="w-4 h-4" />
+                                    <span>標記已買</span>
+                                  </button>
+
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      onClick={() => handleEditClick(item)}
+                                      className="p-2 rounded-lg transition-colors text-gray-400 hover:text-sb-blue hover:bg-blue-50"
+                                      title="編輯"
+                                    >
+                                      <Icons.Edit className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={() => deleteItem(item.id)}
+                                      className="text-gray-300 hover:text-sb-red p-2 rounded-lg hover:bg-red-50 transition-colors"
+                                      title="刪除"
+                                    >
+                                      <Icons.Trash className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    )}
+
+                    {/* 已購買區塊 */}
+                    {activeShoppingTab === "purchased" && (
+                      <div className="space-y-4">
+                        {sortedItems.filter((i) => i.bought).length === 0 && (
+                          <div className="text-center text-gray-400 py-8 font-bold">
+                            <span>還沒有購買任何東西 🛒</span>
                           </div>
                         )}
-
-                        <div className="flex-1 flex flex-col justify-between">
-                          <div>
-                            <div className="flex justify-between items-start">
-                              <h4
-                                className={`text-lg font-black ${
-                                  item.bought
-                                    ? "text-gray-400 line-through"
-                                    : "text-gray-800"
-                                }`}
-                              >
-                                {item.name}
-                              </h4>
-                              {item.author && (
-                                <span className="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-md font-bold">
-                                  by {item.author}
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex flex-col gap-1 mt-1">
-                              {item.location && (
-                                <div className="flex items-center text-sm text-gray-500 font-bold">
-                                  <Icons.MapPin className="w-4 h-4 mr-1" />
-                                  <span>{item.location}</span>
-                                </div>
-                              )}
-                              {item.price > 0 && (
-                                <div className="flex items-center text-sm text-sb-plankton font-bold">
-                                  <span className="mr-1">¥</span>
-                                  <span>{item.price.toLocaleString()}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="flex justify-between items-end mt-4 sm:mt-0 gap-2">
-                            <button
-                              onClick={() => toggleItem(item.id, item.bought)}
-                              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-full font-bold text-sm border-2 transition-all ${
-                                item.bought
-                                  ? "bg-green-100 text-green-600 border-green-200"
-                                  : "bg-gray-100 text-gray-500 border-gray-200 hover:bg-green-50 hover:text-green-600 hover:border-green-200"
-                              }`}
+                        {sortedItems
+                          .filter((item) => item.bought)
+                          .map((item) => (
+                            <div
+                              key={item.id}
+                              className="relative flex flex-col sm:flex-row gap-4 p-4 rounded-2xl border-2 transition-all bg-gray-50 border-gray-100 opacity-70"
                             >
-                              <Icons.CheckSquare className="w-4 h-4" />
-                              <span>{item.bought ? "已購買" : "標記已買"}</span>
-                            </button>
+                              {item.image && (
+                                <div className="w-full sm:w-32 h-32 rounded-xl overflow-hidden border-2 border-gray-100 shrink-0 bg-gray-100 flex items-center justify-center">
+                                  <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="max-w-full max-h-full object-contain grayscale"
+                                  />
+                                </div>
+                              )}
 
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => handleEditClick(item)}
-                                className="p-2 rounded-lg transition-colors text-gray-400 hover:text-sb-blue hover:bg-blue-50"
-                                title="編輯"
-                              >
-                                <Icons.Edit className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => deleteItem(item.id)}
-                                className="text-gray-300 hover:text-sb-red p-2 rounded-lg hover:bg-red-50 transition-colors"
-                                title="刪除"
-                              >
-                                <Icons.Trash className="w-5 h-5" />
-                              </button>
+                              <div className="flex-1 flex flex-col justify-between">
+                                <div>
+                                  <div className="flex justify-between items-start">
+                                    <h4 className="text-lg font-black text-gray-400 line-through">
+                                      {item.name}
+                                    </h4>
+                                    {item.author && (
+                                      <span className="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-md font-bold">
+                                        by {item.author}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex flex-col gap-1 mt-1">
+                                    {item.location && (
+                                      <div className="flex items-center text-sm text-gray-400 font-bold">
+                                        <Icons.MapPin className="w-4 h-4 mr-1" />
+                                        <span>{item.location}</span>
+                                      </div>
+                                    )}
+                                    {item.price > 0 && (
+                                      <div className="flex items-center text-sm text-gray-400 font-bold">
+                                        <span className="mr-1">¥</span>
+                                        <span>
+                                          {item.price.toLocaleString()}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex justify-between items-end mt-4 sm:mt-0 gap-2">
+                                  <button
+                                    onClick={() =>
+                                      toggleItem(item.id, item.bought)
+                                    }
+                                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-full font-bold text-sm border-2 transition-all bg-green-100 text-green-600 border-green-200"
+                                  >
+                                    <Icons.CheckSquare className="w-4 h-4" />
+                                    <span>已購買</span>
+                                  </button>
+
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      onClick={() => handleEditClick(item)}
+                                      className="p-2 rounded-lg transition-colors text-gray-400 hover:text-sb-blue hover:bg-blue-50"
+                                      title="編輯"
+                                    >
+                                      <Icons.Edit className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={() => deleteItem(item.id)}
+                                      className="text-gray-300 hover:text-sb-red p-2 rounded-lg hover:bg-red-50 transition-colors"
+                                      title="刪除"
+                                    >
+                                      <Icons.Trash className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
+                          ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               )}
@@ -2081,16 +2329,30 @@
                         />
                       </div>
                       <div className="col-span-1">
-                        <label className="block text-xs font-bold text-gray-400 mb-1 ml-1">
-                          購買地點 (選填)
-                        </label>
-                        <input
-                          type="text"
+                        <div className="flex justify-between items-center mb-1 ml-1">
+                          <label className="block text-xs font-bold text-gray-400">
+                            購買地點 (選填)
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setShowLocationManager(true)}
+                            className="text-xs font-bold text-sb-purple hover:text-purple-400 transition-colors"
+                          >
+                            管理地點
+                          </button>
+                        </div>
+                        <select
                           value={location}
                           onChange={(e) => setLocation(e.target.value)}
-                          placeholder="例如：國際通"
-                          className="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-2 font-bold text-gray-700 focus:outline-none focus:border-sb-purple"
-                        />
+                          className="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-2 font-bold text-gray-700 focus:outline-none focus:border-sb-purple appearance-none cursor-pointer"
+                        >
+                          <option value="">請選擇購買地點</option>
+                          {locations.map((loc) => (
+                            <option key={loc.id} value={loc.name}>
+                              {loc.name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                       <div className="col-span-1">
                         <label className="block text-xs font-bold text-gray-400 mb-1 ml-1">
@@ -2182,6 +2444,83 @@
                           </>
                         )}
                       </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 購買地點管理 Modal */}
+            {showLocationManager && (
+              <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+                <div
+                  className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+                  onClick={() => setShowLocationManager(false)}
+                ></div>
+                <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl relative z-10 overflow-hidden animate-fade-in flex flex-col max-h-[80vh]">
+                  <div className="bg-sb-blue p-4 flex justify-between items-center shrink-0">
+                    <h3 className="font-black text-white text-lg flex items-center">
+                      <Icons.MapPin className="w-5 h-5 mr-2" />
+                      <span>管理購買地點</span>
+                    </h3>
+                    <button
+                      onClick={() => setShowLocationManager(false)}
+                      className="text-white hover:bg-white/20 p-2 rounded-full transition-colors"
+                    >
+                      <Icons.X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="p-6 overflow-y-auto">
+                    {/* 新增地點 */}
+                    <div className="flex gap-2 mb-4">
+                      <input
+                        type="text"
+                        value={newLocation}
+                        onChange={(e) => setNewLocation(e.target.value)}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && handleAddLocation()
+                        }
+                        placeholder="輸入新的購買地點..."
+                        className="flex-1 bg-gray-50 border-2 border-gray-200 rounded-xl px-4 py-2 font-bold text-gray-700 focus:outline-none focus:border-sb-blue"
+                      />
+                      <button
+                        onClick={handleAddLocation}
+                        className="bg-sb-blue text-white px-4 rounded-xl font-bold border-2 border-white shadow-sm hover:bg-blue-500 transition-colors"
+                      >
+                        <Icons.Plus className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {/* 地點列表 */}
+                    <div className="space-y-2">
+                      {locations.length === 0 ? (
+                        <div className="text-center text-gray-400 py-8 font-bold">
+                          <div className="text-4xl mb-2">📍</div>
+                          <span>尚未新增任何購買地點</span>
+                        </div>
+                      ) : (
+                        locations.map((loc) => (
+                          <div
+                            key={loc.id}
+                            className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border-2 border-gray-100 hover:border-sb-blue transition-colors"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Icons.MapPin className="w-4 h-4 text-sb-blue" />
+                              <span className="font-bold text-gray-700">
+                                {loc.name}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => handleDeleteLocation(loc.id)}
+                              className="text-gray-300 hover:text-sb-red p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                              title="刪除"
+                            >
+                              <Icons.Trash className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
