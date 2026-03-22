@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
@@ -176,49 +176,60 @@
         width: 10px;
         height: 10px;
       }
+
       ::-webkit-scrollbar-track {
         background: #65c0e2;
       }
+
       ::-webkit-scrollbar-thumb {
         background: #f7e35e;
         border-radius: 10px;
         border: 2px solid #65c0e2;
       }
+
       ::-webkit-scrollbar-thumb:hover {
         background: #ff959d;
       }
+
       body {
-        font-family: "Comic Sans MS", "Chalkboard SE", "Arial Rounded MT Bold",
-          sans-serif;
+        font-family:
+          "Comic Sans MS", "Chalkboard SE", "Arial Rounded MT Bold", sans-serif;
         background-color: #65c0e2;
         color: #5d4037;
         overflow-x: hidden;
       }
+
       .animate-fade-in {
         animation: fadeIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }
+
       @keyframes fadeIn {
         from {
           opacity: 0;
           transform: translateY(20px) scale(0.95);
         }
+
         to {
           opacity: 1;
           transform: translateY(0) scale(1);
         }
       }
+
       .scrollbar-hide::-webkit-scrollbar {
         display: none;
       }
+
       .scrollbar-hide {
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
+
       .bg-illustration {
         position: fixed;
         z-index: -1;
         pointer-events: none;
       }
+
       .sticker-img {
         filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
         object-fit: contain;
@@ -1348,7 +1359,7 @@
           setTimeLeft(calculateTimeLeft());
           const timer = setInterval(
             () => setTimeLeft(calculateTimeLeft()),
-            1000
+            1000,
           );
           return () => clearInterval(timer);
         }, [targetDateStr, targetTimeStr]);
@@ -1460,7 +1471,7 @@
                   <div className="flex flex-wrap gap-2 text-sm font-bold mb-3">
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full border-2 text-xs ${getTypeStyle(
-                        event.type
+                        event.type,
                       )}`}
                     >
                       <span>{getTypeLabel(event.type)}</span>
@@ -1657,7 +1668,7 @@
             appId,
             "public",
             "data",
-            "shopping_locations"
+            "shopping_locations",
           );
 
           const unsubscribe = onSnapshot(
@@ -1672,7 +1683,7 @@
             },
             (err) => {
               console.error("Fetch shopping locations error:", err);
-            }
+            },
           );
 
           return () => unsubscribe();
@@ -1690,7 +1701,7 @@
             appId,
             "public",
             "data",
-            "shopping_items"
+            "shopping_items",
           );
 
           const unsubscribe = onSnapshot(
@@ -1707,10 +1718,10 @@
               console.error("Fetch shopping items error:", err);
               if (err.code === "permission-denied") {
                 console.warn(
-                  "請檢查 Firebase Firestore Rules 是否允許讀取 shopping_items"
+                  "請檢查 Firebase Firestore Rules 是否允許讀取 shopping_items",
                 );
               }
-            }
+            },
           );
 
           return () => unsubscribe();
@@ -1780,7 +1791,7 @@
               appId,
               "public",
               "data",
-              "shopping_locations"
+              "shopping_locations",
             );
 
             await addDoc(locationsCol, {
@@ -1810,7 +1821,7 @@
               "public",
               "data",
               "shopping_locations",
-              id
+              id,
             );
             await deleteDoc(locationRef);
           } catch (e) {
@@ -1880,7 +1891,7 @@
                 "public",
                 "data",
                 "shopping_items",
-                editingId
+                editingId,
               );
 
               const updateData = {
@@ -1902,7 +1913,7 @@
                 appId,
                 "public",
                 "data",
-                "shopping_items"
+                "shopping_items",
               );
 
               await addDoc(itemsCol, {
@@ -1922,7 +1933,7 @@
             console.error("Save shopping item failed", e);
             if (e.code === "permission-denied") {
               alert(
-                "權限不足！請至 Firebase Console > Firestore > Rules 添加 shopping_items 的讀寫規則。"
+                "權限不足！請至 Firebase Console > Firestore > Rules 添加 shopping_items 的讀寫規則。",
               );
             } else if (
               e.code === "resource-exhausted" ||
@@ -1948,7 +1959,7 @@
                 "public",
                 "data",
                 "shopping_items",
-                id
+                id,
               );
               await updateDoc(itemRef, { bought: !currentStatus });
             } catch (e) {
@@ -1972,7 +1983,7 @@
                 "public",
                 "data",
                 "shopping_items",
-                id
+                id,
               );
               await deleteDoc(itemRef);
             } catch (e) {
@@ -2385,8 +2396,8 @@
                               {imageFile
                                 ? "已選擇新圖片"
                                 : editingId && previewUrl
-                                ? "更換現有圖片"
-                                : "上傳參考圖片"}
+                                  ? "更換現有圖片"
+                                  : "上傳參考圖片"}
                             </span>
                           </label>
                           <input
@@ -2573,7 +2584,7 @@
             appId,
             "public",
             "data",
-            "todos"
+            "todos",
           );
 
           const unsubscribe = onSnapshot(
@@ -2588,7 +2599,7 @@
             },
             (err) => {
               console.error("Fetch todos error:", err);
-            }
+            },
           );
 
           return () => unsubscribe();
@@ -2609,7 +2620,7 @@
                 appId,
                 "public",
                 "data",
-                "todos"
+                "todos",
               );
               await addDoc(todosCol, {
                 text: input,
@@ -2645,7 +2656,7 @@
                 "public",
                 "data",
                 "todos",
-                id
+                id,
               );
               await updateDoc(todoRef, { done: !currentStatus });
             } catch (e) {
@@ -2654,8 +2665,8 @@
           } else {
             setTodos(
               todos.map((todo) =>
-                todo.id === id ? { ...todo, done: !todo.done } : todo
-              )
+                todo.id === id ? { ...todo, done: !todo.done } : todo,
+              ),
             );
           }
         };
@@ -2671,7 +2682,7 @@
                 "public",
                 "data",
                 "todos",
-                id
+                id,
               );
               await deleteDoc(todoRef);
             } catch (e) {
@@ -2879,7 +2890,7 @@
             setActiveDay(target.day);
             setTimeout(() => {
               const element = document.getElementById(
-                `event-${target.day}-${target.idx}`
+                `event-${target.day}-${target.idx}`,
               );
               if (element) {
                 element.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -3171,6 +3182,12 @@
 
         return (
           <div className="min-h-screen pb-12 relative z-10">
+            {/* 公佈欄 */}
+            <div className="bg-sb-yellow text-sb-brown text-center py-2 px-4 font-black shadow-sm relative z-50 text-sm md:text-base border-b-4 border-sb-darkYellow">
+              本專案奉獻給我的摯愛 ㄏㄜˋ 女士，雖然我們在 2026
+              的沖繩行後分開了，但希望緣分會再讓我們相遇，我愛她
+            </div>
+
             <div className="sticky top-0 z-50 mb-8 pt-4 px-4">
               <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur-md rounded-full shadow-cartoon border-4 border-white px-6 py-3 flex items-center justify-between">
                 <h1 className="text-xl font-black text-sb-blue flex items-center tracking-tight">
