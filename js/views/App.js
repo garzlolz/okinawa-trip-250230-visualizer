@@ -56,7 +56,7 @@ export default {
     <div class="min-h-screen pb-12 relative z-10">
       <!-- 公佈欄 -->
       <div class="bg-sb-yellow text-sb-brown text-center py-2 px-4 font-black shadow-sm relative z-50 text-sm md:text-base border-b-4 border-sb-darkYellow">
-        本專案奉獻給我的摯愛 ㄏㄜˋ 女士，雖然我們在 2026 的沖繩行後分開了，但希望緣分會再讓我們相遇，我愛她
+        本專案奉獻給我的摯愛 ㄏㄜˋ 女士，雖然我們在 2026 的沖繩行後分開了，但希望緣分會再讓我們相遇。
       </div>
 
       <div class="sticky top-0 z-50 mb-8 pt-4 px-4">
@@ -99,6 +99,29 @@ export default {
       </div>
 
       <div class="max-w-5xl mx-auto">
+        <!-- 行前須知與介紹卡片 -->
+        <div class="px-4">
+          <div class="max-w-4xl mx-auto bg-white rounded-3xl p-6 md:p-8 mb-8 shadow-cartoon border-4 border-gray-100 relative overflow-hidden">
+            <h2 class="text-xl font-bold text-sb-blue mb-4 flex items-center gap-2">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              給她的一段話
+            </h2>
+            <div class="text-gray-600 leading-relaxed text-sm md:text-base space-y-3 relative z-10">
+              <p>
+                這段時間的思考讓我更確定了，我只想守護妳一個人。我會永遠愛妳、對妳忠誠。希望妳能打開內心的防備，放心地把自己交給我。我會照顧妳一輩子，我承諾會一直守護妳，絕不先離妳而去。
+              </p>
+              <p>
+                如果我們再次見面，我想告訴妳：我們結婚吧，讓我們永遠在一起。過去的經歷讓我習慣有所保留，也常因為想太多而感到焦慮，甚至因此對妳做出了自以為是試探與挑戰。但這一個月的思考讓我明白，這些擔憂與不安不該由妳來承擔。對妳，我不該有任何保留，我會完全地相信妳，也相信我們能一起變得更好，這才是通往幸福的路。
+              </p>
+              <p>
+                我會在妳難過時跳支舞給妳看，在妳不舒服時煮粥給妳喝。妳想吃海鮮，我就去買大螃蟹；在冬天最美的季節，我們一起去採最大最甜的草莓。情人節我會送妳一束花，每天睡前給妳一個吻。我畢生的夢想，就是守護好這樣的現狀，直到永遠。
+              </p>
+            </div>
+          </div>
+        </div>
+
         <Tabs :activeTab="activeTab" @tab-change="activeTab = $event" />
         <div class="animate-fade-in">
           <ItineraryView v-show="activeTab === 'itinerary'" :data="TRIP_DATA.itinerary" />
