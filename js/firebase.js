@@ -18,6 +18,13 @@ import {
   query,
   orderBy,
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  deleteObject,
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC0pJgycqVxdLcm0U_VNPgB9B7hEVNROTk",
@@ -31,12 +38,13 @@ const firebaseConfig = {
 const appId =
   typeof window.__app_id !== "undefined" ? window.__app_id : "default-trip-app";
 
-let app, auth, db, googleProvider;
+let app, auth, db, storage, googleProvider;
 
 try {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
+  storage = getStorage(app);
   googleProvider = new GoogleAuthProvider();
   console.log("Firebase initialized successfully");
 } catch (e) {
@@ -46,6 +54,7 @@ try {
 export {
   auth,
   db,
+  storage,
   appId,
   googleProvider,
   signInWithPopup,
@@ -60,4 +69,8 @@ export {
   onSnapshot,
   query,
   orderBy,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  deleteObject,
 };

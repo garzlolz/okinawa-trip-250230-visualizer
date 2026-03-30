@@ -1,4 +1,4 @@
-import { Calendar, Hotel, Wallet, ShoppingBag, CheckSquare } from './Icons.js';
+import { Calendar, Hotel, Wallet, ShoppingBag, CheckSquare, Image } from './Icons.js';
 
 export default {
   props: {
@@ -6,7 +6,7 @@ export default {
   },
   emits: ['tab-change'],
   components: {
-    Calendar, Hotel, Wallet, ShoppingBag, CheckSquare
+    Calendar, Hotel, Wallet, ShoppingBag, CheckSquare, Image
   },
   setup(props, { emit }) {
     const tabs = [
@@ -15,6 +15,7 @@ export default {
       { id: "budget", label: "預算表", icon: 'Wallet' },
       { id: "shopping", label: "購物清單", icon: 'ShoppingBag' },
       { id: "todo", label: "行前準備", icon: 'CheckSquare' },
+      { id: "album", label: "相簿", icon: 'Image' },
     ];
 
     return { tabs };

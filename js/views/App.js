@@ -11,11 +11,12 @@ import LogisticsView from './LogisticsView.js';
 import BudgetView from './BudgetView.js';
 import ShoppingView from './ShoppingView.js';
 import TodoView from './TodoView.js';
+import AlbumView from './AlbumView.js';
 
 export default {
   components: {
     Anchor, Calendar, BackgroundEffects, Tabs,
-    ItineraryView, LogisticsView, BudgetView, ShoppingView, TodoView
+    ItineraryView, LogisticsView, BudgetView, ShoppingView, TodoView, AlbumView
   },
   setup() {
     const activeTab = ref("itinerary");
@@ -134,8 +135,7 @@ export default {
           <LogisticsView v-if="activeTab === 'logistics'" :flights="TRIP_DATA.flights" :hotels="TRIP_DATA.hotels" />
           <BudgetView v-if="activeTab === 'budget'" :budget="TRIP_DATA.budget" />
           <ShoppingView v-if="activeTab === 'shopping'" :user="user" />
-          <TodoView v-if="activeTab === 'todo'" :user="user" />
-        </div>
+          <TodoView v-if="activeTab === 'todo'" :user="user" />        <AlbumView v-if="activeTab === 'album'" :user="user" />        </div>
       </div>
 
       <div class="text-center py-12 text-white font-bold opacity-80 text-sm">
