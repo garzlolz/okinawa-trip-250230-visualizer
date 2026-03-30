@@ -56,7 +56,7 @@ export default {
     <div class="min-h-screen pb-12 relative z-10">
       <!-- 公佈欄 -->
       <div class="bg-sb-yellow text-sb-brown text-center py-2 px-4 font-black shadow-sm relative z-50 text-sm md:text-base border-b-4 border-sb-darkYellow">
-        本專案奉獻給我的摯愛 ㄏㄜˋ 女士，雖然我們在 2026 的沖繩行後分開了，但希望緣分會再讓我們相遇。
+        本專案奉獻給我的摯愛 ㄏㄜˋ 女士，雖然我們在 2026 的沖繩行後分開了，希望緣分會再讓我們相遇。
       </div>
 
       <div class="sticky top-0 z-50 mb-8 pt-4 px-4">
