@@ -11,6 +11,7 @@ export default {
   },
   components: { CheckSquare, Plus, Trash },
   setup(props) {
+    const accessDenied = ref(false);
     const todos = ref([]);
     const input = ref("");
     let unsubscribe = null;
@@ -34,11 +35,15 @@ export default {
       }
       const todosCol = collection(db, "artifacts", appId, "public", "data", "todos");
       unsubscribe = onSnapshot(todosCol, (snapshot) => {
+        accessDenied.value = false;
         const loaded = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         loaded.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
         todos.value = loaded;
       }, (err) => {
         console.error("Fetch todos error:", err);
+        if (err.code === 'permission-denied') {
+          accessDenied.value = true;
+        }
       });
     };
 
@@ -94,7 +99,7 @@ export default {
     };
 
     return {
-      todos, input, handleLogin, addTodo, toggleTodo, deleteTodo
+      accessDenied, todos, input, handleLogin, addTodo, toggleTodo, deleteTodo
     };
   },
   template: `
@@ -114,6 +119,12 @@ export default {
           <button @click="handleLogin" class="bg-white text-sb-teal px-4 py-2 rounded-full font-bold text-sm shadow-sm border-2 border-gray-100 hover:bg-gray-50 transition-colors">
             立即登入
           </button>
+        </div>
+
+        <div v-else-if="accessDenied" class="p-12 text-center text-gray-400 font-bold bg-gray-50">
+          <div class="mb-4 text-6xl">🔒</div>
+          <p class="text-sb-red">權限不足</p>
+          <p class="text-sm opacity-70 mt-2">非管理員權限，無法查看與編輯內容喔！</p>
         </div>
 
         <div v-else class="p-6">

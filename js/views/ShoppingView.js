@@ -14,6 +14,7 @@ export default {
     ShoppingBag, MapPin, Sort, Plus, CheckSquare, Edit, Trash, ImageIcon, X
   },
   setup(props) {
+    const accessDenied = ref(false);
     const items = ref([]);
     const name = ref("");
     const location = ref("");
@@ -58,16 +59,28 @@ export default {
       
       const locCol = collection(db, "artifacts", appId, "public", "data", "shopping_locations");
       locationsUnsubscribe = onSnapshot(locCol, (snapshot) => {
+        accessDenied.value = false;
         const loaded = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         loaded.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
         locations.value = loaded;
-      }, err => console.error("Loc err:", err));
+      }, err => {
+        console.error("Loc err:", err);
+        if (err.code === 'permission-denied') {
+          accessDenied.value = true;
+        }
+      });
       
       const itemsCol = collection(db, "artifacts", appId, "public", "data", "shopping_items");
       itemsUnsubscribe = onSnapshot(itemsCol, (snapshot) => {
+        accessDenied.value = false;
         const loaded = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         items.value = loaded;
-      }, err => console.error("Items err:", err));
+      }, err => {
+        console.error("Items err:", err);
+        if (err.code === 'permission-denied') {
+          accessDenied.value = true;
+        }
+      });
     };
 
     watch(() => props.user, () => {
@@ -238,7 +251,7 @@ export default {
     };
 
     return {
-      items, sortedItems, unpurchasedItems, purchasedItems,
+      accessDenied, items, sortedItems, unpurchasedItems, purchasedItems,
       name, location, price, newLocation, locations,
       filterLocation, sortType, activeShoppingTab,
       showModal, showLocationManager, uploading, editingId,
@@ -265,6 +278,12 @@ export default {
           <button @click="handleLogin" class="bg-white text-sb-purple px-4 py-2 rounded-full font-bold text-sm shadow-sm border-2 border-gray-100 hover:bg-gray-50 transition-colors">
             立即登入
           </button>
+        </div>
+
+        <div v-else-if="accessDenied" class="p-12 text-center text-gray-400 font-bold bg-gray-50">
+          <div class="mb-4 text-6xl">🔒</div>
+          <p class="text-sb-red">權限不足</p>
+          <p class="text-sm opacity-70 mt-2">非管理員權限，無法查看與編輯內容喔！</p>
         </div>
 
         <div v-else class="p-6">
