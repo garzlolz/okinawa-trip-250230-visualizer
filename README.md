@@ -2,7 +2,7 @@
 
 這是一個以「沖繩五天四夜跨年之旅」為主題的靜態視覺化專案，使用 Vue 3、Tailwind CSS 與 Firebase 打造。
 
-專案以單頁形式呈現旅行資訊，內容包含行程、航班、住宿、預算、購物清單與行前待辦，並支援 Google 登入後同步編輯購物與待辦資料。
+專案以單頁形式呈現旅行資訊，內容包含行程、航班、住宿、預算、購物清單、行前待辦與照片相簿，並支援 Google 登入後同步編輯購物、待辦資料及上傳相簿照片。
 
 ## 特色
 
@@ -11,7 +11,8 @@
 - 預算整理：快速檢視各項花費與總預估金額
 - 購物清單：可新增、編輯、刪除、排序與篩選購物項目
 - 行前待辦：登入後可建立與管理共同待辦清單
-- Firebase 即時同步：購物與待辦資料會透過 Firestore 即時更新
+- 照片相簿功能：登入且有權限的使用者可批次上傳多張照片並增加描述，即時於相簿牆展示，亦可刪除自己上傳的照片
+- Firebase 即時同步：購物、待辦資料與相簿圖片會透過 Firestore 與 Firebase Storage 即時更新
 - 純靜態架構：不需要建置流程，適合直接部署到 GitHub Pages 或其他靜態主機
 
 ## 技術棧
@@ -20,6 +21,7 @@
 - Tailwind CSS
 - Firebase Authentication
 - Cloud Firestore
+- Firebase Storage
 - ES Modules
 
 ## 專案結構
@@ -64,15 +66,16 @@ http://localhost:8000
 
 ## Firebase 設定
 
-購物清單與待辦清單會使用 Firebase Authentication 與 Firestore。
+購物清單、待辦清單與相簿功能會使用 Firebase Authentication、Firestore 與 Firebase Storage。
 
 目前 Firebase 設定寫在 `js/firebase.js`，如果你要改成自己的專案，可以檢查以下項目：
 
 - `firebaseConfig`
 - `appId`
 - Firestore 規則與集合名稱
+- Firebase Storage Bucket 及 CORS 規則
 
-專案預設會使用 Google 登入來存取共同資料，因此如果 Firebase 專案尚未啟用 Google Authentication，請先在 Firebase Console 內完成設定。
+專案預設會使用 Google 登入來存取共同資料，因此如果 Firebase 專案尚未啟用 Google Authentication，請先在 Firebase Console 內完成設定。若部署至外部網域，需記得配置 Storage 的 CORS 設定。
 
 ## 資料來源
 
