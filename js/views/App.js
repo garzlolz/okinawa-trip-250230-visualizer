@@ -1,22 +1,34 @@
-import { ref, onMounted, onUnmounted } from 'vue';
-import { TRIP_DATA } from '../data.js';
-import { auth, onAuthStateChanged, signInWithPopup, signOut, googleProvider } from '../firebase.js';
+import { ref, onMounted, onUnmounted } from "vue";
+import { TRIP_DATA } from "../data.js";
+import {
+  auth,
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut,
+  googleProvider,
+} from "../firebase.js";
 
-import { Anchor, Calendar } from '../components/Icons.js';
-import BackgroundEffects from '../components/BackgroundEffects.js';
-import Tabs from '../components/Tabs.js';
+import { Anchor, Calendar } from "../components/Icons.js";
+import BackgroundEffects from "../components/BackgroundEffects.js";
+import Tabs from "../components/Tabs.js";
 
-import ItineraryView from './ItineraryView.js';
-import LogisticsView from './LogisticsView.js';
-import BudgetView from './BudgetView.js';
-import ShoppingView from './ShoppingView.js';
-import TodoView from './TodoView.js';
-import AlbumView from './AlbumView.js';
+import ItineraryView from "./ItineraryView.js";
+import LogisticsView from "./LogisticsView.js";
+import BudgetView from "./BudgetView.js";
+import ShoppingView from "./ShoppingView.js";
+import TodoView from "./TodoView.js";
 
 export default {
   components: {
-    Anchor, Calendar, BackgroundEffects, Tabs,
-    ItineraryView, LogisticsView, BudgetView, ShoppingView, TodoView, AlbumView
+    Anchor,
+    Calendar,
+    BackgroundEffects,
+    Tabs,
+    ItineraryView,
+    LogisticsView,
+    BudgetView,
+    ShoppingView,
+    TodoView,
   },
   setup() {
     const activeTab = ref("itinerary");
@@ -50,7 +62,11 @@ export default {
     };
 
     return {
-      activeTab, user, TRIP_DATA, handleLogin, handleLogout
+      activeTab,
+      user,
+      TRIP_DATA,
+      handleLogin,
+      handleLogout,
     };
   },
   template: `
@@ -135,7 +151,8 @@ export default {
           <LogisticsView v-if="activeTab === 'logistics'" :flights="TRIP_DATA.flights" :hotels="TRIP_DATA.hotels" />
           <BudgetView v-if="activeTab === 'budget'" :budget="TRIP_DATA.budget" />
           <ShoppingView v-if="activeTab === 'shopping'" :user="user" />
-          <TodoView v-if="activeTab === 'todo'" :user="user" />        <AlbumView v-if="activeTab === 'album'" :user="user" />        </div>
+          <TodoView v-if="activeTab === 'todo'" :user="user" />
+        </div>
       </div>
 
       <div class="text-center py-12 text-white font-bold opacity-80 text-sm">
@@ -144,5 +161,5 @@ export default {
 
       <BackgroundEffects />
     </div>
-  `
+  `,
 };

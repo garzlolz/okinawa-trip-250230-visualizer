@@ -1,21 +1,24 @@
-import { Calendar, Hotel, Wallet, ShoppingBag, CheckSquare, Image } from './Icons.js';
+import { Calendar, Hotel, Wallet, ShoppingBag, CheckSquare } from "./Icons.js";
 
 export default {
   props: {
-    activeTab: { type: String, required: true }
+    activeTab: { type: String, required: true },
   },
-  emits: ['tab-change'],
+  emits: ["tab-change"],
   components: {
-    Calendar, Hotel, Wallet, ShoppingBag, CheckSquare, Image
+    Calendar,
+    Hotel,
+    Wallet,
+    ShoppingBag,
+    CheckSquare,
   },
   setup(props, { emit }) {
     const tabs = [
-      { id: "itinerary", label: "行程表", icon: 'Calendar' },
-      { id: "logistics", label: "住宿與航班", icon: 'Hotel' },
-      { id: "budget", label: "預算表", icon: 'Wallet' },
-      { id: "shopping", label: "購物清單", icon: 'ShoppingBag' },
-      { id: "todo", label: "行前準備", icon: 'CheckSquare' },
-      { id: "album", label: "相簿", icon: 'Image' },
+      { id: "itinerary", label: "行程表", icon: "Calendar" },
+      { id: "logistics", label: "住宿與航班", icon: "Hotel" },
+      { id: "budget", label: "預算表", icon: "Wallet" },
+      { id: "shopping", label: "購物清單", icon: "ShoppingBag" },
+      { id: "todo", label: "行前準備", icon: "CheckSquare" },
     ];
 
     return { tabs };
@@ -39,5 +42,5 @@ export default {
         </button>
       </div>
     </div>
-  `
+  `,
 };
