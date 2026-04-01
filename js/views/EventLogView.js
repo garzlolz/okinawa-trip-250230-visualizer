@@ -91,6 +91,15 @@ export default {
         login: "登入系統",
         enter_home: "進入首頁",
         switch_tab: "切換 Tab",
+        add_shopping_item: "新增購物項目",
+        edit_shopping_item: "編輯購物項目",
+        delete_shopping_item: "刪除購物項目",
+        toggle_shopping_item: "切換商品狀態",
+        add_shopping_location: "新增購買地點",
+        delete_shopping_location: "刪除購買地點",
+        add_todo: "新增待辦事項",
+        toggle_todo: "切換待辦狀態",
+        delete_todo: "刪除待辦事項",
       };
       return map[action] || action;
     };
@@ -172,6 +181,10 @@ export default {
                 </td>
                 <td class="px-4 py-3 text-xs break-all">
                   <span v-if="event.details && event.details.tab">前往: {{ formatTabName(event.details.tab) }}</span>
+                  <span v-else-if="event.details && event.details.info">
+                    <span class="font-bold text-gray-700">{{ event.details.info }}</span>
+                    <span v-if="event.details.status" class="ml-1 text-gray-400">({{ event.details.status }})</span>
+                  </span>
                   <span v-else-if="event.details">{{ JSON.stringify(event.details) }}</span>
                 </td>
               </tr>

@@ -2,7 +2,8 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { ShoppingBag, MapPin, Sort, Plus, CheckSquare, Edit, Trash, Image as ImageIcon, X } from '../components/Icons.js';
 import { 
   db, appId, collection, addDoc, doc, updateDoc,
-  deleteDoc, onSnapshot, auth, signInWithPopup, googleProvider 
+  deleteDoc, onSnapshot, auth, signInWithPopup, googleProvider,
+  recordEvent
 } from '../firebase.js';
 import { compressImage } from '../utils.js';
 
@@ -140,6 +141,7 @@ export default {
           author: props.user.displayName,
           uid: props.user.uid,
         });
+        recordEvent(props.user, "add_shopping_location", { info: newLocation.value.trim() });
         newLocation.value = "";
       } catch (e) {
         console.error("Add location failed:", e);
@@ -150,8 +152,10 @@ export default {
     const handleDeleteLocation = async (id) => {
       if (!confirm("確定要刪除這個購買地點嗎？")) return;
       try {
+        const locName = locations.value.find(l => l.id === id)?.name || id;
         const locRef = doc(db, "artifacts", appId, "public", "data", "shopping_locations", id);
         await deleteDoc(locRef);
+        recordEvent(props.user, "delete_shopping_location", { info: locName });
       } catch (e) {
         alert("刪除地點失敗: " + e.message);
       }
@@ -210,6 +214,7 @@ export default {
           const itemRef = doc(db, "artifacts", appId, "public", "data", "shopping_items", editingId.value);
           if (imageBase64) updateData.image = imageBase64;
           await updateDoc(itemRef, updateData);
+          recordEvent(props.user, "edit_shopping_item", { info: updateData.name });
         } else {
           const itemsCol = collection(db, "artifacts", appId, "public", "data", "shopping_items");
           updateData.image = imageBase64;
@@ -218,6 +223,7 @@ export default {
           updateData.author = props.user.displayName;
           updateData.uid = props.user.uid;
           await addDoc(itemsCol, updateData);
+          recordEvent(props.user, "add_shopping_item", { info: updateData.name });
         }
 
         handleCloseModal();
@@ -237,16 +243,20 @@ export default {
 
     const toggleItem = async (id, currentStatus) => {
       try {
+        const itemName = items.value.find(i => i.id === id)?.name || id;
         const itemRef = doc(db, "artifacts", appId, "public", "data", "shopping_items", id);
         await updateDoc(itemRef, { bought: !currentStatus });
+        recordEvent(props.user, "toggle_shopping_item", { info: itemName, status: (!currentStatus ? '已買' : '未買') });
       } catch (e) { console.error(e); }
     };
 
     const deleteItem = async (id) => {
       if (!confirm("確定要刪除這個項目嗎？")) return;
       try {
+        const itemName = items.value.find(i => i.id === id)?.name || id;
         const itemRef = doc(db, "artifacts", appId, "public", "data", "shopping_items", id);
         await deleteDoc(itemRef);
+        recordEvent(props.user, "delete_shopping_item", { info: itemName });
       } catch (e) { console.error(e); }
     };
 

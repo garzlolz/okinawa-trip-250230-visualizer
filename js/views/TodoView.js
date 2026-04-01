@@ -2,7 +2,8 @@ import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { CheckSquare, Plus, Trash } from '../components/Icons.js';
 import { 
   db, appId, collection, addDoc, doc, updateDoc,
-  deleteDoc, onSnapshot, auth, signInWithPopup, googleProvider 
+  deleteDoc, onSnapshot, auth, signInWithPopup, googleProvider,
+  recordEvent
 } from '../firebase.js';
 
 export default {
@@ -74,6 +75,7 @@ export default {
           author: props.user.displayName,
           uid: props.user.uid,
         });
+        recordEvent(props.user, "add_todo", { info: input.value });
         input.value = "";
       } catch (e) {
         console.error("Add failed", e);
@@ -82,8 +84,10 @@ export default {
 
     const toggleTodo = async (id, currentStatus) => {
       try {
+        const todoText = todos.value.find(t => t.id === id)?.text || id;
         const todoRef = doc(db, "artifacts", appId, "public", "data", "todos", id);
         await updateDoc(todoRef, { done: !currentStatus });
+        recordEvent(props.user, "toggle_todo", { info: todoText, status: (!currentStatus ? '已完成' : '未完成') });
       } catch (e) {
         console.error(e);
       }
@@ -91,8 +95,10 @@ export default {
 
     const deleteTodo = async (id) => {
       try {
+        const todoText = todos.value.find(t => t.id === id)?.text || id;
         const todoRef = doc(db, "artifacts", appId, "public", "data", "todos", id);
         await deleteDoc(todoRef);
+        recordEvent(props.user, "delete_todo", { info: todoText });
       } catch (e) {
         console.error(e);
       }

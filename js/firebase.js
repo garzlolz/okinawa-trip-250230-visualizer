@@ -48,6 +48,22 @@ try {
   console.error("Firebase init failed:", e);
 }
 
+const recordEvent = async (user, action, details = {}) => {
+  if (!user) return;
+  try {
+    await addDoc(collection(db, "events"), {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      action,
+      details,
+      timestamp: Date.now()
+    });
+  } catch (e) {
+    console.error("Failed to record event:", e);
+  }
+};
+
 export {
   auth,
   db,
@@ -70,4 +86,5 @@ export {
   where,
   getDocs,
   startAfter,
+  recordEvent,
 };

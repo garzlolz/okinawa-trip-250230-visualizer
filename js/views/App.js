@@ -10,6 +10,7 @@ import {
   signInWithPopup,
   signOut,
   googleProvider,
+  recordEvent,
 } from "../firebase.js";
 
 import { Anchor, Calendar } from "../components/Icons.js";
@@ -41,32 +42,18 @@ export default {
     const user = ref(null);
     let unsubscribe = null;
 
-    const recordEvent = async (action, details = {}) => {
-      if (!user.value) return;
-      try {
-        await addDoc(collection(db, "events"), {
-          uid: user.value.uid,
-          email: user.value.email,
-          displayName: user.value.displayName,
-          action,
-          details,
-          timestamp: Date.now()
-        });
-      } catch (e) {
-        console.error("Failed to record event:", e);
-      }
-    };
+
 
     watch(user, (newUser, oldUser) => {
       // 記錄登入或重整網頁後已登入狀態
       if (newUser && !oldUser) {
-        recordEvent("login", { info: "使用者登入或進入系統" });
+        recordEvent(user.value, "login", { info: "使用者登入或進入系統" });
       }
     });
 
     watch(activeTab, (newTab) => {
       if (user.value) {
-        recordEvent("switch_tab", { tab: newTab });
+        recordEvent(user.value, "switch_tab", { tab: newTab });
       }
     });
 
