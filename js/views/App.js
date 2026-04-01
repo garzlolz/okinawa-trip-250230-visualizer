@@ -1,7 +1,11 @@
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import { TRIP_DATA } from "../data.js";
 import {
   auth,
+  db,
+  collection,
+  addDoc,
+  serverTimestamp,
   onAuthStateChanged,
   signInWithPopup,
   signOut,
@@ -17,6 +21,7 @@ import LogisticsView from "./LogisticsView.js";
 import BudgetView from "./BudgetView.js";
 import ShoppingView from "./ShoppingView.js";
 import TodoView from "./TodoView.js";
+import EventLogView from "./EventLogView.js";
 
 export default {
   components: {
@@ -29,11 +34,41 @@ export default {
     BudgetView,
     ShoppingView,
     TodoView,
+    EventLogView,
   },
   setup() {
     const activeTab = ref("itinerary");
     const user = ref(null);
     let unsubscribe = null;
+
+    const recordEvent = async (action, details = {}) => {
+      if (!user.value) return;
+      try {
+        await addDoc(collection(db, "events"), {
+          uid: user.value.uid,
+          email: user.value.email,
+          displayName: user.value.displayName,
+          action,
+          details,
+          timestamp: serverTimestamp()
+        });
+      } catch (e) {
+        console.error("Failed to record event:", e);
+      }
+    };
+
+    watch(user, (newUser, oldUser) => {
+      // 記錄登入或重整網頁後已登入狀態
+      if (newUser && !oldUser) {
+        recordEvent("login", { info: "使用者登入或進入系統" });
+      }
+    });
+
+    watch(activeTab, (newTab) => {
+      if (user.value) {
+        recordEvent("switch_tab", { tab: newTab });
+      }
+    });
 
     onMounted(() => {
       unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -148,13 +183,14 @@ export default {
           </div>
         </div>
 
-        <Tabs :activeTab="activeTab" @tab-change="activeTab = $event" />
+        <Tabs :activeTab="activeTab" :user="user" @tab-change="activeTab = $event" />
         <div class="animate-fade-in">
           <ItineraryView v-show="activeTab === 'itinerary'" :data="TRIP_DATA.itinerary" />
           <LogisticsView v-if="activeTab === 'logistics'" :flights="TRIP_DATA.flights" :hotels="TRIP_DATA.hotels" />
           <BudgetView v-if="activeTab === 'budget'" :budget="TRIP_DATA.budget" />
           <ShoppingView v-if="activeTab === 'shopping'" :user="user" />
           <TodoView v-if="activeTab === 'todo'" :user="user" />
+          <EventLogView v-if="activeTab === 'eventLog'" :user="user" />
         </div>
       </div>
 

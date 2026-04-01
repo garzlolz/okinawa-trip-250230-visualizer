@@ -1,8 +1,10 @@
-import { Calendar, Hotel, Wallet, ShoppingBag, CheckSquare } from "./Icons.js";
+import { computed } from "vue";
+import { Calendar, Hotel, Wallet, ShoppingBag, CheckSquare, ListIcon } from "./Icons.js";
 
 export default {
   props: {
     activeTab: { type: String, required: true },
+    user: { type: Object, default: null },
   },
   emits: ["tab-change"],
   components: {
@@ -11,6 +13,7 @@ export default {
     Wallet,
     ShoppingBag,
     CheckSquare,
+    ListIcon,
   },
   setup(props, { emit }) {
     const tabs = [
@@ -21,13 +24,21 @@ export default {
       { id: "todo", label: "行前準備", icon: "CheckSquare" },
     ];
 
-    return { tabs };
+    const visibleTabs = computed(() => {
+      const isEventAdmin = props.user && props.user.email === 'oscar861213@gmail.com' && props.user.uid === 'sMrOq1SWgOhodVYTgweVBRlBSF12';
+      if (isEventAdmin) {
+        return [...tabs, { id: "eventLog", label: "事件紀錄", icon: "ListIcon" }];
+      }
+      return tabs;
+    });
+
+    return { visibleTabs };
   },
   template: `
     <div class="flex justify-center mb-8 px-4 overflow-x-auto scrollbar-hide">
       <div class="flex space-x-2 sm:space-x-4 bg-white/30 p-2 rounded-full backdrop-blur-sm border-2 border-white/40">
         <button
-          v-for="tab in tabs" :key="tab.id"
+          v-for="tab in visibleTabs" :key="tab.id"
           @click="$emit('tab-change', tab.id)"
           :class="['flex items-center px-4 sm:px-6 py-3 rounded-full text-sm sm:text-base font-bold transition-all border-2 shadow-cartoon-hover whitespace-nowrap',
             activeTab === tab.id

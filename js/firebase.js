@@ -17,6 +17,8 @@ import {
   onSnapshot,
   query,
   orderBy,
+  serverTimestamp,
+  limit,
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -60,4 +62,6 @@ export {
   onSnapshot,
   query,
   orderBy,
+  serverTimestamp,
+  limit,
 };
