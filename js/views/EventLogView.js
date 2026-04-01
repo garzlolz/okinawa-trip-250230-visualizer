@@ -1,5 +1,5 @@
-import { ref, onMounted, onUnmounted } from "vue";
-import { db, collection, query, orderBy, limit, onSnapshot } from "../firebase.js";
+import { ref, onMounted } from "vue";
+import { db, collection, query, orderBy, limit, getDocs, where, startAfter } from "../firebase.js";
 
 export default {
   props: {
@@ -7,26 +7,83 @@ export default {
   },
   setup(props) {
     const events = ref([]);
-    let unsubscribe = null;
+    const loading = ref(false);
+    
+    const startDate = ref("");
+    const endDate = ref("");
+    
+    const PAGE_SIZE = 20;
+    const currentPage = ref(1);
+    const hasMore = ref(false);
+    const lastDocCursors = ref([]);
+
+    const fetchEvents = async (page = 1) => {
+      if (!props.user || props.user.email !== 'oscar861213@gmail.com' || props.user.uid !== 'sMrOq1SWgOhodVYTgweVBRlBSF12') {
+        return;
+      }
+      
+      loading.value = true;
+      try {
+        let constraints = [];
+
+        if (startDate.value) {
+          const startMs = new Date(`${startDate.value}T00:00:00`).getTime();
+          constraints.push(where("timestamp", ">=", startMs));
+        }
+
+        if (endDate.value) {
+          const endMs = new Date(`${endDate.value}T23:59:59.999`).getTime();
+          constraints.push(where("timestamp", "<=", endMs));
+        }
+
+        constraints.push(orderBy("timestamp", "desc"));
+        constraints.push(limit(PAGE_SIZE));
+
+        if (page > 1 && lastDocCursors.value[page - 2]) {
+          constraints.push(startAfter(lastDocCursors.value[page - 2]));
+        }
+
+        const q = query(collection(db, "events"), ...constraints);
+        const snapshot = await getDocs(q);
+
+        events.value = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        if (snapshot.docs.length > 0) {
+          lastDocCursors.value[page - 1] = snapshot.docs[snapshot.docs.length - 1];
+        }
+
+        hasMore.value = snapshot.docs.length === PAGE_SIZE;
+        currentPage.value = page;
+
+      } catch (err) {
+        console.error("Failed to fetch events:", err);
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    const handleSearch = () => {
+      lastDocCursors.value = [];
+      fetchEvents(1);
+    };
+
+    const prevPage = () => {
+      if (currentPage.value > 1) {
+        fetchEvents(currentPage.value - 1);
+      }
+    };
+
+    const nextPage = () => {
+      if (hasMore.value) {
+        fetchEvents(currentPage.value + 1);
+      }
+    };
 
     onMounted(() => {
-      if (props.user && props.user.email === 'oscar861213@gmail.com' && props.user.uid === 'sMrOq1SWgOhodVYTgweVBRlBSF12') {
-        const q = query(
-          collection(db, "events"),
-          orderBy("timestamp", "desc"),
-          limit(100)
-        );
-        unsubscribe = onSnapshot(q, (snapshot) => {
-          events.value = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-        });
-      }
-    });
-
-    onUnmounted(() => {
-      if (unsubscribe) unsubscribe();
+      fetchEvents(1);
     });
 
     const formatAction = (action) => {
@@ -52,7 +109,6 @@ export default {
 
     const formatTime = (timestamp) => {
       if (!timestamp) return "剛才";
-      // handle serverTimestamp which might be null locally first or a Date/Number
       let date;
       if (timestamp.toDate) {
         date = timestamp.toDate();
@@ -62,7 +118,11 @@ export default {
       return date.toLocaleString('zh-TW', { hour12: false });
     };
 
-    return { events, formatAction, formatTabName, formatTime };
+    return { 
+      events, loading, startDate, endDate, currentPage, hasMore, 
+      handleSearch, prevPage, nextPage,
+      formatAction, formatTabName, formatTime 
+    };
   },
   template: `
     <div class="px-4 animate-fade-in">
@@ -71,8 +131,22 @@ export default {
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
           </svg>
-          系統事件紀錄 (最近 100 筆)
+          系統事件紀錄
         </h2>
+
+        <div class="flex flex-wrap items-end gap-3 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">開始日期</label>
+            <input type="date" v-model="startDate" class="px-3 py-2 border-2 border-gray-200 rounded-lg text-sm outline-none focus:border-sb-blue transition-colors" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">結束日期</label>
+            <input type="date" v-model="endDate" class="px-3 py-2 border-2 border-gray-200 rounded-lg text-sm outline-none focus:border-sb-blue transition-colors" />
+          </div>
+          <button @click="handleSearch" class="bg-sb-blue text-white px-5 py-2 rounded-lg font-bold text-sm shadow-cartoon-hover hover:bg-blue-400 transition-all border-2 border-white" :disabled="loading">
+            {{ loading ? '載入中...' : '搜尋 / 重整' }}
+          </button>
+        </div>
         
         <div class="overflow-x-auto">
           <table class="min-w-full text-left text-sm text-gray-600">
@@ -102,11 +176,26 @@ export default {
                 </td>
               </tr>
               <tr v-if="events.length === 0">
-                <td colspan="4" class="px-4 py-8 text-center text-gray-400">目前沒有任何紀錄檔 或 資料載入中...</td>
+                <td colspan="4" class="px-4 py-8 text-center text-gray-400">
+                  {{ loading ? '載入中...' : '沒有找到任何紀錄檔' }}
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
+
+        <div class="flex items-center justify-between mt-6 bg-gray-50 p-4 rounded-xl border border-gray-100">
+          <button @click="prevPage" :disabled="currentPage === 1 || loading" :class="['px-4 py-2 rounded-lg font-bold text-sm border-2 transition-all', currentPage === 1 || loading ? 'bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white border-gray-200 text-gray-600 hover:border-sb-blue shadow-cartoon-hover']">
+            上一頁
+          </button>
+          <div class="text-sm font-bold text-gray-500">
+            第 {{ currentPage }} 頁
+          </div>
+          <button @click="nextPage" :disabled="!hasMore || loading" :class="['px-4 py-2 rounded-lg font-bold text-sm border-2 transition-all', !hasMore || loading ? 'bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white border-gray-200 text-gray-600 hover:border-sb-blue shadow-cartoon-hover']">
+            下一頁
+          </button>
+        </div>
+
       </div>
       <div v-else class="max-w-4xl mx-auto bg-white rounded-3xl p-6 text-center text-gray-500 shadow-cartoon border-4 border-gray-100 mb-8">
         您沒有權限查看此頁面。

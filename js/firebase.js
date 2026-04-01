@@ -19,6 +19,9 @@ import {
   orderBy,
   serverTimestamp,
   limit,
+  where,
+  getDocs,
+  startAfter,
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -64,4 +67,7 @@ export {
   orderBy,
   serverTimestamp,
   limit,
+  where,
+  getDocs,
+  startAfter,
 };
