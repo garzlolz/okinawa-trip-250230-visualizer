@@ -50,7 +50,7 @@ export default {
           displayName: user.value.displayName,
           action,
           details,
-          timestamp: serverTimestamp()
+          timestamp: Date.now()
         });
       } catch (e) {
         console.error("Failed to record event:", e);

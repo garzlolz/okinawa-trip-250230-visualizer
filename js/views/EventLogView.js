@@ -38,8 +38,20 @@ export default {
       return map[action] || action;
     };
 
+    const formatTabName = (tabId) => {
+      const map = {
+        itinerary: "行程表",
+        logistics: "住宿與航班",
+        budget: "預算表",
+        shopping: "購物清單",
+        todo: "行前準備",
+        eventLog: "事件紀錄"
+      };
+      return map[tabId] || tabId;
+    };
+
     const formatTime = (timestamp) => {
-      if (!timestamp) return "";
+      if (!timestamp) return "剛才";
       // handle serverTimestamp which might be null locally first or a Date/Number
       let date;
       if (timestamp.toDate) {
@@ -50,7 +62,7 @@ export default {
       return date.toLocaleString('zh-TW', { hour12: false });
     };
 
-    return { events, formatAction, formatTime };
+    return { events, formatAction, formatTabName, formatTime };
   },
   template: `
     <div class="px-4 animate-fade-in">
@@ -85,7 +97,7 @@ export default {
                   </span>
                 </td>
                 <td class="px-4 py-3 text-xs break-all">
-                  <span v-if="event.details && event.details.tab">{{ event.details.tab }}</span>
+                  <span v-if="event.details && event.details.tab">前往: {{ formatTabName(event.details.tab) }}</span>
                   <span v-else-if="event.details">{{ JSON.stringify(event.details) }}</span>
                 </td>
               </tr>
