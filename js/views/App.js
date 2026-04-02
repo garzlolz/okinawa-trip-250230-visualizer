@@ -5,6 +5,7 @@ import {
   db,
   collection,
   doc,
+  getDoc,
   setDoc,
   addDoc,
   serverTimestamp,
@@ -47,6 +48,7 @@ export default {
     const isLetterUnlocked = ref(false);
     const passwordInput = ref("");
     const letterError = ref(false);
+    const letterContent = ref("");
 
     // hash function for password check
     const sha256 = async (message) => {
@@ -57,14 +59,23 @@ export default {
     };
 
     const handleLetterUnlock = async () => {
-      const targetHash = "88bc475ec9844d05a8a7c7f132cbcbf3ccffce77c465551f7a36ec0e5df24f6b";
       const hashedInput = await sha256(passwordInput.value);
 
-      if (hashedInput === targetHash) {
-        isLetterUnlocked.value = true;
-        letterError.value = false;
-        passwordInput.value = "";
-      } else {
+      try {
+        const docRef = doc(db, "secrets", hashedInput);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          letterContent.value = docSnap.data().content;
+          isLetterUnlocked.value = true;
+          letterError.value = false;
+          passwordInput.value = "";
+        } else {
+          letterError.value = true;
+          setTimeout(() => { letterError.value = false; }, 2000);
+        }
+      } catch (error) {
+        console.error("Error fetching secure content", error);
         letterError.value = true;
         setTimeout(() => { letterError.value = false; }, 2000);
       }
@@ -133,6 +144,7 @@ export default {
       isLetterUnlocked,
       passwordInput,
       letterError,
+      letterContent,
       handleLetterUnlock,
     };
   },
@@ -212,44 +224,7 @@ export default {
               <p v-if="letterError" class="text-red-500 text-sm font-bold animate-bounce">密碼錯誤，請再試一次</p>
             </div>
 
-            <div v-else class="text-gray-600 leading-relaxed text-sm md:text-base space-y-3 relative z-10 animate-fade-in">
-<p>
-    嘿 小朋友，我們好久不見了，上次見面還是上次的時候ㄋ<br>
-    不知道你過的好嗎？ 我相信一定是每天都肚肚很飽，快吃不下了吧<br>
-    從他們限動看到妳笑容滿面的樣子就好像遇見妳的第一次，<br>
-    我猜不管輪迴幾次，見到妳我應該也會無限次的愛上妳。
-</p>
-<p>
-    但下面的話題可能就比較的難過了，如果有壓力趕緊滑開！！！
-</p>
-<p>
-  在最後我又毀了我們快樂的一天，失去妳，可能是我這輩子最大的遺憾。我真的很後悔到這種結果我才更認識妳、也更認識自己。
-</p>
-<p>妳一開始就說過自己很需要安全感，但我忙起來就忘記了。去年9到12月沒怎麼吵架，我以為我們在變好，其實只是還沒面對真正的問題。我的自以為不過是在勉強妳，但我卻沒注意到。
-</p>
-<p>
-  今天的焦慮，來自於結束後我才想起，我沒有給妳足夠的安全感。吵架後我選擇打遊戲來逃避，漸漸變成習慣；開學後更沒時間陪妳，關心只剩訊息。我常復盤事件跟衝突，卻很少復盤自己給了多少關心。我總想著構建未來的美好，卻沒有注意到妳的壓力。
-</p>
-<p>
-  我終於明白，我們不是價值感差太多而是我們對"安全感"的想法不同。我這種焦慮行人格，安全感是當下的確認；對妳來說，是長期的呵護與包容，在適當的時機與你討論問題。我太急了，我越急只會讓你越想離開那個充滿壓力的情境和環境，在最該給你空間和時間的時候，急到用自己的標準去要求妳，反而讓妳壓力更大，甚至回想起來，你也不斷的在提示我，甚至不斷的向我求助。
-</p>
-<p>
-  這半年，我的許多行為並不符合妳的期待，讓妳感到越來越失落，甚至對我失去了信心。過去的經歷讓我習慣有所保留，也常因為想太多而感到焦慮，在每次不開心都用不同的方式自以為是的對你嘗試。現在我才明白，給你時間給你溫暖才是問題最好的解決辦法，而且這些擔憂與不安不該由妳來承擔，我的行為傷害了妳對我的信任，甚至勉強妳改變。
-</p>
-<p>
-  對妳，我不該有任何保留。我應該完全地相信妳，也相信我們能一起變得更好，這才是通往幸福的路。如果有一天妳願意再次打開內心的防備，我希望自己已經成為一個站得穩、不再把重量壓在妳身上的人。
-</p>
-<p>
-  我不會再急著說「補償」或「挽回」。我只想讓妳知道：
-  我會在妳難過時跳支舞給妳看，在妳不舒服時煮粥給妳喝。妳想吃海鮮，我就去買大螃蟹；冬天最美的季節，我們一起去採最大最甜的草莓。情人節我會送妳一束花，每天睡前給妳一個吻。我畢生的夢想，就是守護好這樣的日常，直到永遠。
-</p>
-<p>
-  我錯過了太多，我唯獨不想錯過的就是妳。無論未來我們是否還有機會再見面，我都希望妳能過得幸福快樂。
-</p>
-<p>
-  我先站穩，先把自己過好，無論妳回不回來。
-  這不是放棄，是我終於學會，用妳需要的方式，安靜地愛妳。
-</p>
+            <div v-else class="text-gray-600 leading-relaxed text-sm md:text-base space-y-3 relative z-10 animate-fade-in" v-html="letterContent">
             </div>
           </div>
         </div>
