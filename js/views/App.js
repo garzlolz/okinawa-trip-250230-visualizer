@@ -48,16 +48,25 @@ export default {
     const passwordInput = ref("");
     const letterError = ref(false);
 
-    const handleLetterUnlock = () => {
-      if (passwordInput.value === "0902") {
+    // hash function for password check
+    const sha256 = async (message) => {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    };
+
+    const handleLetterUnlock = async () => {
+      const targetHash = "88bc475ec9844d05a8a7c7f132cbcbf3ccffce77c465551f7a36ec0e5df24f6b";
+      const hashedInput = await sha256(passwordInput.value);
+
+      if (hashedInput === targetHash) {
         isLetterUnlocked.value = true;
         letterError.value = false;
         passwordInput.value = "";
       } else {
         letterError.value = true;
-        setTimeout(() => {
-          letterError.value = false;
-        }, 2000);
+        setTimeout(() => { letterError.value = false; }, 2000);
       }
     };
 
