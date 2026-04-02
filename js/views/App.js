@@ -55,7 +55,9 @@ export default {
         passwordInput.value = "";
       } else {
         letterError.value = true;
-        setTimeout(() => { letterError.value = false; }, 2000);
+        setTimeout(() => {
+          letterError.value = false;
+        }, 2000);
       }
     };
 
@@ -179,7 +181,7 @@ export default {
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              給我和她的一封信
+              公佈欄
             </h2>
             <div v-if="!isLetterUnlocked" class="flex flex-col items-center justify-center py-6 space-y-4">
               <p class="text-gray-500 font-medium">請輸入密碼以解鎖此區域</p>
