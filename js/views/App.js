@@ -44,6 +44,21 @@ export default {
     const user = ref(null);
     let unsubscribe = null;
 
+    const isLetterUnlocked = ref(false);
+    const passwordInput = ref("");
+    const letterError = ref(false);
+
+    const handleLetterUnlock = () => {
+      if (passwordInput.value === "0902") {
+        isLetterUnlocked.value = true;
+        letterError.value = false;
+        passwordInput.value = "";
+      } else {
+        letterError.value = true;
+        setTimeout(() => { letterError.value = false; }, 2000);
+      }
+    };
+
     watch(user, async (newUser, oldUser) => {
       // 記錄登入或重整網頁後已登入狀態
       if (newUser && !oldUser) {
@@ -104,13 +119,17 @@ export default {
       TRIP_DATA,
       handleLogin,
       handleLogout,
+      isLetterUnlocked,
+      passwordInput,
+      letterError,
+      handleLetterUnlock,
     };
   },
   template: `
     <div class="min-h-screen pb-12 relative z-10">
       <!-- 公佈欄 -->
       <div class="bg-sb-yellow text-sb-brown text-center py-2 px-4 font-black shadow-sm relative z-50 text-sm md:text-base border-b-4 border-sb-darkYellow">
-        本專案奉獻給 ㄏㄜˋ 女士
+        嘿 小朋友，今天過的如何呀？
       </div>
 
       <div class="sticky top-0 z-50 mb-8 pt-4 px-4">
@@ -162,7 +181,27 @@ export default {
               </svg>
               給我和她的一封信
             </h2>
-            <div class="text-gray-600 leading-relaxed text-sm md:text-base space-y-3 relative z-10">
+            <div v-if="!isLetterUnlocked" class="flex flex-col items-center justify-center py-6 space-y-4">
+              <p class="text-gray-500 font-medium">請輸入密碼以解鎖此區域</p>
+              <div class="flex gap-2 w-full max-w-xs">
+                <input 
+                  type="password" 
+                  v-model="passwordInput" 
+                  @keyup.enter="handleLetterUnlock"
+                  class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:border-sb-blue"
+                  placeholder="輸入密碼..."
+                />
+                <button 
+                  @click="handleLetterUnlock"
+                  class="bg-sb-blue text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-400 transition-colors"
+                >
+                  解鎖
+                </button>
+              </div>
+              <p v-if="letterError" class="text-red-500 text-sm font-bold animate-bounce">密碼錯誤，請再試一次</p>
+            </div>
+
+            <div v-else class="text-gray-600 leading-relaxed text-sm md:text-base space-y-3 relative z-10 animate-fade-in">
 <p>
     嘿 小朋友，我們好久不見了，上次見面還是上次的時候ㄋ<br>
     不知道你過的好嗎？ 我相信一定是每天都肚肚很飽，快吃不下了吧<br>
