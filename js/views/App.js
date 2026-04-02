@@ -4,6 +4,8 @@ import {
   auth,
   db,
   collection,
+  doc,
+  setDoc,
   addDoc,
   serverTimestamp,
   onAuthStateChanged,
@@ -42,12 +44,25 @@ export default {
     const user = ref(null);
     let unsubscribe = null;
 
-
-
-    watch(user, (newUser, oldUser) => {
+    watch(user, async (newUser, oldUser) => {
       // 記錄登入或重整網頁後已登入狀態
       if (newUser && !oldUser) {
         recordEvent(user.value, "login", { info: "使用者登入或進入系統" });
+        try {
+          await setDoc(
+            doc(db, "users", user.value.uid),
+            {
+              uid: user.value.uid,
+              email: user.value.email,
+              displayName: user.value.displayName,
+              photoURL: user.value.photoURL,
+              lastLoginTime: Date.now(),
+            },
+            { merge: true },
+          );
+        } catch (e) {
+          console.error("Failed to save user info:", e);
+        }
       }
     });
 

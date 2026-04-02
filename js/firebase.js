@@ -11,6 +11,7 @@ import {
   getFirestore,
   collection,
   doc,
+  setDoc,
   addDoc,
   deleteDoc,
   updateDoc,
@@ -57,7 +58,7 @@ const recordEvent = async (user, action, details = {}) => {
       displayName: user.displayName,
       action,
       details,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   } catch (e) {
     console.error("Failed to record event:", e);
@@ -75,6 +76,7 @@ export {
   onAuthStateChanged,
   collection,
   doc,
+  setDoc,
   addDoc,
   deleteDoc,
   updateDoc,

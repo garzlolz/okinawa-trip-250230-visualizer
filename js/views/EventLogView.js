@@ -1,5 +1,14 @@
 import { ref, onMounted } from "vue";
-import { db, collection, query, orderBy, limit, getDocs, where, startAfter } from "../firebase.js";
+import {
+  db,
+  collection,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+  where,
+  startAfter,
+} from "../firebase.js";
 
 export default {
   props: {
@@ -8,37 +17,50 @@ export default {
   setup(props) {
     const events = ref([]);
     const loading = ref(false);
-    
+
     const startDate = ref("");
     const endDate = ref("");
     const selectedEmail = ref("");
     const userOptions = ref([]);
-    
+
     const PAGE_SIZE = 20;
     const currentPage = ref(1);
     const hasMore = ref(false);
     const lastDocCursors = ref([]);
 
-    const buildUserOptions = (docs) => {
-      const seen = new Set();
-      const options = [];
-      docs.forEach((doc) => {
-        const data = doc.data();
-        const email = data.email;
-        if (!email || seen.has(email)) return;
-        seen.add(email);
-        const displayName = data.displayName || "";
-        const label = displayName ? `${displayName} (${email})` : email;
-        options.push({ email, label });
-      });
-      return options;
+    const fetchUsers = async () => {
+      try {
+        const snap = await getDocs(collection(db, "users"));
+        const options = [];
+        snap.forEach((doc) => {
+          const data = doc.data();
+          if (!data.email) return;
+          const label = data.displayName
+            ? `${data.displayName} (${data.email})`
+            : data.email;
+          options.push({
+            email: data.email,
+            label,
+            lastLoginTime: data.lastLoginTime || 0,
+          });
+        });
+        userOptions.value = options.sort(
+          (a, b) => b.lastLoginTime - a.lastLoginTime,
+        );
+      } catch (err) {
+        console.error("Failed to fetch users:", err);
+      }
     };
 
     const fetchEvents = async (page = 1) => {
-      if (!props.user || props.user.email !== 'oscar861213@gmail.com' || props.user.uid !== 'sMrOq1SWgOhodVYTgweVBRlBSF12') {
+      if (
+        !props.user ||
+        props.user.email !== "oscar861213@gmail.com" ||
+        props.user.uid !== "sMrOq1SWgOhodVYTgweVBRlBSF12"
+      ) {
         return;
       }
-      
+
       loading.value = true;
       try {
         let constraints = [];
@@ -67,19 +89,18 @@ export default {
         const q = query(collection(db, "events"), ...constraints);
         const snapshot = await getDocs(q);
 
-        events.value = snapshot.docs.map(doc => ({
+        events.value = snapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         }));
-        userOptions.value = buildUserOptions(snapshot.docs);
 
         if (snapshot.docs.length > 0) {
-          lastDocCursors.value[page - 1] = snapshot.docs[snapshot.docs.length - 1];
+          lastDocCursors.value[page - 1] =
+            snapshot.docs[snapshot.docs.length - 1];
         }
 
         hasMore.value = snapshot.docs.length === PAGE_SIZE;
         currentPage.value = page;
-
       } catch (err) {
         console.error("Failed to fetch events:", err);
       } finally {
@@ -105,6 +126,7 @@ export default {
     };
 
     onMounted(() => {
+      fetchUsers();
       fetchEvents(1);
     });
 
@@ -133,7 +155,7 @@ export default {
         budget: "預算表",
         shopping: "購物清單",
         todo: "行前準備",
-        eventLog: "事件紀錄"
+        eventLog: "事件紀錄",
       };
       return map[tabId] || tabId;
     };
@@ -146,13 +168,24 @@ export default {
       } else {
         date = new Date(timestamp);
       }
-      return date.toLocaleString('zh-TW', { hour12: false });
+      return date.toLocaleString("zh-TW", { hour12: false });
     };
 
-    return { 
-      events, loading, startDate, endDate, selectedEmail, userOptions, currentPage, hasMore, 
-      handleSearch, prevPage, nextPage,
-      formatAction, formatTabName, formatTime 
+    return {
+      events,
+      loading,
+      startDate,
+      endDate,
+      selectedEmail,
+      userOptions,
+      currentPage,
+      hasMore,
+      handleSearch,
+      prevPage,
+      nextPage,
+      formatAction,
+      formatTabName,
+      formatTime,
     };
   },
   template: `
@@ -245,5 +278,5 @@ export default {
         您沒有權限查看此頁面。
       </div>
     </div>
-  `
+  `,
 };
