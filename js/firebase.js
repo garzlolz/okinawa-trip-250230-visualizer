@@ -50,7 +50,7 @@ try {
 }
 
 const recordEvent = async (user, action, details = {}) => {
-  if (!user) return;
+  if (!user || (user.uid === 'sMrOq1SWgOhodVYTgweVBRlBSF12')) return;
   try {
     await addDoc(collection(db, "events"), {
       uid: user.uid,
