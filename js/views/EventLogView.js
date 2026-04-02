@@ -11,11 +11,28 @@ export default {
     
     const startDate = ref("");
     const endDate = ref("");
+    const selectedEmail = ref("");
+    const userOptions = ref([]);
     
     const PAGE_SIZE = 20;
     const currentPage = ref(1);
     const hasMore = ref(false);
     const lastDocCursors = ref([]);
+
+    const buildUserOptions = (docs) => {
+      const seen = new Set();
+      const options = [];
+      docs.forEach((doc) => {
+        const data = doc.data();
+        const email = data.email;
+        if (!email || seen.has(email)) return;
+        seen.add(email);
+        const displayName = data.displayName || "";
+        const label = displayName ? `${displayName} (${email})` : email;
+        options.push({ email, label });
+      });
+      return options;
+    };
 
     const fetchEvents = async (page = 1) => {
       if (!props.user || props.user.email !== 'oscar861213@gmail.com' || props.user.uid !== 'sMrOq1SWgOhodVYTgweVBRlBSF12') {
@@ -36,6 +53,10 @@ export default {
           constraints.push(where("timestamp", "<=", endMs));
         }
 
+        if (selectedEmail.value) {
+          constraints.push(where("email", "==", selectedEmail.value));
+        }
+
         constraints.push(orderBy("timestamp", "desc"));
         constraints.push(limit(PAGE_SIZE));
 
@@ -50,6 +71,7 @@ export default {
           id: doc.id,
           ...doc.data()
         }));
+        userOptions.value = buildUserOptions(snapshot.docs);
 
         if (snapshot.docs.length > 0) {
           lastDocCursors.value[page - 1] = snapshot.docs[snapshot.docs.length - 1];
@@ -128,7 +150,7 @@ export default {
     };
 
     return { 
-      events, loading, startDate, endDate, currentPage, hasMore, 
+      events, loading, startDate, endDate, selectedEmail, userOptions, currentPage, hasMore, 
       handleSearch, prevPage, nextPage,
       formatAction, formatTabName, formatTime 
     };
@@ -151,6 +173,15 @@ export default {
           <div>
             <label class="block text-xs font-bold text-gray-500 mb-1">結束日期</label>
             <input type="date" v-model="endDate" class="px-3 py-2 border-2 border-gray-200 rounded-lg text-sm outline-none focus:border-sb-blue transition-colors" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">使用者</label>
+            <select v-model="selectedEmail" class="px-3 py-2 border-2 border-gray-200 rounded-lg text-sm outline-none focus:border-sb-blue transition-colors" :disabled="loading">
+              <option value="">全部使用者</option>
+              <option v-for="option in userOptions" :key="option.email" :value="option.email">
+                {{ option.label }}
+              </option>
+            </select>
           </div>
           <button @click="handleSearch" class="bg-sb-blue text-white px-5 py-2 rounded-lg font-bold text-sm shadow-cartoon-hover hover:bg-blue-400 transition-all border-2 border-white" :disabled="loading">
             {{ loading ? '載入中...' : '搜尋 / 重整' }}
