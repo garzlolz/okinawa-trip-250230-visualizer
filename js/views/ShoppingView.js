@@ -260,6 +260,14 @@ export default {
       } catch (e) { console.error(e); }
     };
 
+    const formatDate = (timestamp) => {
+      if (!timestamp) return "";
+      return new Date(timestamp).toLocaleString("zh-TW", {
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", hour12: false
+      });
+    };
+
     return {
       accessDenied, items, sortedItems, unpurchasedItems, purchasedItems,
       name, location, price, newLocation, locations,
@@ -268,7 +276,7 @@ export default {
       previewUrl, imageFile, fileInputRef,
       handleLogin, handleAddLocation, handleDeleteLocation,
       handleAddNew, handleEditClick, handleCloseModal, handleSaveItem,
-      toggleItem, deleteItem, handleFileChange
+      toggleItem, deleteItem, handleFileChange, formatDate
     };
   },
   template: `
@@ -364,6 +372,9 @@ export default {
                         <span class="mr-1">¥</span>
                         <span>{{ item.price.toLocaleString() }}</span>
                       </div>
+                      <div v-if="item.createdAt" class="text-xs text-gray-400 font-bold mt-0.5">
+                        建立時間：{{ formatDate(item.createdAt) }}
+                      </div>
                     </div>
                   </div>
                   <div class="flex justify-between items-end mt-4 sm:mt-0 gap-2">
@@ -407,6 +418,9 @@ export default {
                       <div v-if="item.price > 0" class="flex items-center text-sm text-gray-400 font-bold">
                         <span class="mr-1">¥</span>
                         <span>{{ item.price.toLocaleString() }}</span>
+                      </div>
+                      <div v-if="item.createdAt" class="text-xs text-gray-400 font-bold mt-0.5">
+                        建立時間：{{ formatDate(item.createdAt) }}
                       </div>
                     </div>
                   </div>
