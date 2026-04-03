@@ -53,9 +53,9 @@ export default {
     // hash function for password check
     const sha256 = async (message) => {
       const msgBuffer = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
     };
 
     const handleLetterUnlock = async () => {
@@ -70,17 +70,28 @@ export default {
           isLetterUnlocked.value = true;
           letterError.value = false;
           passwordInput.value = "";
-          if (user.value) recordEvent(user.value, "unlock_success", { info: "成功解鎖公佈欄與事件紀錄" });
+          if (user.value)
+            recordEvent(user.value, "unlock_success", {
+              info: "成功解鎖公佈欄與事件紀錄",
+            });
         } else {
           letterError.value = true;
-          setTimeout(() => { letterError.value = false; }, 2000);
-          if (user.value) recordEvent(user.value, "unlock_fail", { info: `解鎖失敗（嘗試密碼：${passwordInput.value}）` });
+          setTimeout(() => {
+            letterError.value = false;
+          }, 2000);
+          if (user.value)
+            recordEvent(user.value, "unlock_fail", {
+              info: `解鎖失敗（嘗試密碼：${passwordInput.value}）`,
+            });
         }
       } catch (error) {
         console.error("Error fetching secure content", error);
         letterError.value = true;
-        setTimeout(() => { letterError.value = false; }, 2000);
-        if (user.value) recordEvent(user.value, "unlock_fail", { info: "解鎖過程發生錯誤" });
+        setTimeout(() => {
+          letterError.value = false;
+        }, 2000);
+        if (user.value)
+          recordEvent(user.value, "unlock_fail", { info: "解鎖過程發生錯誤" });
       }
     };
 
@@ -198,7 +209,7 @@ export default {
       </div>
 
       <div class="max-w-5xl mx-auto">
-        <!-- 行前須知與介紹卡片 -->
+        <!-- 行前須知與介紹卡片 -=->
         <div class="px-4">
           <div class="max-w-4xl mx-auto bg-white rounded-3xl p-6 md:p-8 mb-8 shadow-cartoon border-4 border-gray-100 relative overflow-hidden">
             <h2 class="text-xl font-bold text-sb-blue mb-4 flex items-center gap-2">
