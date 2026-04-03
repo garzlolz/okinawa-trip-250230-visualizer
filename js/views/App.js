@@ -70,14 +70,17 @@ export default {
           isLetterUnlocked.value = true;
           letterError.value = false;
           passwordInput.value = "";
+          if (user.value) recordEvent(user.value, "unlock_success", { info: "成功解鎖公佈欄與事件紀錄" });
         } else {
           letterError.value = true;
           setTimeout(() => { letterError.value = false; }, 2000);
+          if (user.value) recordEvent(user.value, "unlock_fail", { info: `解鎖失敗（嘗試密碼：${passwordInput.value}）` });
         }
       } catch (error) {
         console.error("Error fetching secure content", error);
         letterError.value = true;
         setTimeout(() => { letterError.value = false; }, 2000);
+        if (user.value) recordEvent(user.value, "unlock_fail", { info: "解鎖過程發生錯誤" });
       }
     };
 
@@ -204,7 +207,13 @@ export default {
               </svg>
               公佈欄
             </h2>
-            <div v-if="!isLetterUnlocked" class="flex flex-col items-center justify-center py-6 space-y-4">
+            <div v-if="!user" class="flex flex-col items-center justify-center py-6 space-y-4">
+              <p class="text-gray-500 font-medium">請先登入以解鎖公佈欄與事件紀錄</p>
+              <button @click="handleLogin" class="bg-sb-blue text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-400 transition-colors">
+                Google 登入
+              </button>
+            </div>
+            <div v-else-if="!isLetterUnlocked" class="flex flex-col items-center justify-center py-6 space-y-4">
               <p class="text-gray-500 font-medium">請輸入密碼以解鎖此區域</p>
               <div class="flex gap-2 w-full max-w-xs">
                 <input 
@@ -236,7 +245,7 @@ export default {
           <BudgetView v-if="activeTab === 'budget'" :budget="TRIP_DATA.budget" />
           <ShoppingView v-if="activeTab === 'shopping'" :user="user" />
           <TodoView v-if="activeTab === 'todo'" :user="user" />
-          <EventLogView v-if="activeTab === 'eventLog'" :user="user" />
+          <EventLogView v-if="activeTab === 'eventLog'" :user="user" :is-unlocked="isLetterUnlocked" />
         </div>
       </div>
 

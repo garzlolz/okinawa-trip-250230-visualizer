@@ -1,4 +1,4 @@
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import {
   db,
   collection,
@@ -13,6 +13,7 @@ import {
 export default {
   props: {
     user: { type: Object, default: null },
+    isUnlocked: { type: Boolean, default: false },
   },
   setup(props) {
     const events = ref([]);
@@ -56,7 +57,8 @@ export default {
       if (
         !props.user ||
         props.user.email !== "oscar861213@gmail.com" ||
-        props.user.uid !== "sMrOq1SWgOhodVYTgweVBRlBSF12"
+        props.user.uid !== "sMrOq1SWgOhodVYTgweVBRlBSF12" ||
+        !props.isUnlocked
       ) {
         return;
       }
@@ -130,6 +132,9 @@ export default {
       fetchEvents(1);
     });
 
+    watch(() => props.user, () => { fetchEvents(1); });
+    watch(() => props.isUnlocked, () => { fetchEvents(1); });
+
     const formatAction = (action) => {
       const map = {
         login: "登入系統",
@@ -144,6 +149,8 @@ export default {
         add_todo: "新增待辦事項",
         toggle_todo: "切換待辦狀態",
         delete_todo: "刪除待辦事項",
+        unlock_success: "解鎖成功",
+        unlock_fail: "解鎖失敗",
       };
       return map[action] || action;
     };
@@ -190,7 +197,7 @@ export default {
   },
   template: `
     <div class="px-4 animate-fade-in">
-      <div v-if="user && user.email === 'oscar861213@gmail.com' && user.uid === 'sMrOq1SWgOhodVYTgweVBRlBSF12'" class="max-w-4xl mx-auto bg-white rounded-3xl p-6 shadow-cartoon border-4 border-gray-100 mb-8">
+      <div v-if="user && user.email === 'oscar861213@gmail.com' && user.uid === 'sMrOq1SWgOhodVYTgweVBRlBSF12' && isUnlocked" class="max-w-4xl mx-auto bg-white rounded-3xl p-6 shadow-cartoon border-4 border-gray-100 mb-8">
         <h2 class="text-xl font-bold text-sb-blue mb-4 flex items-center gap-2">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
@@ -275,7 +282,7 @@ export default {
 
       </div>
       <div v-else class="max-w-4xl mx-auto bg-white rounded-3xl p-6 text-center text-gray-500 shadow-cartoon border-4 border-gray-100 mb-8">
-        您沒有權限查看此頁面。
+        {{ !user ? '請先登入以查看此頁面。' : !isUnlocked ? '請先於上方公佈欄輸入密碼解鎖，以查看事件紀錄。' : '您沒有權限查看此頁面。' }}
       </div>
     </div>
   `,
