@@ -209,7 +209,7 @@ export default {
       </div>
 
       <div class="max-w-5xl mx-auto">
-        <!-- 行前須知與介紹卡片 -=->
+        <!-- 行前須知與介紹卡片 -->
         <div class="px-4">
           <div class="max-w-4xl mx-auto bg-white rounded-3xl p-6 md:p-8 mb-8 shadow-cartoon border-4 border-gray-100 relative overflow-hidden">
             <h2 class="text-xl font-bold text-sb-blue mb-4 flex items-center gap-2">
