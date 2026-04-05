@@ -3,11 +3,15 @@ import { TRIP_DATA } from "../data.js";
 import {
   auth,
   db,
+  appId,
   collection,
   doc,
   getDoc,
   setDoc,
   addDoc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
   serverTimestamp,
   onAuthStateChanged,
   signInWithPopup,
@@ -43,12 +47,153 @@ export default {
   setup() {
     const activeTab = ref("itinerary");
     const user = ref(null);
-    let unsubscribe = null;
+    let unsubscribeUser = null;
+    let unsubscribeMessages = null;
 
     const isLetterUnlocked = ref(false);
     const passwordInput = ref("");
     const letterError = ref(false);
     const letterContent = ref("");
+
+    // Message Board refs & functions
+    const messages = ref([]);
+    const newMessage = ref("");
+    const editingMessageId = ref(null);
+    const editMessageText = ref("");
+    const messageAccessDenied = ref(false);
+
+    const setupMessageListener = () => {
+      if (!user.value || !isLetterUnlocked.value) {
+        if (unsubscribeMessages) {
+          unsubscribeMessages();
+          unsubscribeMessages = null;
+        }
+        messages.value = [];
+        return;
+      }
+      const messagesCol = collection(
+        db,
+        "artifacts",
+        appId,
+        "public",
+        "data",
+        "messages",
+      );
+      unsubscribeMessages = onSnapshot(
+        messagesCol,
+        (snapshot) => {
+          messageAccessDenied.value = false;
+          const loaded = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data(),
+          }));
+          loaded.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+          messages.value = loaded;
+        },
+        (err) => {
+          console.error("Fetch messages error:", err);
+          if (err.code === "permission-denied") {
+            messageAccessDenied.value = true;
+          }
+        },
+      );
+    };
+
+    watch([user, isLetterUnlocked], () => {
+      setupMessageListener();
+    });
+
+    const addMessage = async () => {
+      if (!newMessage.value.trim()) return;
+      if (!user.value) return;
+      try {
+        const messagesCol = collection(
+          db,
+          "artifacts",
+          appId,
+          "public",
+          "data",
+          "messages",
+        );
+        await addDoc(messagesCol, {
+          text: newMessage.value,
+          createdAt: Date.now(),
+          author: user.value.displayName || "Unknown",
+          uid: user.value.uid,
+          photoURL: user.value.photoURL || "",
+        });
+        recordEvent(user.value, "add_message", { info: newMessage.value });
+        newMessage.value = "";
+      } catch (e) {
+        console.error("Add message failed", e);
+      }
+    };
+
+    const startEditMessage = (msg) => {
+      editingMessageId.value = msg.id;
+      editMessageText.value = msg.text;
+    };
+
+    const saveEditMessage = async (id) => {
+      if (!editMessageText.value.trim()) return;
+      try {
+        const msgRef = doc(
+          db,
+          "artifacts",
+          appId,
+          "public",
+          "data",
+          "messages",
+          id,
+        );
+        await updateDoc(msgRef, {
+          text: editMessageText.value,
+          updatedAt: Date.now(),
+        });
+        recordEvent(user.value, "edit_message", {
+          info: editMessageText.value,
+        });
+        editingMessageId.value = null;
+        editMessageText.value = "";
+      } catch (e) {
+        console.error("Update message failed", e);
+      }
+    };
+
+    const cancelEditMessage = () => {
+      editingMessageId.value = null;
+      editMessageText.value = "";
+    };
+
+    const deleteMessage = async (id) => {
+      if (!confirm("確定要刪除這則留言嗎？")) return;
+      try {
+        const msgRef = doc(
+          db,
+          "artifacts",
+          appId,
+          "public",
+          "data",
+          "messages",
+          id,
+        );
+        await deleteDoc(msgRef);
+        recordEvent(user.value, "delete_message", { info: id });
+      } catch (e) {
+        console.error("Delete message failed", e);
+      }
+    };
+
+    const formatTime = (ts) => {
+      if (!ts) return "";
+      const d = new Date(ts);
+      return d.toLocaleString("zh-TW", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    };
 
     // hash function for password check
     const sha256 = async (message) => {
@@ -124,13 +269,14 @@ export default {
     });
 
     onMounted(() => {
-      unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      unsubscribeUser = onAuthStateChanged(auth, (currentUser) => {
         user.value = currentUser;
       });
     });
 
     onUnmounted(() => {
-      if (unsubscribe) unsubscribe();
+      if (unsubscribeUser) unsubscribeUser();
+      if (unsubscribeMessages) unsubscribeMessages();
     });
 
     const handleLogin = async () => {
@@ -160,6 +306,17 @@ export default {
       letterError,
       letterContent,
       handleLetterUnlock,
+      messages,
+      newMessage,
+      editingMessageId,
+      editMessageText,
+      messageAccessDenied,
+      addMessage,
+      startEditMessage,
+      saveEditMessage,
+      cancelEditMessage,
+      deleteMessage,
+      formatTime,
     };
   },
   template: `
@@ -244,7 +401,68 @@ export default {
               <p v-if="letterError" class="text-red-500 text-sm font-bold animate-bounce">密碼錯誤，請再試一次</p>
             </div>
 
-            <div v-else class="text-gray-600 leading-relaxed text-sm md:text-base space-y-3 relative z-10 animate-fade-in" v-html="letterContent">
+            <div v-else class="relative z-10 animate-fade-in space-y-6">
+              <div v-if="letterContent" class="text-gray-600 leading-relaxed text-sm md:text-base space-y-3 bg-gray-50 p-6 rounded-2xl border-2 border-gray-100 shadow-inner" v-html="letterContent">
+              </div>
+
+              <!-- 動態留言板區塊 -->
+              <div class="space-y-4 pt-4 border-t-2 border-gray-100">
+                <h3 class="font-bold text-sb-blue flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
+                  大家來留言
+                </h3>
+                
+                <div v-if="messageAccessDenied" class="p-4 bg-red-50 text-red-500 rounded-xl font-bold text-center">
+                  權限不足，無法讀取留言。
+                </div>
+
+                <div v-else class="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                  <div v-if="messages.length === 0" class="text-center text-gray-400 py-6 font-bold text-sm bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                    目前還沒有人留言喔！來當第一個吧 ✨
+                  </div>
+                  
+                  <div v-for="msg in messages" :key="msg.id" class="p-4 rounded-2xl bg-white border-2 border-gray-100 shadow-sm flex flex-col gap-2 relative transition-all hover:border-sb-blue/30 group">
+                    <div class="flex items-center gap-2">
+                      <img v-if="msg.photoURL" :src="msg.photoURL" class="w-6 h-6 rounded-full border border-gray-200" alt="avatar" />
+                      <div v-else class="w-6 h-6 rounded-full bg-sb-blue text-white flex items-center justify-center font-bold text-[10px]">
+                        {{ msg.author?.charAt(0) || "U" }}
+                      </div>
+                      <span class="font-bold text-sm text-sb-brown">{{ msg.author }}</span>
+                      <span class="text-[10px] text-gray-400 font-bold ml-auto">{{ formatTime(msg.createdAt) }}</span>
+                      <span v-if="msg.updatedAt" class="text-[10px] text-gray-400" title="已編輯">(已編輯)</span>
+                    </div>
+                    
+                    <div v-if="editingMessageId === msg.id" class="mt-2 flex flex-col gap-2 z-10">
+                      <textarea v-model="editMessageText" class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-sb-blue resize-none h-24 font-medium text-gray-700"></textarea>
+                      <div class="flex justify-end gap-2 mt-1">
+                        <button @click="cancelEditMessage" class="px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">取消</button>
+                        <button @click="saveEditMessage(msg.id)" class="px-4 py-1.5 bg-sb-blue text-white rounded-lg text-xs font-bold hover:bg-blue-400 shadow-sm transition-colors">儲存</button>
+                      </div>
+                    </div>
+                    <div v-else class="text-gray-700 text-sm whitespace-pre-wrap pl-8 font-medium">{{ msg.text }}</div>
+                    
+                    <!-- 編輯刪除按鈕，僅本人可見 -->
+                    <div v-if="user && user.uid === msg.uid && editingMessageId !== msg.id" class="absolute bottom-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button @click="startEditMessage(msg)" class="text-xs text-gray-400 hover:text-sb-blue font-bold px-2 py-1 rounded hover:bg-blue-50 transition-colors">編輯</button>
+                      <button @click="deleteMessage(msg.id)" class="text-xs text-gray-400 hover:text-sb-red font-bold px-2 py-1 rounded hover:bg-red-50 transition-colors">刪除</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 留言輸入區 -->
+                <div class="mt-4 flex items-end gap-2 bg-white p-2 rounded-2xl border-2 border-gray-200 shadow-inner focus-within:border-sb-blue focus-within:ring-2 focus-within:ring-sb-blue/20 transition-all">
+                  <textarea 
+                    v-model="newMessage" 
+                    placeholder="寫下你的留言..." 
+                    class="flex-1 bg-transparent border-none px-3 py-2 text-sm focus:outline-none resize-none h-10 max-h-32 min-h-[40px] font-medium text-gray-700 block"
+                    @keydown.enter.exact.prevent="addMessage"
+                  ></textarea>
+                  <button @click="addMessage" class="bg-sb-blue text-white px-5 py-2.5 rounded-xl font-bold hover:bg-blue-400 transition-colors shadow-sm text-sm shrink-0 mb-0.5">
+                    送出
+                  </button>
+                </div>
+                <div class="text-[10px] text-gray-400 text-right px-2">按 Enter 直接送出，Shift + Enter 換行</div>
+              </div>
             </div>
           </div>
         </div>
