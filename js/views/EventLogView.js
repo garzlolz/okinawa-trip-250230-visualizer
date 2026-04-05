@@ -14,8 +14,11 @@ export default {
   props: {
     user: { type: Object, default: null },
     isUnlocked: { type: Boolean, default: false },
+    passwordInput: { type: String, default: "" },
+    letterError: { type: Boolean, default: false }
   },
-  setup(props) {
+  emits: ["update:password-input", "unlock"],
+  setup(props, { emit }) {
     const events = ref([]);
     const loading = ref(false);
 
@@ -282,7 +285,32 @@ export default {
 
       </div>
       <div v-else class="max-w-4xl mx-auto bg-white rounded-3xl p-6 text-center text-gray-500 shadow-cartoon border-4 border-gray-100 mb-8">
-        {{ !user ? '請先登入以查看此頁面。' : !isUnlocked ? '請先於上方公佈欄輸入密碼解鎖，以查看事件紀錄。' : '您沒有權限查看此頁面。' }}
+        <template v-if="!user">
+          請先登入以查看此頁面。
+        </template>
+        <template v-else-if="user.email !== 'oscar861213@gmail.com' || user.uid !== 'sMrOq1SWgOhodVYTgweVBRlBSF12'">
+          您沒有權限查看此頁面。
+        </template>
+        <div v-else-if="!isUnlocked" class="flex flex-col items-center justify-center py-6 space-y-4">
+          <p class="text-gray-500 font-medium">請輸入密碼以解鎖事件紀錄</p>
+          <div class="flex gap-2 w-full max-w-xs">
+            <input 
+              type="password" 
+              :value="passwordInput"
+              @input="$emit('update:password-input', $event.target.value)"
+              @keyup.enter="$emit('unlock')"
+              class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:border-sb-blue"
+              placeholder="輸入密碼..."
+            />
+            <button 
+              @click="$emit('unlock')"
+              class="bg-sb-blue text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-400 transition-colors"
+            >
+              解鎖
+            </button>
+          </div>
+          <p v-if="letterError" class="text-red-500 text-sm font-bold animate-bounce">密碼錯誤，請再試一次</p>
+        </div>
       </div>
     </div>
   `,
