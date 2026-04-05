@@ -244,8 +244,8 @@ export default {
             <tbody>
               <tr v-for="event in events" :key="event.id" class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                 <td class="px-4 py-3 whitespace-nowrap">{{ formatTime(event.timestamp) }}</td>
-                <td class="px-4 py-3">
-                  <div class="font-medium text-gray-800">{{ event.displayName || 'Unknown' }}</div>
+                <td class="px-4 py-3 max-w-[120px] sm:max-w-[200px]">
+                  <div class="font-medium text-gray-800 truncate">{{ event.displayName || 'Unknown' }}</div>
                   <div class="text-xs text-gray-500 break-all">{{ event.email }}</div>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">

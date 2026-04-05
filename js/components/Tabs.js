@@ -35,8 +35,8 @@ export default {
     return { visibleTabs };
   },
   template: `
-    <div class="flex justify-center mb-8 px-4 overflow-x-auto scrollbar-hide">
-      <div class="flex space-x-2 sm:space-x-4 bg-white/30 p-2 rounded-full backdrop-blur-sm border-2 border-white/40">
+    <div class="flex sm:justify-center mb-8 px-4 overflow-x-auto scrollbar-hide">
+      <div class="flex space-x-2 sm:space-x-4 bg-white/30 p-2 rounded-full backdrop-blur-sm border-2 border-white/40 mx-auto sm:mx-0 w-max">
         <button
           v-for="tab in visibleTabs" :key="tab.id"
           @click="$emit('tab-change', tab.id)"
