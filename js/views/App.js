@@ -72,7 +72,7 @@ export default {
           passwordInput.value = "";
           if (user.value)
             recordEvent(user.value, "unlock_success", {
-              info: "成功解鎖公佈欄與事件紀錄",
+              info: "成功解鎖留言板與事件紀錄",
             });
         } else {
           letterError.value = true;
@@ -216,10 +216,10 @@ export default {
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              公佈欄
+              留言板
             </h2>
             <div v-if="!user" class="flex flex-col items-center justify-center py-6 space-y-4">
-              <p class="text-gray-500 font-medium">請先登入以解鎖公佈欄與事件紀錄</p>
+              <p class="text-gray-500 font-medium">請先登入以解鎖留言板與事件紀錄</p>
               <button @click="handleLogin" class="bg-sb-blue text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-400 transition-colors">
                 Google 登入
               </button>
