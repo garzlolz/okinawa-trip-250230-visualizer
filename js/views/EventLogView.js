@@ -217,11 +217,11 @@ export default {
             <label class="block text-xs font-bold text-gray-500 mb-1">結束日期</label>
             <input type="date" v-model="endDate" class="px-3 py-2 border-2 border-gray-200 rounded-lg text-sm outline-none focus:border-sb-blue transition-colors" />
           </div>
-          <div>
+          <div class="max-w-full">
             <label class="block text-xs font-bold text-gray-500 mb-1">使用者</label>
-            <select v-model="selectedEmail" class="px-3 py-2 border-2 border-gray-200 rounded-lg text-sm outline-none focus:border-sb-blue transition-colors" :disabled="loading">
+            <select v-model="selectedEmail" class="px-3 py-2 border-2 border-gray-200 rounded-lg text-sm outline-none focus:border-sb-blue transition-colors w-full max-w-[160px] sm:max-w-xs truncate" :disabled="loading">
               <option value="">全部使用者</option>
-              <option v-for="option in userOptions" :key="option.email" :value="option.email">
+              <option v-for="option in userOptions" :key="option.email" :value="option.email" class="truncate">
                 {{ option.label }}
               </option>
             </select>
