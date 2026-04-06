@@ -366,8 +366,8 @@ export default {
       </div>
 
       <div class="max-w-5xl mx-auto">
-        <!-- 行前須知與介紹卡片 (已暫時隱藏整個區塊) -->
-        <div class="px-4" v-if="false">
+        <!-- 留言板卡片 -->
+        <div class="px-4">
           <div class="max-w-4xl mx-auto bg-white rounded-3xl p-6 md:p-8 mb-8 shadow-cartoon border-4 border-gray-100 relative overflow-hidden">
             <h2 class="text-xl font-bold text-sb-blue mb-4 flex items-center gap-2">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -375,8 +375,14 @@ export default {
               </svg>
               留言板
             </h2>
-            <div v-if="!user" class="flex flex-col items-center justify-center py-6 space-y-4">
-              <p class="text-gray-500 font-medium">請先登入以解鎖留言板與事件紀錄</p>
+
+            <div class="py-12 text-center">
+              <p class="text-gray-500 font-bold text-lg">此區域暫不開放</p>
+            </div>
+
+            <div v-if="false">
+              <div v-if="!user" class="flex flex-col items-center justify-center py-6 space-y-4">
+                <p class="text-gray-500 font-medium">請先登入以解鎖留言板與事件紀錄</p>
               <button @click="handleLogin" class="bg-sb-blue text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-400 transition-colors">
                 Google 登入
               </button>
@@ -463,6 +469,8 @@ export default {
                 </div>
                 <div class="text-[10px] text-gray-400 text-right px-2">按 Enter 直接送出，Shift + Enter 換行</div>
               </div>
+            </div>
+            <!-- 結束暫時隱藏的留言板區塊 -->
             </div>
           </div>
         </div>
