@@ -296,12 +296,22 @@ export default {
       }
     };
 
+    const handleOsakaLinkClick = () => {
+      const eventUser = user.value || {
+        uid: "unknown",
+        email: "unknown@email.com",
+        displayName: "unknown",
+      };
+      recordEvent(eventUser, "click_osaka_link", { info: "點擊前往大阪之旅連結" });
+    };
+
     return {
       activeTab,
       user,
       TRIP_DATA,
       handleLogin,
       handleLogout,
+      handleOsakaLinkClick,
       isLetterUnlocked,
       passwordInput,
       letterError,
@@ -341,6 +351,7 @@ export default {
               href="https://garzlolz.github.io/osaka-solo-trip-260618/"
               target="_blank"
               rel="noopener noreferrer"
+              @click="handleOsakaLinkClick"
               class="hidden sm:flex items-center gap-1 text-xs font-bold text-sb-brown bg-sb-pink/30 hover:bg-sb-pink/50 px-3 py-1.5 rounded-full border-2 border-white shadow-sm transition-all"
               title="前往大阪之旅"
             >
