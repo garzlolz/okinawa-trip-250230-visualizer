@@ -15,6 +15,7 @@ import {
   serverTimestamp,
   onAuthStateChanged,
   signInWithPopup,
+  signInAnonymously,
   signOut,
   googleProvider,
   recordEvent,
@@ -296,13 +297,17 @@ export default {
       }
     };
 
-    const handleOsakaLinkClick = () => {
-      const eventUser = user.value || {
-        uid: "unknown",
-        email: "unknown@email.com",
-        displayName: "unknown",
-      };
-      recordEvent(eventUser, "click_osaka_link", { info: "點擊前往大阪之旅連結" });
+    const handleOsakaLinkClick = async () => {
+      try {
+        let eventUser = user.value;
+        if (!eventUser) {
+          const result = await signInAnonymously(auth);
+          eventUser = result.user;
+        }
+        recordEvent(eventUser, "click_osaka_link", { info: "點擊前往大阪之旅連結" });
+      } catch (error) {
+        console.error("Failed to record osaka link click:", error);
+      }
     };
 
     return {
