@@ -323,7 +323,7 @@ export default {
     <div class="min-h-screen pb-12 relative z-10">
       <!-- 公佈欄 -->
       <div class="bg-sb-yellow text-sb-brown text-center py-2 px-4 font-black shadow-sm relative z-50 text-sm md:text-base border-b-4 border-sb-darkYellow">
-        嘿 小朋友，今天過的如何呀？
+        
       </div>
 
       <div class="sticky top-0 z-50 mb-8 pt-4 px-4">
