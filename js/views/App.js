@@ -20,7 +20,7 @@ import {
   recordEvent,
 } from "../firebase.js";
 
-import { Anchor, Calendar } from "../components/Icons.js";
+import { Anchor, Calendar, ExternalLink } from "../components/Icons.js";
 import BackgroundEffects from "../components/BackgroundEffects.js";
 import Tabs from "../components/Tabs.js";
 
@@ -35,6 +35,7 @@ export default {
   components: {
     Anchor,
     Calendar,
+    ExternalLink,
     BackgroundEffects,
     Tabs,
     ItineraryView,
@@ -328,12 +329,25 @@ export default {
 
       <div class="sticky top-0 z-50 mb-8 pt-4 px-4">
         <div class="max-w-4xl mx-auto bg-white/90 backdrop-blur-md rounded-full shadow-cartoon border-4 border-white px-6 py-3 flex items-center justify-between">
-          <h1 class="text-xl font-black text-sb-blue flex items-center tracking-tight">
-            <span class="bg-sb-yellow text-sb-brown w-10 h-10 rounded-full flex items-center justify-center mr-3 text-lg shadow-sm border-2 border-white">
-              <Anchor class="w-6 h-6" />
-            </span>
-            <span>{{ TRIP_DATA.meta.title }}</span>
-          </h1>
+          <div class="flex items-center gap-3">
+            <h1 class="text-xl font-black text-sb-blue flex items-center tracking-tight">
+              <span class="bg-sb-yellow text-sb-brown w-10 h-10 rounded-full flex items-center justify-center mr-3 text-lg shadow-sm border-2 border-white">
+                <Anchor class="w-6 h-6" />
+              </span>
+              <span>{{ TRIP_DATA.meta.title }}</span>
+            </h1>
+
+            <a
+              href="https://garzlolz.github.io/osaka-solo-trip-260618/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hidden sm:flex items-center gap-1 text-xs font-bold text-sb-brown bg-sb-pink/30 hover:bg-sb-pink/50 px-3 py-1.5 rounded-full border-2 border-white shadow-sm transition-all"
+              title="前往大阪之旅"
+            >
+              <span>大阪</span>
+              <ExternalLink class="w-3 h-3" />
+            </a>
+          </div>
 
           <div class="flex items-center gap-3">
             <!-- 日期 - 手機版隱藏 -->
