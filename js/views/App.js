@@ -321,10 +321,10 @@ export default {
   },
   template: `
     <div class="min-h-screen pb-12 relative z-10">
-      <!-- 公佈欄 -->
+      <!-- 公佈欄
       <div class="bg-sb-yellow text-sb-brown text-center py-2 px-4 font-black shadow-sm relative z-50 text-sm md:text-base border-b-4 border-sb-darkYellow">
-        
-      </div>
+        {{ }}
+      </div> -->
 
       <div class="sticky top-0 z-50 mb-8 pt-4 px-4">
         <div class="max-w-4xl mx-auto bg-white/90 backdrop-blur-md rounded-full shadow-cartoon border-4 border-white px-6 py-3 flex items-center justify-between">
