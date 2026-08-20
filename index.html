@@ -7,7 +7,10 @@
 
     <!-- Open Graph (預覽圖與分享資訊) -->
     <meta property="og:title" content="ㄏㄜˋ的沖繩之旅！🍍｜此頁面已關閉" />
-    <meta property="og:description" content="這趟沖繩之旅先在這裡告一段落囉，感謝造訪！" />
+    <meta
+      property="og:description"
+      content="這趟沖繩之旅先在這裡告一段落囉，感謝造訪！"
+    />
     <meta
       property="og:image"
       content="https://garzlolz.github.io/okinawa-trip-250230-visualizer/assets/down.jpg"
@@ -89,19 +92,71 @@
 
   <body class="min-h-screen flex items-center justify-center px-4">
     <!-- 裝飾用飄浮 emoji -->
-    <span class="bg-illustration text-6xl top-10 left-6 animate-float-slow opacity-80">🍍</span>
-    <span class="bg-illustration text-5xl top-24 right-10 animate-float-medium opacity-80">🌺</span>
-    <span class="bg-illustration text-6xl bottom-16 left-12 animate-float-fast opacity-80">🏖️</span>
-    <span class="bg-illustration text-5xl bottom-10 right-16 animate-float-slow opacity-80">🐚</span>
+    <span
+      class="bg-illustration text-6xl top-10 left-6 animate-float-slow opacity-80"
+      >🍍</span
+    >
+    <span
+      class="bg-illustration text-5xl top-24 right-10 animate-float-medium opacity-80"
+      >🌺</span
+    >
+    <span
+      class="bg-illustration text-6xl bottom-16 left-12 animate-float-fast opacity-80"
+      >🏖️</span
+    >
+    <span
+      class="bg-illustration text-5xl bottom-10 right-16 animate-float-slow opacity-80"
+      >🐚</span
+    >
 
     <main
       class="relative bg-sb-sand border-4 border-white rounded-3xl shadow-cartoon p-4 sm:p-6 max-w-2xl w-full text-center animate-float-slow"
     >
-      <img
-        src="./assets/down.jpg"
-        alt="此站台已關閉，非常抱歉，站台目前已結束營運。感謝您過去的喜愛與支持！我們下次見！"
-        class="w-full h-auto rounded-2xl mb-6"
-      />
+      <div class="relative w-full mb-6" style="container-type: inline-size">
+        <img
+          src="./assets/down2.jpg"
+          alt="此站台已關閉，非常抱歉，站台目前已結束營運。感謝您過去的喜愛與支持！我們下次見！"
+          class="w-full h-auto rounded-2xl block"
+        />
+        <h1
+          class="absolute text-sb-brown font-bold leading-tight"
+          style="
+            top: 17%;
+            left: 50%;
+            width: 58%;
+            transform: translate(-50%, -50%);
+            font-size: 7.2cqw;
+            text-shadow: 0.1cqw 0.1cqw 0 rgba(255, 255, 255, 0.6);
+          "
+        >
+          此站台已關閉
+        </h1>
+        <p
+          class="absolute text-sb-brown font-bold"
+          style="
+            top: 76%;
+            left: 50%;
+            width: 66%;
+            transform: translate(-50%, -50%);
+            font-size: 3.1cqw;
+            line-height: 1.5;
+          "
+        >
+          非常抱歉，站台目前已結束營運。
+        </p>
+        <span
+          class="absolute text-white font-bold"
+          style="
+            bottom: 4%;
+            right: 5%;
+            font-size: 3.6cqw;
+            transform: rotate(-3deg);
+            text-shadow: 0.15cqw 0.15cqw 0 #8f5b36;
+          "
+        >
+          我們下次見！
+        </span>
+      </div>
       <a
         href="mailto:oscar861213@gmail.com"
         class="inline-block bg-sb-yellow hover:bg-sb-darkYellow text-sb-brown font-bold px-6 py-3 rounded-full shadow-cartoon transition-colors"
