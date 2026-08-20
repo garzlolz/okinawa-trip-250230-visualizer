@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ㄏㄜˋ的沖繩之旅！🍍</title>
+    <title>ㄏㄜˋ的沖繩之旅！🍍｜此頁面已關閉</title>
 
     <!-- Open Graph (預覽圖與分享資訊) -->
-    <meta property="og:title" content="ㄏㄜˋ的沖繩之旅！🍍" />
-    <meta property="og:description" content="あなたに会いたい" />
+    <meta property="og:title" content="ㄏㄜˋ的沖繩之旅！🍍｜此頁面已關閉" />
+    <meta property="og:description" content="這趟沖繩之旅先在這裡告一段落囉，感謝造訪！" />
     <meta
       property="og:image"
       content="https://garzlolz.github.io/okinawa-trip-250230-visualizer/assets/preview.jpg"
@@ -22,15 +22,6 @@
 
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Vue 3 Import Map -->
-    <script type="importmap">
-      {
-        "imports": {
-          "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
-        }
-      }
-    </script>
 
     <script>
       tailwind.config = {
@@ -62,55 +53,16 @@
             },
             boxShadow: {
               cartoon: "4px 4px 0px 0px rgba(0,0,0,0.15)",
-              "cartoon-hover": "2px 2px 0px 0px rgba(0,0,0,0.15)",
             },
             animation: {
               "float-slow": "float 6s ease-in-out infinite",
               "float-medium": "float 4s ease-in-out infinite",
               "float-fast": "float 3s ease-in-out infinite",
-              "spin-slow": "spin 12s linear infinite",
-              "spin-medium": "spin 6s linear infinite",
-              "spin-fast": "spin 0.8s linear infinite",
-              "spin-super-fast": "spin 0.4s linear infinite",
-              "spin-reverse": "spin 15s linear infinite reverse",
-              "spin-reverse-fast": "spin 0.6s linear infinite reverse",
-              "wander-slow": "wander 15s ease-in-out infinite",
-              "wander-medium": "wander 10s ease-in-out infinite",
-              "wander-fast": "wander 8s ease-in-out infinite",
-              "float-everywhere-1": "path1 25s infinite linear",
-              "float-everywhere-2": "path2 30s infinite linear",
-              "float-everywhere-3": "path3 35s infinite linear",
             },
             keyframes: {
               float: {
                 "0%, 100%": { transform: "translateY(0)" },
                 "50%": { transform: "translateY(-20px)" },
-              },
-              wander: {
-                "0%, 100%": { transform: "translate(0, 0) rotate(0deg)" },
-                "25%": { transform: "translate(10px, -15px) rotate(3deg)" },
-                "50%": { transform: "translate(-5px, -25px) rotate(-3deg)" },
-                "75%": { transform: "translate(-15px, -10px) rotate(1deg)" },
-              },
-              path1: {
-                "0%": { transform: "translate(5vw, 5vh)" },
-                "25%": { transform: "translate(85vw, 20vh)" },
-                "50%": { transform: "translate(40vw, 85vh)" },
-                "75%": { transform: "translate(10vw, 60vh)" },
-                "100%": { transform: "translate(5vw, 5vh)" },
-              },
-              path2: {
-                "0%": { transform: "translate(90vw, 90vh)" },
-                "33%": { transform: "translate(20vw, 10vh)" },
-                "66%": { transform: "translate(10vw, 50vh)" },
-                "100%": { transform: "translate(90vw, 90vh)" },
-              },
-              path3: {
-                "0%": { transform: "translate(50vw, 50vh)" },
-                "25%": { transform: "translate(10vw, 80vh)" },
-                "50%": { transform: "translate(80vw, 10vh)" },
-                "75%": { transform: "translate(90vw, 90vh)" },
-                "100%": { transform: "translate(50vw, 50vh)" },
               },
             },
           },
@@ -118,25 +70,6 @@
       };
     </script>
     <style>
-      ::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
-      }
-
-      ::-webkit-scrollbar-track {
-        background: #65c0e2;
-      }
-
-      ::-webkit-scrollbar-thumb {
-        background: #f7e35e;
-        border-radius: 10px;
-        border: 2px solid #65c0e2;
-      }
-
-      ::-webkit-scrollbar-thumb:hover {
-        background: #ff959d;
-      }
-
       body {
         font-family:
           "Comic Sans MS", "Chalkboard SE", "Arial Rounded MT Bold", sans-serif;
@@ -145,46 +78,40 @@
         overflow-x: hidden;
       }
 
-      .animate-fade-in {
-        animation: fadeIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px) scale(0.95);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
-      }
-
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
-
-      .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-
       .bg-illustration {
         position: fixed;
         z-index: -1;
         pointer-events: none;
-      }
-
-      .sticker-img {
-        filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
-        object-fit: contain;
+        user-select: none;
       }
     </style>
   </head>
 
-  <body>
-    <div id="app"></div>
-    <script type="module" src="./js/main.js"></script>
+  <body class="min-h-screen flex items-center justify-center px-4">
+    <!-- 裝飾用飄浮 emoji -->
+    <span class="bg-illustration text-6xl top-10 left-6 animate-float-slow opacity-80">🍍</span>
+    <span class="bg-illustration text-5xl top-24 right-10 animate-float-medium opacity-80">🌺</span>
+    <span class="bg-illustration text-6xl bottom-16 left-12 animate-float-fast opacity-80">🏖️</span>
+    <span class="bg-illustration text-5xl bottom-10 right-16 animate-float-slow opacity-80">🐚</span>
+
+    <main
+      class="relative bg-sb-sand border-4 border-white rounded-3xl shadow-cartoon px-8 py-10 sm:px-12 sm:py-14 max-w-md w-full text-center animate-float-slow"
+    >
+      <div class="text-6xl mb-4">🍍💤</div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-sb-brown mb-3">
+        此頁面已關閉
+      </h1>
+      <p class="text-sb-brown/80 mb-6 leading-relaxed">
+        ㄏㄜˋ的沖繩之旅到這裡先告一段落囉，
+        <br />
+        感謝你曾經造訪這個小小的旅行手帳！
+      </p>
+      <a
+        href="mailto:oscar861213@gmail.com"
+        class="inline-block bg-sb-yellow hover:bg-sb-darkYellow text-sb-brown font-bold px-6 py-3 rounded-full shadow-cartoon transition-colors"
+      >
+        ✉️ oscar861213@gmail.com
+      </a>
+    </main>
   </body>
 </html>
